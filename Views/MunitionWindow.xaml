@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="AirDefenseOptimizer.Views.MunitionWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Başlık -->
+        <TextBlock Grid.Row="0" Text="Munition Management" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+        <!-- Bilgilendirici Mesaj -->
+        <TextBlock Grid.Row="1" Text="Here you can manage munitions. You can add, search, preview, edit, or delete munitions." 
+                   FontSize="14" FontStyle="Italic" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <!-- Üst Kısım: Yeni Mühimmat Ekleme ve Arama -->
+        <Grid Grid.Row="2" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Content="Add New Munition" Width="150" Height="30" Margin="0,0,10,0" Click="AddNewMunition_Click" HorizontalAlignment="Left" Grid.Column="0"/>
+
+            <StackPanel Orientation="Horizontal" Grid.Column="1">
+                <TextBox x:Name="txtSearch" Width="200" Height="30" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                <Button Content="Search" Width="100" Height="30" Click="SearchMunition_Click" HorizontalAlignment="Right"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Mühimmat Listesi -->
+        <DataGrid Grid.Row="3" x:Name="MunitionDataGrid" AutoGenerateColumns="False" Margin="0,50,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150"/>
+                <DataGridTextColumn Header="Type" Binding="{Binding MunitionType}" Width="100"/>
+                <DataGridTextColumn Header="Weight" Binding="{Binding Weight}" Width="100"/>
+                <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="100"/>
+                <DataGridTextColumn Header="Range" Binding="{Binding Range}" Width="100"/>
+                <DataGridTextColumn Header="Explosive Power" Binding="{Binding ExplosivePower}" Width="120"/>
+                <DataGridTextColumn Header="Cost" Binding="{Binding Cost}" Width="100"/>
+
+                <!-- İşlem Sütunu -->
+                <DataGridTemplateColumn Header="Actions" Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="Preview" Width="50" Height="25" Margin="5" Click="PreviewButton_Click"/>
+                                <Button Content="Edit" Width="50" Height="25" Margin="5" Click="EditButton_Click"/>
+                                <Button Content="Delete" Width="50" Height="25" Margin="5" Click="DeleteButton_Click"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

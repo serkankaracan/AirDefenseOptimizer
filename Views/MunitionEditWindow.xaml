@@ -1,0 +1,87 @@
+﻿<Window x:Class="AirDefenseOptimizer.Views.MunitionEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Munition Edit" Height="500" Width="300" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <StackPanel Margin="20">
+
+            <!-- Başlık -->
+            <TextBlock Text="Munition Information" FontSize="20" FontWeight="Bold" Foreground="DarkSlateGray" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <!-- Munition Adı -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Name:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtMunitionName" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Munition Tipi -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Type:" VerticalAlignment="Center" Grid.Column="0"/>
+                <ComboBox x:Name="cbMunitionType" Grid.Column="1" Margin="5" DisplayMemberPath="Value" SelectedValuePath="Key"/>
+            </Grid>
+
+            <!-- Weight -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Weight:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtWeight" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Speed -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Speed:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtSpeed" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Range -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Range:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtRange" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Explosive Power -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Explosive Power:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtExplosivePower" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Cost -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Cost:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtCost" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Kaydet Butonu -->
+            <Button x:Name="btnSave" Content="Save" Width="100" HorizontalAlignment="Center" Margin="10,20,10,0" Click="SaveButton_Click"/>
+
+        </StackPanel>
+    </Grid>
+</Window>

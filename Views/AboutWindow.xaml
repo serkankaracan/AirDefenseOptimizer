@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="AirDefenseOptimizer.Views.AboutWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AirDefenseOptimizer.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="#FFF">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Başlık -->
+            <TextBlock Text="Air Defense Optimization System" 
+                       FontSize="28" 
+                       FontWeight="Bold" 
+                       Foreground="#333"
+                       HorizontalAlignment="Center" />
+
+            <!-- Alt Başlık -->
+            <TextBlock Text="Project Design and Development by" 
+                       FontSize="18" 
+                       Margin="0,20,0,10" 
+                       HorizontalAlignment="Center" />
+
+            <!-- İsim ve Unvan -->
+            <TextBlock Text="Serkan KARACAN" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       Foreground="#2E8B57"
+                       HorizontalAlignment="Center" />
+
+            <TextBlock Text="Computer Engineer" 
+                       FontSize="16" 
+                       Foreground="#666" 
+                       HorizontalAlignment="Center" />
+
+            <!-- Alt Metin -->
+            <TextBlock Text="This software was designed as part of İsmail CIRRIK's master's thesis in the field of air defense systems optimization and was implemented by Serkan KARACAN."
+                       FontSize="14" 
+                       TextAlignment="Center" 
+                       TextWrapping="Wrap" 
+                       Margin="20" 
+                       Foreground="#555" />
+        </StackPanel>
+    </Grid>
+</UserControl>

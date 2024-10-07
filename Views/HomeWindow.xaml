@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="AirDefenseOptimizer.Views.HomeWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <!-- ScrollViewer ile tüm içerik kaydırılabilir hale getirildi -->
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Başlık -->
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Threat and Air Defense Management" 
+                       FontSize="28" FontWeight="Bold" Foreground="DarkSlateGray" 
+                       HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+            <!-- Açıklama Metni -->
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Manage aircraft threats and air defense systems with positions and details." 
+                       FontSize="14" FontStyle="Italic" Foreground="Gray" TextAlignment="Center" 
+                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <!-- Sol Sütun: Uçak Tehditleri -->
+            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
+                <TextBlock Text="Aircraft Threats" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
+
+                <!-- Uçak Ekle Butonu -->
+                <Button Content="Add Aircraft Threat" Width="220" Height="35" Background="LightSteelBlue" Foreground="Black" Click="AddAircraftThreat_Click" Margin="0,10"/>
+
+                <!-- Dinamik Uçak Tehditleri Listesi -->
+                <StackPanel x:Name="ThreatList" Orientation="Vertical" Margin="0,20" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- GridSplitter -->
+            <GridSplitter Grid.Row="2" Grid.Column="1" Width="5" HorizontalAlignment="Center" Background="Gray" ShowsPreview="True"/>
+
+            <!-- Sağ Sütun: Hava Savunma Sistemleri -->
+            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
+                <TextBlock Text="Air Defense Systems" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
+
+                <!-- Hava Savunma Ekle Butonu -->
+                <Button Content="Add Air Defense System" Width="220" Height="35" Background="LightSteelBlue" Foreground="Black" Click="AddAirDefenseSystem_Click" Margin="0,10"/>
+
+                <!-- Dinamik Hava Savunma Sistemleri Listesi -->
+                <StackPanel x:Name="DefenseList" Orientation="Vertical" Margin="0,20" HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- En Altta Buton Eklemek için Grid -->
+            <Grid Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+                <Button Content="Submit" Width="150" Height="40" Background="LightGreen" Foreground="Black"/>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

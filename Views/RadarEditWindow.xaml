@@ -1,0 +1,94 @@
+﻿<Window x:Class="AirDefenseOptimizer.Views.RadarEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="Radar Düzenleme" Height="500" Width="350" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <StackPanel Margin="20">
+
+            <!-- Başlık -->
+            <TextBlock Text="Radar Information" FontSize="20" FontWeight="Bold" Foreground="DarkSlateGray" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+            <!-- Radar Adı -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Radar Name:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtRadarName" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Radar Tipi -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Radar Type:" VerticalAlignment="Center" Grid.Column="0"/>
+                <ComboBox x:Name="cbRadarType" Grid.Column="1" Margin="5" DisplayMemberPath="Value" SelectedValuePath="Key"/>
+            </Grid>
+
+            <!-- Detection Range -->
+            <TextBlock Text="Detection Range" FontWeight="Bold" Margin="0,15,0,5"/>
+            <UniformGrid Columns="2" Margin="0,0,0,5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Min:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="txtMinDetectionRange" Width="100"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Max:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="txtMaxDetectionRange" Width="100"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <!-- Altitude -->
+            <TextBlock Text="Altitude" FontWeight="Bold" Margin="0,15,0,5"/>
+            <UniformGrid Columns="2" Margin="0,0,0,5">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Min:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="txtMinAltitude" Width="100"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Max:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="txtMaxAltitude" Width="100"/>
+                </StackPanel>
+            </UniformGrid>
+
+            <!-- Max Hedef Hızı -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Max Target Speed:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtMaxTargetSpeed" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Max Target Velocity:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtMaxTargetVelocity" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Redeployment Time -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Redeployment Time:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtRedeploymentTime" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- Kaydet Butonu -->
+            <Button x:Name="btnSave" Content="Save" Width="100" HorizontalAlignment="Center" Margin="10,20,10,0" Click="SaveButton_Click"/>
+
+        </StackPanel>
+    </Grid>
+</Window>

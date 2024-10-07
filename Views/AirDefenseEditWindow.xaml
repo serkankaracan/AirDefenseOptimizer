@@ -1,0 +1,108 @@
+﻿<Window x:Class="AirDefenseOptimizer.Views.AirDefenseEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Air Defense Edit" Height="650" Width="400" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+
+    <!-- ScrollViewer, içeriğin kaydırılmasını sağlar -->
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid>
+            <StackPanel Margin="20">
+
+                <!-- Başlık -->
+                <TextBlock Text="Air Defense Information" FontSize="20" FontWeight="Bold" Foreground="DarkSlateGray" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+                <!-- Air Defense Adı -->
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Name:" VerticalAlignment="Center" Grid.Column="0"/>
+                    <TextBox x:Name="txtAirDefenseName" Grid.Column="1" Margin="5,0"/>
+                </Grid>
+
+                <!-- Aerodynamic Target Range -->
+                <TextBlock Text="Aerodynamic Target Range" FontWeight="Bold" Margin="0,15,0,5"/>
+                <UniformGrid Columns="2" Margin="0,0,0,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Min:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="txtAerodynamicRangeMin" Width="100"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Max:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="txtAerodynamicRangeMax" Width="100"/>
+                    </StackPanel>
+                </UniformGrid>
+
+                <!-- Ballistic Target Range -->
+                <TextBlock Text="Ballistic Target Range" FontWeight="Bold" Margin="0,15,0,5"/>
+                <UniformGrid Columns="2" Margin="0,0,0,5">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Min:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="txtBallisticRangeMin" Width="100"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Max:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="txtBallisticRangeMax" Width="100"/>
+                    </StackPanel>
+                </UniformGrid>
+
+                <!-- Max Engagements -->
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Max Engagements:" VerticalAlignment="Center" Grid.Column="0"/>
+                    <TextBox x:Name="txtMaxEngagements" Grid.Column="1" Margin="5,0"/>
+                </Grid>
+
+                <!-- Max Missiles Fired -->
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Max Missiles Fired:" VerticalAlignment="Center" Grid.Column="0"/>
+                    <TextBox x:Name="txtMaxMissilesFired" Grid.Column="1" Margin="5,0"/>
+                </Grid>
+
+                <!-- ECM Capability -->
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="ECM Capability:" VerticalAlignment="Center" Grid.Column="0"/>
+                    <TextBox x:Name="txtECMCapability" Grid.Column="1" Margin="5,0"/>
+                </Grid>
+
+                <!-- Cost -->
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Cost:" VerticalAlignment="Center" Grid.Column="0"/>
+                    <TextBox x:Name="txtCost" Grid.Column="1" Margin="5,0"/>
+                </Grid>
+
+                <!-- Radar ve Mühimmat Ekleme Butonları -->
+                <TextBlock Text="Radars" FontWeight="Bold" Margin="0,20,0,5"/>
+                <Button x:Name="btnAddRadar" Content="Add Radar" Width="150" HorizontalAlignment="Center" Margin="10,0,0,10" Click="AddRadar_Click"/>
+
+                <!-- Radar Listesi -->
+                <StackPanel x:Name="RadarList" Margin="0,10,0,10" />
+
+                <TextBlock Text="Munitions" FontWeight="Bold" Margin="0,20,0,5"/>
+                <Button x:Name="btnAddMunition" Content="Add Munition" Width="150" HorizontalAlignment="Center" Margin="10,0,0,10" Click="AddMunition_Click"/>
+
+                <!-- Mühimmat Listesi -->
+                <StackPanel x:Name="MunitionList" Margin="0,10,0,10" />
+
+                <!-- Kaydet Butonu -->
+                <Button x:Name="btnSave" Content="Save" Width="100" HorizontalAlignment="Center" Margin="10,20,10,0" Click="SaveButton_Click" VerticalAlignment="Bottom"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Window>
