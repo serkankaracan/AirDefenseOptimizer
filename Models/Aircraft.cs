@@ -10,6 +10,7 @@ namespace AirDefenseOptimizer.Models
         public double Speed { get; set; }
         public double Range { get; set; }
         public double MaxAltitude { get; set; }
+        public string Maneuverability { get; set; } = string.Empty;
         public double PayloadCapacity { get; set; }
         public Radar? Radar { get; set; }
         public double Cost { get; set; }
