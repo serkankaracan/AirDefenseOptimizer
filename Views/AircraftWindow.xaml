@@ -47,9 +47,11 @@
                 <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="80"/>
                 <DataGridTextColumn Header="Range" Binding="{Binding Range}" Width="80"/>
                 <DataGridTextColumn Header="Max Altitude" Binding="{Binding MaxAltitude}" Width="100"/>
+                <DataGridTextColumn Header="Maneuverability" Binding="{Binding Maneuverability}" Width="100"/>
                 <DataGridTextColumn Header="Payload Capacity" Binding="{Binding PayloadCapacity}" Width="120"/>
                 <DataGridTextColumn Header="Cost" Binding="{Binding Cost}" Width="80"/>
-                <DataGridTextColumn Header="RadarId" Binding="{Binding RadarId}" Width="80"/>
+                <DataGridTextColumn Header="Radar" Binding="{Binding RadarName}" Width="120"/>
+                <DataGridTextColumn Header="Munitions" Binding="{Binding Munitions}" Width="120"/>
 
                 <!-- İşlem Sütunu -->
                 <DataGridTemplateColumn Header="Actions" Width="200">

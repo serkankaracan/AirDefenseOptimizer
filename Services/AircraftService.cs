@@ -13,10 +13,10 @@ namespace AirDefenseOptimizer.Services
             _databaseHelper = databaseHelper;
         }
 
-        public int AddAircraft(string name, string type, double speed, double range, double maxAltitude, double payloadCapacity, double cost, int? radarId = null)
+        public int AddAircraft(string name, string type, double speed, double range, double maxAltitude, string maneuverability, double payloadCapacity, double cost, int? radarId = null)
         {
-            string insertQuery = @"INSERT INTO Aircraft (Name, AircraftType, Speed, Range, MaxAltitude, PayloadCapacity, RadarId, Cost) 
-                           VALUES (@name, @type, @speed, @range, @maxAltitude, @payloadCapacity, @radarId, @cost);";
+            string insertQuery = @"INSERT INTO Aircraft (Name, AircraftType, Speed, Range, MaxAltitude, Maneuverability, PayloadCapacity, RadarId, Cost) 
+                                   VALUES (@name, @type, @speed, @range, @maxAltitude, @maneuverability, @payloadCapacity, @radarId, @cost);";
 
             using var connection = _connectionManager.GetConnection();
 
@@ -27,6 +27,7 @@ namespace AirDefenseOptimizer.Services
                 { "@speed", speed },
                 { "@range", range },
                 { "@maxAltitude", maxAltitude },
+                { "@maneuverability", maneuverability },
                 { "@payloadCapacity", payloadCapacity },
                 { "@radarId", radarId ?? (object)DBNull.Value },
                 { "@cost", cost }
@@ -76,10 +77,10 @@ namespace AirDefenseOptimizer.Services
         }
 
         // Uçağı güncelle
-        public void UpdateAircraft(int aircraftId, string name, string type, double speed, double range, double maxAltitude, double payloadCapacity, double cost, int? radarId = null)
+        public void UpdateAircraft(int aircraftId, string name, string type, double speed, double range, double maxAltitude, string maneuverability, double payloadCapacity, double cost, int? radarId = null)
         {
             string updateQuery = @"UPDATE Aircraft SET Name = @name, AircraftType = @type, Speed = @speed, Range = @range, MaxAltitude = @maxAltitude, 
-                                   PayloadCapacity = @payloadCapacity, RadarId = @radarId, Cost = @cost 
+                                   Maneuverability = @maneuverability, PayloadCapacity = @payloadCapacity, RadarId = @radarId, Cost = @cost 
                                    WHERE Id = @aircraftId;";
 
             using var connection = _connectionManager.GetConnection();
@@ -93,6 +94,7 @@ namespace AirDefenseOptimizer.Services
                 { "@speed", speed },
                 { "@range", range },
                 { "@maxAltitude", maxAltitude },
+                { "@maneuverability", maneuverability },
                 { "@payloadCapacity", payloadCapacity },
                 { "@radarId", radarId ?? (object)DBNull.Value },
                 { "@cost", cost }

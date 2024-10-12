@@ -24,21 +24,29 @@ namespace AirDefenseOptimizer.Views
         private void LoadAircraftData()
         {
             var aircrafts = _aircraftService.GetAllAircrafts();
+            var radars = _radarService.GetAllRadars(); // Tüm radarları çek
 
             if (aircrafts.Count <= 0)
                 return;
 
-            AircraftDataGrid.ItemsSource = aircrafts.Select(aircraft => new
+            AircraftDataGrid.ItemsSource = aircrafts.Select(aircraft =>
             {
-                Id = aircraft["Id"],
-                Name = aircraft["Name"],
-                AircraftType = aircraft["AircraftType"],
-                Speed = aircraft["Speed"],
-                Range = aircraft["Range"],
-                MaxAltitude = aircraft["MaxAltitude"],
-                PayloadCapacity = aircraft["PayloadCapacity"],
-                Cost = aircraft["Cost"],
-                RadarId = aircraft["RadarId"] != DBNull.Value ? aircraft["RadarId"] : null
+                string radarName = radars.FirstOrDefault(r => r["Id"].ToString() == aircraft["RadarId"]?.ToString())?["Name"]?.ToString() ?? "No Radar";
+
+                return new
+                {
+                    Id = aircraft["Id"],
+                    Name = aircraft["Name"],
+                    AircraftType = aircraft["AircraftType"],
+                    Speed = aircraft["Speed"],
+                    Range = aircraft["Range"],
+                    MaxAltitude = aircraft["MaxAltitude"],
+                    Maneuverability = aircraft["Maneuverability"],
+                    PayloadCapacity = aircraft["PayloadCapacity"],
+                    Cost = aircraft["Cost"],
+                    RadarId = aircraft["RadarId"],
+                    RadarName = radarName // Radar ID yerine radar adı
+                };
             }).ToList();
         }
 
@@ -98,6 +106,7 @@ namespace AirDefenseOptimizer.Views
                     Speed = aircraft["Speed"],
                     Range = aircraft["Range"],
                     MaxAltitude = aircraft["MaxAltitude"],
+                    Maneuverability = aircraft["Maneuverability"],
                     PayloadCapacity = aircraft["PayloadCapacity"],
                     Cost = aircraft["Cost"],
                     RadarId = aircraft["RadarId"] != DBNull.Value ? aircraft["RadarId"] : null

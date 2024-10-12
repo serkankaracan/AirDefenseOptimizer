@@ -74,7 +74,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="ECM Capability:" VerticalAlignment="Center" Grid.Column="0"/>
-                    <TextBox x:Name="txtECMCapability" Grid.Column="1" Margin="5,0"/>
+                    <ComboBox x:Name="cbECMCapability" Grid.Column="1" Margin="5" DisplayMemberPath="Value" SelectedValuePath="Key" />
                 </Grid>
 
                 <!-- Cost -->

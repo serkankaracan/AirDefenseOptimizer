@@ -31,6 +31,11 @@ namespace AirDefenseOptimizer.Views
                 .Select(a => new KeyValuePair<AircraftType, string>(a, a.GetAircraftTypeName()))
                 .ToList();
 
+            cbManeuverability.ItemsSource = Enum.GetValues(typeof(Maneuverability))
+               .Cast<Maneuverability>()
+               .Select(a => new KeyValuePair<Maneuverability, string>(a, a.GetManeuverabilityName()))
+               .ToList();
+
             // Radarları combobox'a doldur
             var radars = _radarService.GetAllRadars();
             if (radars == null || radars.Count == 0)
@@ -43,18 +48,24 @@ namespace AirDefenseOptimizer.Views
                     Convert.ToInt64(r["Id"]),
                     r["Name"]?.ToString() ?? "Unnamed Radar"
                 )).ToList();
+
+                // Radarın adını göstermek için DisplayMemberPath ve SelectedValuePath ayarlarını yapın
+                cbRadar.DisplayMemberPath = "Value"; // Radar adı
+                cbRadar.SelectedValuePath = "Key"; // Radar ID
             }
 
             if (_aircraftData != null)
             {
                 // Var olan uçak verilerini doldur
                 txtAircraftName.Text = _aircraftData.Name;
-                cbAircraftType.SelectedValue = Enum.Parse<AircraftType>(_aircraftData.AircraftType);
+                cbAircraftType.SelectedValue = _aircraftData.AircraftType != null ? Enum.Parse<AircraftType>(_aircraftData.AircraftType.ToString()) : null;
                 txtSpeed.Text = _aircraftData.Speed.ToString();
                 txtRange.Text = _aircraftData.Range.ToString();
                 txtMaxAltitude.Text = _aircraftData.MaxAltitude.ToString();
+                cbManeuverability.SelectedValue = _aircraftData.Maneuverability != null ? Enum.Parse<Maneuverability>(_aircraftData.Maneuverability.ToString()) : null; 
                 txtPayloadCapacity.Text = _aircraftData.PayloadCapacity.ToString();
-                cbRadar.SelectedValue = _aircraftData.RadarId?.ToString();
+                string radarName = radars.FirstOrDefault(r => r["Id"].ToString() == _aircraftData.RadarId?.ToString())?["Name"]?.ToString() ?? "No Radar";
+                cbRadar.SelectedValue = radars.FirstOrDefault(r => r["Name"].ToString() == radarName)?["Id"];
                 txtCost.Text = _aircraftData.Cost.ToString();
 
                 // Mühimmatları yükleme
@@ -69,6 +80,7 @@ namespace AirDefenseOptimizer.Views
                 txtSpeed.IsEnabled = false;
                 txtRange.IsEnabled = false;
                 txtMaxAltitude.IsEnabled = false;
+                cbManeuverability.IsEnabled = false;
                 txtPayloadCapacity.IsEnabled = false;
                 cbRadar.IsEnabled = false;
                 txtCost.IsEnabled = false;
@@ -183,6 +195,7 @@ namespace AirDefenseOptimizer.Views
                     double.Parse(txtSpeed.Text),
                     double.Parse(txtRange.Text),
                     double.Parse(txtMaxAltitude.Text),
+                    ((Maneuverability)cbManeuverability.SelectedValue).ToString(),
                     double.Parse(txtPayloadCapacity.Text),
                     double.Parse(txtCost.Text),
                     radarIdAsInt);
@@ -193,8 +206,12 @@ namespace AirDefenseOptimizer.Views
                 aircraftId = (int)_aircraftData.Id;
                 _aircraftService.UpdateAircraft(aircraftId, txtAircraftName.Text,
                     ((AircraftType)cbAircraftType.SelectedValue).ToString(),
-                    double.Parse(txtSpeed.Text), double.Parse(txtRange.Text), double.Parse(txtMaxAltitude.Text),
-                    double.Parse(txtPayloadCapacity.Text), double.Parse(txtCost.Text),
+                    double.Parse(txtSpeed.Text),
+                    double.Parse(txtRange.Text),
+                    double.Parse(txtMaxAltitude.Text),
+                    ((Maneuverability)cbManeuverability.SelectedValue).ToString(),
+                    double.Parse(txtPayloadCapacity.Text),
+                    double.Parse(txtCost.Text),
                     radarIdAsInt);
             }
 

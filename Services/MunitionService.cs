@@ -14,10 +14,10 @@ namespace AirDefenseOptimizer.Services
         }
 
         // Mühimmat ekleme işlemi
-        public void AddMunition(string name, string type, double weight, double speed, double range, double explosivePower, double cost)
+        public void AddMunition(string name, string type, double weight, double speed, double range, string maneuverability, double explosivePower, double cost)
         {
-            string insertQuery = @"INSERT INTO Munition (Name, MunitionType, Weight, Speed, Range, ExplosivePower, Cost) 
-                                   VALUES (@name, @type, @weight, @speed, @range, @explosivePower, @cost);";
+            string insertQuery = @"INSERT INTO Munition (Name, MunitionType, Weight, Speed, Range, Maneuverability, ExplosivePower, Cost) 
+                                   VALUES (@name, @type, @weight, @speed, @range, @maneuverability, @explosivePower, @cost);";
 
             using var connection = _connectionManager.GetConnection();
 
@@ -28,6 +28,7 @@ namespace AirDefenseOptimizer.Services
                 { "@weight", weight },
                 { "@speed", speed },
                 { "@range", range },
+                { "@maneuverability", maneuverability },
                 { "@explosivePower", explosivePower },
                 { "@cost", cost }
             };
@@ -36,10 +37,10 @@ namespace AirDefenseOptimizer.Services
         }
 
         // Mühimmat güncelleme işlemi
-        public void UpdateMunition(int id, string name, string type, double weight, double speed, double range, double explosivePower, double cost)
+        public void UpdateMunition(int id, string name, string type, double weight, double speed, double range, string maneuverability, double explosivePower, double cost)
         {
             string updateQuery = @"UPDATE Munition SET Name = @name, MunitionType = @type, Weight = @weight, Speed = @speed, Range = @range, 
-                                   ExplosivePower = @explosivePower, Cost = @cost WHERE Id = @id;";
+                                   Maneuverability = @maneuverability, ExplosivePower = @explosivePower, Cost = @cost WHERE Id = @id;";
 
             using var connection = _connectionManager.GetConnection();
 
@@ -51,6 +52,7 @@ namespace AirDefenseOptimizer.Services
                 { "@weight", weight },
                 { "@speed", speed },
                 { "@range", range },
+                { "@maneuverability", maneuverability },
                 { "@explosivePower", explosivePower },
                 { "@cost", cost }
             };

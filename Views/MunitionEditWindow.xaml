@@ -59,6 +59,16 @@
                 <TextBox x:Name="txtRange" Grid.Column="1" Margin="5,0"/>
             </Grid>
 
+            <!-- Munition Tipi -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Maneuverability:" VerticalAlignment="Center" Grid.Column="0"/>
+                <ComboBox x:Name="cbManeuverability" Grid.Column="1" Margin="5" DisplayMemberPath="Value" SelectedValuePath="Key"/>
+            </Grid>
+
             <!-- Explosive Power -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>

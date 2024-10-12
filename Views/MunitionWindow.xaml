@@ -44,6 +44,7 @@
                 <DataGridTextColumn Header="Weight" Binding="{Binding Weight}" Width="100"/>
                 <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="100"/>
                 <DataGridTextColumn Header="Range" Binding="{Binding Range}" Width="100"/>
+                <DataGridTextColumn Header="Maneuverability" Binding="{Binding Maneuverability}" Width="120"/>
                 <DataGridTextColumn Header="Explosive Power" Binding="{Binding ExplosivePower}" Width="120"/>
                 <DataGridTextColumn Header="Cost" Binding="{Binding Cost}" Width="100"/>
 

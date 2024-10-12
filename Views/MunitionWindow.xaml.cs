@@ -31,6 +31,7 @@ namespace AirDefenseOptimizer.Views
                 Weight = munition["Weight"],
                 Speed = munition["Speed"],
                 Range = munition["Range"],
+                Maneuverability = munition["Maneuverability"],
                 ExplosivePower = munition["ExplosivePower"],
                 Cost = munition["Cost"]
             }).ToList();
@@ -50,6 +51,7 @@ namespace AirDefenseOptimizer.Views
                     Weight = munition["Weight"],
                     Speed = munition["Speed"],
                     Range = munition["Range"],
+                    Maneuverability = munition["Maneuverability"],
                     ExplosivePower = munition["ExplosivePower"],
                     Cost = munition["Cost"]
                 }).ToList();

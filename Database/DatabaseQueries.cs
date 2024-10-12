@@ -22,6 +22,7 @@
             Weight REAL NOT NULL,
             Speed REAL NOT NULL,
             Range REAL NOT NULL,
+            Maneuverability TEXT NOT NULL,
             ExplosivePower REAL NOT NULL,
             Cost REAL NOT NULL
         );";
@@ -33,6 +34,7 @@
             Speed REAL NOT NULL,
             Range REAL NOT NULL,
             MaxAltitude REAL NOT NULL,
+            Maneuverability TEXT NOT NULL,
             PayloadCapacity REAL NOT NULL,
             RadarId INTEGER,
             Cost REAL NOT NULL,

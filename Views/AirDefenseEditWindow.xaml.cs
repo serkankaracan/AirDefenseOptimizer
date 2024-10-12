@@ -1,4 +1,5 @@
-﻿using AirDefenseOptimizer.Services;
+﻿using AirDefenseOptimizer.Enums;
+using AirDefenseOptimizer.Services;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -26,6 +27,11 @@ namespace AirDefenseOptimizer.Views
             _airDefenseData = airDefenseData;
             _isReadOnly = isReadOnly;
 
+            cbECMCapability.ItemsSource = Enum.GetValues(typeof(ECMCapability))
+               .Cast<ECMCapability>()
+               .Select(a => new KeyValuePair<ECMCapability, string>(a, a.GetECMCapabilityName()))
+               .ToList();
+
             LoadRadarList();
             LoadMunitionList();
 
@@ -39,7 +45,7 @@ namespace AirDefenseOptimizer.Views
                 txtBallisticRangeMin.Text = _airDefenseData.BallisticTargetRangeMin.ToString();
                 txtMaxEngagements.Text = _airDefenseData.MaxEngagements.ToString();
                 txtMaxMissilesFired.Text = _airDefenseData.MaxMissilesFired.ToString();
-                txtECMCapability.Text = _airDefenseData.ECMCapability;
+                cbECMCapability.SelectedValue = Enum.Parse<ECMCapability>(_airDefenseData.ECMCapability);
                 txtCost.Text = _airDefenseData.Cost.ToString();
 
                 // Radarlar ekle
@@ -68,7 +74,7 @@ namespace AirDefenseOptimizer.Views
                 txtBallisticRangeMin.IsEnabled = false;
                 txtMaxEngagements.IsEnabled = false;
                 txtMaxMissilesFired.IsEnabled = false;
-                txtECMCapability.IsEnabled = false;
+                cbECMCapability.IsEnabled = false;
                 txtCost.IsEnabled = false;
                 btnAddRadar.IsEnabled = false;
                 btnAddMunition.IsEnabled = false;
@@ -201,17 +207,32 @@ namespace AirDefenseOptimizer.Views
             if (_airDefenseData == null)
             {
                 // Yeni hava savunma sistemi ekliyorsunuz
-                airDefenseId = _airDefenseService.AddAirDefense(txtAirDefenseName.Text, double.Parse(txtAerodynamicRangeMax.Text), double.Parse(txtAerodynamicRangeMin.Text),
-                    double.Parse(txtBallisticRangeMax.Text), double.Parse(txtBallisticRangeMin.Text), int.Parse(txtMaxEngagements.Text),
-                    int.Parse(txtMaxMissilesFired.Text), txtECMCapability.Text, double.Parse(txtCost.Text));
+                airDefenseId = _airDefenseService.AddAirDefense(
+                    txtAirDefenseName.Text,
+                    double.Parse(txtAerodynamicRangeMax.Text),
+                    double.Parse(txtAerodynamicRangeMin.Text),
+                    double.Parse(txtBallisticRangeMax.Text),
+                    double.Parse(txtBallisticRangeMin.Text),
+                    int.Parse(txtMaxEngagements.Text),
+                    int.Parse(txtMaxMissilesFired.Text),
+                    ((ECMCapability)cbECMCapability.SelectedValue).ToString(),
+                    double.Parse(txtCost.Text));
             }
             else
             {
                 // Var olan hava savunma sistemini güncelliyorsunuz
                 airDefenseId = (int)_airDefenseData.Id;
-                _airDefenseService.UpdateAirDefense(airDefenseId, txtAirDefenseName.Text, double.Parse(txtAerodynamicRangeMax.Text),
-                    double.Parse(txtAerodynamicRangeMin.Text), double.Parse(txtBallisticRangeMax.Text), double.Parse(txtBallisticRangeMin.Text),
-                    int.Parse(txtMaxEngagements.Text), int.Parse(txtMaxMissilesFired.Text), txtECMCapability.Text, double.Parse(txtCost.Text));
+                _airDefenseService.UpdateAirDefense(
+                    airDefenseId,
+                    txtAirDefenseName.Text,
+                    double.Parse(txtAerodynamicRangeMax.Text),
+                    double.Parse(txtAerodynamicRangeMin.Text),
+                    double.Parse(txtBallisticRangeMax.Text),
+                    double.Parse(txtBallisticRangeMin.Text),
+                    int.Parse(txtMaxEngagements.Text),
+                    int.Parse(txtMaxMissilesFired.Text),
+                    ((ECMCapability)cbECMCapability.SelectedValue).ToString(),
+                    double.Parse(txtCost.Text));
             }
 
             // Radarı ve mühimmatı doğru airDefenseId ile kaydedin
