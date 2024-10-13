@@ -10,7 +10,7 @@ namespace AirDefenseOptimizer.Models
         public double Weight { get; set; } // Weight in kg
         public double Speed { get; set; } // Speed in Mach
         public double Range { get; set; } // Range in km
-        public string Maneuverability { get; set; } = string.Empty;
+        public Maneuverability Maneuverability { get; set; }
         public double ExplosivePower { get; set; } // Explosive power in TNT equivalent
         public double Cost { get; set; } // Cost in USD
     }
