@@ -35,25 +35,25 @@ namespace AirDefenseOptimizer.Views
                 labelsPanel.Children.Add(new Label
                 {
                     Content = "Aircraft:",
-                    Width = 180,  // ComboBox genişliği arttı
+                    Width = 180,
                     Margin = new Thickness(0),
-                    Padding = new Thickness(5)  // Padding ekledik
+                    Padding = new Thickness(5)
                 });
 
                 labelsPanel.Children.Add(new Label
                 {
                     Content = "IFF Mode:",
-                    Width = 100,  // ComboBox genişliği arttı
+                    Width = 100,
                     Margin = new Thickness(0),
-                    Padding = new Thickness(5)  // Padding ekledik
+                    Padding = new Thickness(5)
                 });
 
                 labelsPanel.Children.Add(new Label
                 {
                     Content = "Location (Latitude, Longitude, Altitude)",
-                    Width = 240,  // TextBox genişliği küçüldü
+                    Width = 240,
                     Margin = new Thickness(0),
-                    Padding = new Thickness(5)  // Padding ekledik
+                    Padding = new Thickness(5)
                 });
 
                 ThreatList.Children.Add(labelsPanel);
@@ -62,13 +62,13 @@ namespace AirDefenseOptimizer.Views
             // Grid'in estetik olarak düzenlenmesi ve daha dengeli görünmesi için yeniden ayarladım.
             Grid threatGrid = new Grid
             {
-                Margin = new Thickness(0, 10, 0, 10) // Grid'i yukarı-aşağı boşluklarla ayırıyoruz
+                Margin = new Thickness(0, 10, 0, 10)
             };
 
             // Grid sütunlarını düzenliyoruz, genişlikleri sabitliyoruz
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) }); // ComboBox genişliği arttı
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) }); // ComboBox genişliği arttı
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) }); // TextBox genişliği küçüldü
+            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
+            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
             threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
 
             // Uçak Seçimi
@@ -77,15 +77,23 @@ namespace AirDefenseOptimizer.Views
                 Width = 180,
                 Height = 30,
                 Margin = new Thickness(0),
-                Padding = new Thickness(5)  // Padding ekledik
+                Padding = new Thickness(5)
             };
+            // Placeholder olarak "Uçak seçin" ekleniyor, ancak seçilemeyecek
+            aircraftComboBox.Items.Add(new ComboBoxItem
+            {
+                Content = "Aircraft",
+                IsEnabled = false, // Bu öğe seçilemez
+                IsSelected = true  // Varsayılan olarak seçili
+            });
 
             var aircrafts = _aircraftService.GetAllAircrafts();
             if (aircrafts != null && aircrafts.Any())
             {
-                aircraftComboBox.ItemsSource = aircrafts.Select(a => new { Id = a["Id"], Name = a["Name"].ToString() }).ToList();
-                aircraftComboBox.DisplayMemberPath = "Name";
-                aircraftComboBox.SelectedValuePath = "Id";
+                foreach (var aircraft in aircrafts)
+                {
+                    aircraftComboBox.Items.Add(aircraft["Name"].ToString());
+                }
             }
             else
             {
@@ -98,17 +106,29 @@ namespace AirDefenseOptimizer.Views
                 Width = 100,
                 Height = 30,
                 Margin = new Thickness(0),
-                Padding = new Thickness(5),  // Padding ekledik
-                ItemsSource = Enum.GetValues(typeof(IFF))
+                Padding = new Thickness(5)
             };
+            // Placeholder olarak "IFF seçin" ekleniyor, ancak seçilemeyecek
+            iffComboBox.Items.Add(new ComboBoxItem
+            {
+                Content = "IFF mode",
+                IsEnabled = false, // Bu öğe seçilemez
+                IsSelected = true  // Varsayılan olarak seçili
+            });
 
-            // Konum Girdisi (X, Y, Z)
+            var iffValues = Enum.GetValues(typeof(IFF));
+            foreach (var iff in iffValues)
+            {
+                iffComboBox.Items.Add(iff);
+            }
+
+            // Konum Girdisi (Latitude, Longitude, Altitude)
             TextBox locationTextBox = new TextBox
             {
-                Width = 160, // Verdiğiniz değeri alacak genişlik
+                Width = 160,
                 Margin = new Thickness(0),
-                Padding = new Thickness(5),  // Padding ekledik
-                MaxLength = 25 // Konum verisi en fazla 20 karakter uzunluğunda olacak
+                Padding = new Thickness(5),
+                MaxLength = 25
             };
 
             // Kaldır Butonu
@@ -118,7 +138,7 @@ namespace AirDefenseOptimizer.Views
                 Width = 80,
                 Height = 30,
                 Margin = new Thickness(0),
-                Padding = new Thickness(5),  // Padding ekledik
+                Padding = new Thickness(5),
                 Background = new SolidColorBrush(System.Windows.Media.Colors.IndianRed),
                 Foreground = new SolidColorBrush(System.Windows.Media.Colors.White)
             };
@@ -163,18 +183,18 @@ namespace AirDefenseOptimizer.Views
 
                 labelsPanel.Children.Add(new Label
                 {
-                    Content = "Select Air Defense System",
-                    Width = 180, // ComboBox genişliği arttı
+                    Content = "Air Defense System",
+                    Width = 180,
                     Margin = new Thickness(0),
-                    Padding = new Thickness(5)  // Padding ekledik
+                    Padding = new Thickness(5)
                 });
 
                 labelsPanel.Children.Add(new Label
                 {
                     Content = "Location (Latitude, Longitude, Altitude)",
-                    Width = 240, // TextBox genişliği küçüldü
+                    Width = 240,
                     Margin = new Thickness(0),
-                    Padding = new Thickness(5)  // Padding ekledik
+                    Padding = new Thickness(5)
                 });
 
                 DefenseList.Children.Add(labelsPanel);
@@ -185,25 +205,33 @@ namespace AirDefenseOptimizer.Views
             {
                 Margin = new Thickness(0, 10, 0, 10)
             };
-            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) }); // ComboBox genişliği arttı
-            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) }); // TextBox genişliği küçüldü
+            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
             defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
 
             // Hava Savunma Seçimi
             ComboBox defenseComboBox = new ComboBox
             {
-                Width = 180,  // ComboBox genişliği arttı
+                Width = 180,
                 Height = 30,
                 Margin = new Thickness(0),
-                Padding = new Thickness(5)  // Padding ekledik
+                Padding = new Thickness(5)
             };
+            // Placeholder olarak "HSS seçin" ekleniyor, ancak seçilemeyecek
+            defenseComboBox.Items.Add(new ComboBoxItem
+            {
+                Content = "Air Defense System",
+                IsEnabled = false, // Bu öğe seçilemez
+                IsSelected = true  // Varsayılan olarak seçili
+            });
 
             var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems();
             if (airDefenseSystems != null && airDefenseSystems.Any())
             {
-                defenseComboBox.ItemsSource = airDefenseSystems.Select(ad => new { Id = ad["Id"], Name = ad["Name"].ToString() }).ToList();
-                defenseComboBox.DisplayMemberPath = "Name";
-                defenseComboBox.SelectedValuePath = "Id";
+                foreach (var system in airDefenseSystems)
+                {
+                    defenseComboBox.Items.Add(system["Name"].ToString());
+                }
             }
             else
             {
@@ -213,10 +241,10 @@ namespace AirDefenseOptimizer.Views
             // Konum Girdisi
             TextBox locationTextBox = new TextBox
             {
-                Width = 160,  // Verdiğiniz değeri alacak genişlik
+                Width = 160,
                 Margin = new Thickness(0),
-                Padding = new Thickness(5),  // Padding ekledik
-                MaxLength = 25 // Konum verisi en fazla 20 karakter uzunluğunda olacak
+                Padding = new Thickness(5),
+                MaxLength = 25
             };
 
             // Kaldır Butonu
@@ -226,7 +254,7 @@ namespace AirDefenseOptimizer.Views
                 Width = 80,
                 Height = 30,
                 Margin = new Thickness(0),
-                Padding = new Thickness(5),  // Padding ekledik
+                Padding = new Thickness(5),
                 Background = new SolidColorBrush(System.Windows.Media.Colors.IndianRed),
                 Foreground = new SolidColorBrush(System.Windows.Media.Colors.White)
             };
