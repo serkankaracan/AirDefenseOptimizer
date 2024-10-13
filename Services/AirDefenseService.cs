@@ -137,7 +137,7 @@ namespace AirDefenseOptimizer.Services
         public List<Dictionary<string, object>> GetAirDefenseRadars(int airDefenseId)
         {
             using var connection = _connectionManager.GetConnection();
-            string selectQuery = @"SELECT AirDefenseRadar.RadarId, Radar.Name, AirDefenseRadar.Quantity 
+            string selectQuery = @"SELECT AirDefenseRadar.RadarId, Radar.Name AS RadarName, AirDefenseRadar.Quantity 
                            FROM AirDefenseRadar
                            JOIN Radar ON AirDefenseRadar.RadarId = Radar.Id
                            WHERE AirDefenseRadar.AirDefenseId = @airDefenseId;";
@@ -155,10 +155,10 @@ namespace AirDefenseOptimizer.Services
         public List<Dictionary<string, object>> GetAirDefenseMunitions(int airDefenseId)
         {
             using var connection = _connectionManager.GetConnection();
-            string selectQuery = @"SELECT Munition.Id AS MunitionId, Munition.Name, AirDefenseMunition.Quantity 
-                       FROM AirDefenseMunition
-                       JOIN Munition ON AirDefenseMunition.MunitionId = Munition.Id
-                       WHERE AirDefenseMunition.AirDefenseId = @airDefenseId;";
+            string selectQuery = @"SELECT AirDefenseMunition.MunitionId, Munition.Name AS MunitionName, AirDefenseMunition.Quantity 
+                           FROM AirDefenseMunition
+                           JOIN Munition ON AirDefenseMunition.MunitionId = Munition.Id
+                           WHERE AirDefenseMunition.AirDefenseId = @airDefenseId;";
 
             var parameters = new Dictionary<string, object>
             {

@@ -280,5 +280,103 @@ namespace AirDefenseOptimizer.Views
             // Savunma Listesine ekliyoruz
             DefenseList.Children.Add(defenseGrid);
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            // Eklenen Aircraft'ları yazdır
+            foreach (Grid threatGrid in ThreatList.Children.OfType<Grid>())
+            {
+                // Grid içindeki ComboBox'ları ve TextBox'ı bulalım
+                var aircraftComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Width == 180);
+                var iffComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Width == 100);
+                var locationTextBox = threatGrid.Children.OfType<TextBox>().FirstOrDefault();
+
+                if (aircraftComboBox != null && iffComboBox != null && locationTextBox != null)
+                {
+                    // Seçilen Aircraft ve IFF modunu al
+                    string? selectedAircraft = aircraftComboBox.SelectedItem?.ToString();
+                    string? selectedIFF = iffComboBox.SelectedItem?.ToString();
+                    string location = locationTextBox.Text;
+
+                    // Uçak bilgilerini çekmek ve aynı zamanda mühimmatları da göstermek için
+                    if (!string.IsNullOrEmpty(selectedAircraft))
+                    {
+                        // Aircraft bilgilerini veritabanından çek
+                        var aircraftDetails = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
+
+                        if (aircraftDetails != null)
+                        {
+                            // Uçağın mühimmatlarını çek
+                            var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(aircraftDetails["Id"]));
+                            var munitionsDetails = munitions.Select(m => $"\n{m["MunitionName"]}, Quantity: {m["Quantity"]}").ToList();
+
+                            // Aircraft bilgilerini yazdır
+                            MessageBox.Show($"Aircraft: {aircraftDetails["Name"]}, " +
+                                $"\nAircraft Type: {aircraftDetails["AircraftType"]}, " +
+                                $"\nSpeed: {aircraftDetails["Speed"]}, " +
+                                $"\nRange: {aircraftDetails["Range"]}, " +
+                                $"\nMax Altitude: {aircraftDetails["MaxAltitude"]}, " +
+                                $"\nManeuverability: {aircraftDetails["Maneuverability"]}, " +
+                                $"\nPayloadCapacity: {aircraftDetails["PayloadCapacity"]}, " +
+                                $"\nCost: {aircraftDetails["Cost"]}, " +
+                                $"\nMunitions: {string.Join(", ", munitionsDetails)}, " +
+                                $"\nIFF: {selectedIFF}, " +
+                                $"\nLocation: {location}");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Aircraft details not found.");
+                        }
+                    }
+                }
+            }
+
+            // Eklenen Air Defense Systems'ları yazdır
+            foreach (Grid defenseGrid in DefenseList.Children.OfType<Grid>())
+            {
+                // Grid içindeki ComboBox ve TextBox'ı bulalım
+                var defenseComboBox = defenseGrid.Children.OfType<ComboBox>().FirstOrDefault();
+                var locationTextBox = defenseGrid.Children.OfType<TextBox>().FirstOrDefault();
+
+                if (defenseComboBox != null && locationTextBox != null)
+                {
+                    // Seçilen Air Defense System'i al
+                    string? selectedAirDefenseSystem = defenseComboBox.SelectedItem?.ToString();
+                    string location = locationTextBox.Text;
+
+                    if (!string.IsNullOrEmpty(selectedAirDefenseSystem))
+                    {
+                        // Air Defense System bilgilerini veritabanından çek
+                        var airDefenseDetails = _airDefenseService.GetAllAirDefenseSystems().FirstOrDefault(a => a["Name"].ToString() == selectedAirDefenseSystem);
+
+                        if (airDefenseDetails != null)
+                        {
+                            // Air Defense System'in radar ve mühimmatlarını çek
+                            var radars = _airDefenseService.GetAirDefenseRadars(Convert.ToInt32(airDefenseDetails["Id"]));
+                            var munitions = _airDefenseService.GetAirDefenseMunitions(Convert.ToInt32(airDefenseDetails["Id"]));
+
+                            var radarsDetails = radars.Select(r => $"Radar Name: {r["RadarName"]}, Quantity: {r["Quantity"]}").ToList();
+                            var munitionsDetails = munitions.Select(m => $"Munition Name: {m["MunitionName"]}, Quantity: {m["Quantity"]}").ToList();
+
+                            // Air Defense System bilgilerini yazdır
+                            MessageBox.Show($"Air Defense System: {airDefenseDetails["Name"]}, " +
+                                $"\nAerodynamic Range: {airDefenseDetails["AerodynamicTargetRangeMax"]}, " +
+                                $"\nBallistic Range: {airDefenseDetails["BallisticTargetRangeMax"]}, " +
+                                $"\nMax Engagements: {airDefenseDetails["MaxEngagements"]}, " +
+                                $"\nMax Missiles Fired: {airDefenseDetails["MaxMissilesFired"]}, " +
+                                $"\nECM Capability: {airDefenseDetails["ECMCapability"]}, " +
+                                $"\nCost: {airDefenseDetails["Cost"]}, " +
+                                $"\nRadars: {string.Join(", ", radarsDetails)}, " +
+                                $"\nMunitions: {string.Join(", ", munitionsDetails)}, " +
+                                $"\nLocation: {location}");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Air Defense System details not found.");
+                        }
+                    }
+                }
+            }
+        }
     }
 }

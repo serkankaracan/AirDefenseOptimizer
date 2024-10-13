@@ -59,7 +59,7 @@
 
             <!-- En Altta Buton Eklemek için Grid -->
             <Grid Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-                <Button Content="Submit" Width="150" Height="40" Background="LightGreen" Foreground="Black"/>
+                <Button Content="Submit" Width="150" Height="40" Background="LightGreen" Foreground="Black" Click="Button_Click"/>
             </Grid>
         </Grid>
     </ScrollViewer>

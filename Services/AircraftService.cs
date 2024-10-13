@@ -122,7 +122,7 @@ namespace AirDefenseOptimizer.Services
         // Bir uçaktaki tüm mühimmatları çek
         public List<Dictionary<string, object>> GetAircraftMunitions(int aircraftId)
         {
-            string selectQuery = @"SELECT AircraftMunition.MunitionId, AircraftMunition.Quantity 
+            string selectQuery = @"SELECT AircraftMunition.MunitionId, Munition.Name AS MunitionName, AircraftMunition.Quantity 
                            FROM AircraftMunition
                            JOIN Munition ON AircraftMunition.MunitionId = Munition.Id
                            WHERE AircraftMunition.AircraftId = @aircraftId;";
