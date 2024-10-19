@@ -65,7 +65,7 @@ namespace AirDefenseOptimizer.FuzzyRules
         /// <summary>
         /// Uçağın ve mühimmatlarının birleşik etkisiyle angaje skorunu hesaplar.
         /// </summary>
-        private string CalculateEngagementScoreForAircraft(Aircraft aircraft)
+        public string CalculateEngagementScoreForAircraft(Aircraft aircraft)
         {
             // Uçağın angaje skorunu hesapla
             int aircraftScore = CalculateAircraftScore(aircraft);

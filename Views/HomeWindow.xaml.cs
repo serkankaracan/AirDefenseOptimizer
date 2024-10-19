@@ -1,8 +1,11 @@
 ﻿using AirDefenseOptimizer.Enums;
+using AirDefenseOptimizer.FuzzyEnums;
+using AirDefenseOptimizer.Models;
 using AirDefenseOptimizer.Services;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Maneuverability = AirDefenseOptimizer.Enums.Maneuverability;
 
 namespace AirDefenseOptimizer.Views
 {
@@ -11,12 +14,153 @@ namespace AirDefenseOptimizer.Views
         private readonly AirDefenseService _airDefenseService;
         private readonly AircraftService _aircraftService;
 
+        private List<Aircraft> _aircraftList = new List<Aircraft>();
+        private List<AirDefense> _airDefenseList = new List<AirDefense>();
+
         public HomeWindow()
         {
             InitializeComponent();
 
             _airDefenseService = new AirDefenseService(App.ConnectionManager!, App.DatabaseHelper!);
             _aircraftService = new AircraftService(App.ConnectionManager!, App.DatabaseHelper!);
+
+            LoadAircrafts();
+            LoadAirDefenseSystems();
+        }
+
+        private void LoadAircrafts()
+        {
+            var aircrafts = _aircraftService.GetAllAircrafts();
+            if (aircrafts != null && aircrafts.Any())
+            {
+                foreach (var mAircraft in aircrafts)
+                {
+                    var aircraft = new Aircraft
+                    {
+                        Id = Convert.ToInt32(mAircraft["Id"].ToString()),
+                        Name = mAircraft["Name"].ToString(),
+                        AircraftType = (AircraftType)Enum.Parse(typeof(AircraftType), mAircraft["AircraftType"].ToString()),
+                        Speed = Convert.ToDouble(mAircraft["Speed"]),
+                        Range = Convert.ToDouble(mAircraft["Range"]),
+                        MaxAltitude = Convert.ToDouble(mAircraft["MaxAltitude"]),
+                        Maneuverability = (Maneuverability)Enum.Parse(typeof(Maneuverability), mAircraft["Maneuverability"].ToString()),
+                        PayloadCapacity = Convert.ToDouble(mAircraft["PayloadCapacity"]),
+                        Cost = Convert.ToDouble(mAircraft["Cost"]),
+                        Munitions = new List<AircraftMunition>(),
+                        Radar = new Radar() // Radar bilgisi eklenecek
+                    };
+
+                    // Mühimmatları veritabanından çekip ekleyelim
+                    var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(mAircraft["Id"]));
+                    foreach (var munition in munitions)
+                    {
+                        var aircraftMunition = new AircraftMunition
+                        {
+                            Munition = new Munition
+                            {
+                                Id = Convert.ToInt32(munition["Id"].ToString()),
+                                Name = munition["Name"].ToString(),
+                                MunitionType = (MunitionType)Enum.Parse(typeof(MunitionType), munition["MunitionType"].ToString()),
+                                Weight = Convert.ToDouble(munition["Weight"].ToString()),
+                                Speed = Convert.ToDouble(munition["Speed"].ToString()),
+                                Range = Convert.ToDouble(munition["Range"].ToString()),
+                                Maneuverability = (Maneuverability)Enum.Parse(typeof(Maneuverability), munition["Maneuverability"].ToString()),
+                                ExplosivePower = Convert.ToDouble(munition["ExplosivePower"].ToString()),
+                                Cost = Convert.ToDouble(munition["Cost"].ToString()),
+                            },
+                            Quantity = Convert.ToInt32(munition["Quantity"])
+                        };
+
+                        aircraft.Munitions.Add(aircraftMunition);
+                    }
+
+                    // Radarları veritabanından çekip ekleyelim
+                    var radars = _aircraftService.GetAircraftRadars(Convert.ToInt32(mAircraft["Id"]));
+                    foreach (var radar in radars)
+                    {
+                        aircraft.Radar = new Radar
+                        {
+                            Id = Convert.ToInt32(radar["Id"]),
+                            Name = radar["Name"].ToString(),
+                            RadarType = (RadarType)Enum.Parse(typeof(RadarType), radar["RadarType"].ToString()),
+                            MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
+                            MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
+                            MinAltitude = Convert.ToInt32(radar["MinAltitude"]),
+                            MaxAltitude = Convert.ToInt32(radar["MaxAltitude"]),
+                            MaxTargetSpeed = Convert.ToInt32(radar["MaxTargetSpeed"]),
+                            MaxTargetVelocity = Convert.ToInt32(radar["MaxTargetVelocity"]),
+                            RedeploymentTime = Convert.ToInt32(radar["RedeploymentTime"])
+                        };
+                    }
+
+                    // Uçağı global listeye ekle
+                    _aircraftList.Add(aircraft);
+                }
+            }
+        }
+
+        // Veritabanından AirDefenseSystem'leri çekip global listeye ekleyelim
+        private void LoadAirDefenseSystems()
+        {
+            var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems();
+            if (airDefenseSystems != null && airDefenseSystems.Any())
+            {
+                foreach (var mAirDefense in airDefenseSystems)
+                {
+                    var airDefense = new AirDefense
+                    {
+                        Name = mAirDefense["Name"].ToString(),
+                        AerodynamicTargetRangeMax = Convert.ToDouble(mAirDefense["AerodynamicTargetRangeMax"]),
+                        BallisticTargetRangeMax = Convert.ToDouble(mAirDefense["BallisticTargetRangeMax"]),
+                        MaxEngagements = Convert.ToInt32(mAirDefense["MaxEngagements"]),
+                        MaxMissilesFired = Convert.ToInt32(mAirDefense["MaxMissilesFired"]),
+                        ECMCapability = (ECMCapability)Enum.Parse(typeof(ECMCapability), mAirDefense["ECMCapability"].ToString()),
+                        Cost = Convert.ToDouble(mAirDefense["Cost"]),
+                        Radars = new List<AirDefenseRadar>(),
+                        Munitions = new List<AirDefenseMunition>()
+                    };
+
+                    // Radarları veritabanından çekip ekleyelim
+                    var radars = _airDefenseService.GetAirDefenseRadars(Convert.ToInt32(mAirDefense["Id"]));
+                    foreach (var radar in radars)
+                    {
+                        var airDefenseRadar = new Radar
+                        {
+                            Name = radar["RadarName"].ToString(),
+                            MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
+                            MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
+                            MinAltitude = Convert.ToInt32(radar["MinAltitude"]),
+                            MaxAltitude = Convert.ToInt32(radar["MaxAltitude"]),
+                            MaxTargetSpeed = Convert.ToInt32(radar["MaxTargetSpeed"]),
+                            RadarType = (RadarType)Enum.Parse(typeof(RadarType), mAirDefense["RadarType"].ToString()),
+                            MaxTargetVelocity = Convert.ToInt32(radar["MaxTargetVelocity"]),
+                            RedeploymentTime = Convert.ToInt32(radar["RedeploymentTime"])
+
+                        };
+
+                        airDefense.Radars.Add(airDefenseRadar);
+                    }
+
+                    // Mühimmatları veritabanından çekip ekleyelim
+                    var munitions = _airDefenseService.GetAirDefenseMunitions(Convert.ToInt32(mAirDefense["Id"]));
+                    foreach (var munition in munitions)
+                    {
+                        var airDefenseMunition = new Munition
+                        {
+                            Name = munition["MunitionName"].ToString(),
+                            Weight = (double)(EnumMunition.Weight)Enum.Parse(typeof(EnumMunition.Weight), munition["Weight"].ToString()),
+                            Speed = (double)(EnumMunition.Speed)Enum.Parse(typeof(EnumMunition.Speed), munition["Speed"].ToString()),
+                            Range = (double)(EnumMunition.Range)Enum.Parse(typeof(EnumMunition.Range), munition["Range"].ToString()),
+                            ExplosivePower = (double)(EnumMunition.ExplosivePower)Enum.Parse(typeof(EnumMunition.ExplosivePower), munition["ExplosivePower"].ToString())
+                        };
+
+                        airDefense.Munitions.Add(airDefenseMunition);
+                    }
+
+                    // AirDefenseSystem'i global listeye ekle
+                    _airDefenseList.Add(airDefense);
+                }
+            }
         }
 
         // Uçak Tehdidi Ekleme Butonuna Tıklanınca Çalışacak
@@ -302,23 +446,23 @@ namespace AirDefenseOptimizer.Views
                     if (!string.IsNullOrEmpty(selectedAircraft))
                     {
                         // Aircraft bilgilerini veritabanından çek
-                        var aircraftDetails = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
+                        var _aircraft = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
 
-                        if (aircraftDetails != null)
+                        if (_aircraft != null)
                         {
                             // Uçağın mühimmatlarını çek
-                            var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(aircraftDetails["Id"]));
+                            var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(_aircraft["Id"]));
                             var munitionsDetails = munitions.Select(m => $"\n{m["MunitionName"]}, Quantity: {m["Quantity"]}").ToList();
 
                             // Aircraft bilgilerini yazdır
-                            MessageBox.Show($"Aircraft: {aircraftDetails["Name"]}, " +
-                                $"\nAircraft Type: {aircraftDetails["AircraftType"]}, " +
-                                $"\nSpeed: {aircraftDetails["Speed"]}, " +
-                                $"\nRange: {aircraftDetails["Range"]}, " +
-                                $"\nMax Altitude: {aircraftDetails["MaxAltitude"]}, " +
-                                $"\nManeuverability: {aircraftDetails["Maneuverability"]}, " +
-                                $"\nPayloadCapacity: {aircraftDetails["PayloadCapacity"]}, " +
-                                $"\nCost: {aircraftDetails["Cost"]}, " +
+                            MessageBox.Show($"Aircraft: {_aircraft["Name"]}, " +
+                                $"\nAircraft Type: {_aircraft["AircraftType"]}, " +
+                                $"\nSpeed: {_aircraft["Speed"]}, " +
+                                $"\nRange: {_aircraft["Range"]}, " +
+                                $"\nMax Altitude: {_aircraft["MaxAltitude"]}, " +
+                                $"\nManeuverability: {_aircraft["Maneuverability"]}, " +
+                                $"\nPayloadCapacity: {_aircraft["PayloadCapacity"]}, " +
+                                $"\nCost: {_aircraft["Cost"]}, " +
                                 $"\nMunitions: {string.Join(", ", munitionsDetails)}, " +
                                 $"\nIFF: {selectedIFF}, " +
                                 $"\nLocation: {location}");

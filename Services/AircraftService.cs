@@ -137,6 +137,24 @@ namespace AirDefenseOptimizer.Services
             return _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
         }
 
+        public List<Dictionary<string, object>> GetAircraftRadars(int aircraftId)
+        {
+            string selectQuery = @"SELECT AircraftRadar.RadarId, Radar.Name AS RadarName, Radar.DetectionRange, Radar.MaxTargetsTracked, Radar.RadarType
+                           FROM AircraftRadar
+                           JOIN Radar ON AircraftRadar.RadarId = Radar.Id
+                           WHERE AircraftRadar.AircraftId = @aircraftId;";
+
+            using var connection = _connectionManager.GetConnection();
+
+            var parameters = new Dictionary<string, object>
+            {
+                { "@aircraftId", aircraftId }
+            };
+
+            return _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
+        }
+
+
 
         // Tüm uçakları listeleyen metot
         public List<Dictionary<string, object>> GetAllAircrafts()
