@@ -33,6 +33,10 @@ namespace AirDefenseOptimizer.Views
             {
                 string radarName = radars.FirstOrDefault(r => r["Id"].ToString() == aircraft["RadarId"]?.ToString())?["Name"]?.ToString() ?? "No Radar";
 
+                // Uçağa ait mühimmatları çek
+                var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(aircraft["Id"]));
+                string munitionsDetails = string.Join(Environment.NewLine, munitions.Select(m => $"{m["MunitionName"]}: {m["Quantity"]}"));
+
                 return new
                 {
                     Id = aircraft["Id"],
@@ -45,7 +49,8 @@ namespace AirDefenseOptimizer.Views
                     PayloadCapacity = aircraft["PayloadCapacity"],
                     Cost = aircraft["Cost"],
                     RadarId = aircraft["RadarId"],
-                    RadarName = radarName // Radar ID yerine radar adı
+                    RadarName = radarName,  // Radar ID yerine radar adı
+                    Munitions = munitionsDetails // Mühimmatları alt alta eklemek için Environment.NewLine kullanıldı
                 };
             }).ToList();
         }

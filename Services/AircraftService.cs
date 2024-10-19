@@ -1,4 +1,5 @@
-﻿using AirDefenseOptimizer.Database;  // ConnectionManager ve DatabaseHelper sınıflarını kullanmak için
+﻿using AirDefenseOptimizer.Database;
+using System.Windows;  // ConnectionManager ve DatabaseHelper sınıflarını kullanmak için
 
 namespace AirDefenseOptimizer.Services
 {
@@ -120,12 +121,23 @@ namespace AirDefenseOptimizer.Services
         }
 
         // Bir uçaktaki tüm mühimmatları çek
+        // Örneğin, GetAircraftMunitions'da hata kontrolü ekleyebilirsiniz:
         public List<Dictionary<string, object>> GetAircraftMunitions(int aircraftId)
         {
-            string selectQuery = @"SELECT AircraftMunition.MunitionId, Munition.Name AS MunitionName, AircraftMunition.Quantity 
-                           FROM AircraftMunition
-                           JOIN Munition ON AircraftMunition.MunitionId = Munition.Id
-                           WHERE AircraftMunition.AircraftId = @aircraftId;";
+            string selectQuery = @"SELECT AircraftMunition.MunitionId, 
+                                           Munition.Name AS MunitionName, 
+                                           Munition.MunitionType,
+                                           Munition.Weight,
+                                           Munition.Speed,
+                                           Munition.Range,
+                                           Munition.Maneuverability,
+                                           Munition.ExplosivePower,
+                                           Munition.Cost,
+                                           AircraftMunition.Quantity 
+                                  FROM AircraftMunition
+                                  JOIN Munition ON AircraftMunition.MunitionId = Munition.Id
+                                 WHERE AircraftMunition.AircraftId = @aircraftId;";
+
 
             using var connection = _connectionManager.GetConnection();
 
@@ -134,15 +146,27 @@ namespace AirDefenseOptimizer.Services
                 { "@aircraftId", aircraftId }
             };
 
-            return _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
+            var result = _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
+
+            if (result == null || result.Count == 0)
+            {
+                MessageBox.Show($"No munitions found for AircraftId: {aircraftId}");
+            }
+
+            return result;
         }
+
 
         public List<Dictionary<string, object>> GetAircraftRadars(int aircraftId)
         {
-            string selectQuery = @"SELECT AircraftRadar.RadarId, Radar.Name AS RadarName, Radar.DetectionRange, Radar.MaxTargetsTracked, Radar.RadarType
-                           FROM AircraftRadar
-                           JOIN Radar ON AircraftRadar.RadarId = Radar.Id
-                           WHERE AircraftRadar.AircraftId = @aircraftId;";
+            string selectQuery = @"SELECT AircraftRadar.RadarId, 
+                                        Radar.Name AS RadarName, 
+                                        Radar.DetectionRange, 
+                                        Radar.MaxTargetsTracked, 
+                                        Radar.RadarType
+                                   FROM AircraftRadar
+                                   JOIN Radar ON AircraftRadar.RadarId = Radar.Id
+                                   WHERE AircraftRadar.AircraftId = @aircraftId;";
 
             using var connection = _connectionManager.GetConnection();
 

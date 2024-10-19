@@ -228,6 +228,13 @@ namespace AirDefenseOptimizer.Views
 
             for (int i = 0; i < _munitionComboBoxes.Count; i++)
             {
+                // Mühimmatın seçili olup olmadığını kontrol et
+                if (_munitionComboBoxes[i].SelectedValue == null || string.IsNullOrEmpty(_munitionQuantityTextBoxes[i].Text))
+                {
+                    MessageBox.Show("Mühimmat türünü ve miktarını seçtiğinizden emin olun.");
+                    continue; // Seçim yapılmadıysa o mühimmatla ilgili işlemi atla
+                }
+
                 var selectedMunitionId = Convert.ToInt64(_munitionComboBoxes[i].SelectedValue);
                 int quantity = int.Parse(_munitionQuantityTextBoxes[i].Text);
 

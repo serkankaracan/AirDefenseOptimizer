@@ -1,5 +1,4 @@
 ﻿using AirDefenseOptimizer.Enums;
-using AirDefenseOptimizer.FuzzyEnums;
 using AirDefenseOptimizer.Models;
 using AirDefenseOptimizer.Services;
 using System.Windows;
@@ -58,17 +57,17 @@ namespace AirDefenseOptimizer.Views
                         {
                             Munition = new Munition
                             {
-                                Id = Convert.ToInt32(munition["Id"].ToString()),
-                                Name = munition["Name"].ToString(),
+                                Id = Convert.ToInt32(munition["MunitionId"].ToString()),  // Sorgudan gelen MunitionId anahtarı
+                                Name = munition["MunitionName"].ToString(),  // Sorgudan gelen MunitionName anahtarı
                                 MunitionType = (MunitionType)Enum.Parse(typeof(MunitionType), munition["MunitionType"].ToString()),
                                 Weight = Convert.ToDouble(munition["Weight"].ToString()),
                                 Speed = Convert.ToDouble(munition["Speed"].ToString()),
                                 Range = Convert.ToDouble(munition["Range"].ToString()),
                                 Maneuverability = (Maneuverability)Enum.Parse(typeof(Maneuverability), munition["Maneuverability"].ToString()),
                                 ExplosivePower = Convert.ToDouble(munition["ExplosivePower"].ToString()),
-                                Cost = Convert.ToDouble(munition["Cost"].ToString()),
+                                Cost = Convert.ToDouble(munition["Cost"].ToString())
                             },
-                            Quantity = Convert.ToInt32(munition["Quantity"])
+                            Quantity = Convert.ToInt32(munition["Quantity"])  // Sorgudan gelen Quantity anahtarı
                         };
 
                         aircraft.Munitions.Add(aircraftMunition);
@@ -124,37 +123,44 @@ namespace AirDefenseOptimizer.Views
                     var radars = _airDefenseService.GetAirDefenseRadars(Convert.ToInt32(mAirDefense["Id"]));
                     foreach (var radar in radars)
                     {
-                        var airDefenseRadar = new Radar
+                        var airDefenseRadar = new AirDefenseRadar
                         {
-                            Name = radar["RadarName"].ToString(),
-                            MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
-                            MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
-                            MinAltitude = Convert.ToInt32(radar["MinAltitude"]),
-                            MaxAltitude = Convert.ToInt32(radar["MaxAltitude"]),
-                            MaxTargetSpeed = Convert.ToInt32(radar["MaxTargetSpeed"]),
-                            RadarType = (RadarType)Enum.Parse(typeof(RadarType), mAirDefense["RadarType"].ToString()),
-                            MaxTargetVelocity = Convert.ToInt32(radar["MaxTargetVelocity"]),
-                            RedeploymentTime = Convert.ToInt32(radar["RedeploymentTime"])
-
+                            Radar = new Radar
+                            {
+                                Name = radar["RadarName"].ToString(),
+                                MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
+                                MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
+                                MinAltitude = Convert.ToInt32(radar["MinAltitude"]),
+                                MaxAltitude = Convert.ToInt32(radar["MaxAltitude"]),
+                                MaxTargetSpeed = Convert.ToInt32(radar["MaxTargetSpeed"]),
+                                RadarType = (RadarType)Enum.Parse(typeof(RadarType), radar["RadarType"].ToString()),
+                                MaxTargetVelocity = Convert.ToInt32(radar["MaxTargetVelocity"]),
+                                RedeploymentTime = Convert.ToInt32(radar["RedeploymentTime"])
+                            },
+                            Quantity = Convert.ToInt32(radar["Quantity"]) // Radar adedi
                         };
 
-                        airDefense.Radars.Add(airDefenseRadar);
+                        airDefense.Radars.Add(airDefenseRadar); // Doğru türde ekleniyor
                     }
 
                     // Mühimmatları veritabanından çekip ekleyelim
                     var munitions = _airDefenseService.GetAirDefenseMunitions(Convert.ToInt32(mAirDefense["Id"]));
                     foreach (var munition in munitions)
                     {
-                        var airDefenseMunition = new Munition
+                        var airDefenseMunition = new AirDefenseMunition
                         {
-                            Name = munition["MunitionName"].ToString(),
-                            Weight = (double)(EnumMunition.Weight)Enum.Parse(typeof(EnumMunition.Weight), munition["Weight"].ToString()),
-                            Speed = (double)(EnumMunition.Speed)Enum.Parse(typeof(EnumMunition.Speed), munition["Speed"].ToString()),
-                            Range = (double)(EnumMunition.Range)Enum.Parse(typeof(EnumMunition.Range), munition["Range"].ToString()),
-                            ExplosivePower = (double)(EnumMunition.ExplosivePower)Enum.Parse(typeof(EnumMunition.ExplosivePower), munition["ExplosivePower"].ToString())
+                            Munition = new Munition
+                            {
+                                Name = munition["MunitionName"].ToString(),
+                                Weight = Convert.ToDouble(munition["Weight"]),
+                                Speed = Convert.ToDouble(munition["Speed"]),
+                                Range = Convert.ToDouble(munition["Range"]),
+                                ExplosivePower = Convert.ToDouble(munition["ExplosivePower"])
+                            },
+                            Quantity = Convert.ToInt32(munition["Quantity"]) // Mühimmat adedi
                         };
 
-                        airDefense.Munitions.Add(airDefenseMunition);
+                        airDefense.Munitions.Add(airDefenseMunition); // Doğru türde ekleniyor
                     }
 
                     // AirDefenseSystem'i global listeye ekle

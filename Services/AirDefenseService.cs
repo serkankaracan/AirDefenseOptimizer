@@ -137,15 +137,25 @@ namespace AirDefenseOptimizer.Services
         public List<Dictionary<string, object>> GetAirDefenseRadars(int airDefenseId)
         {
             using var connection = _connectionManager.GetConnection();
-            string selectQuery = @"SELECT AirDefenseRadar.RadarId, Radar.Name AS RadarName, AirDefenseRadar.Quantity 
-                           FROM AirDefenseRadar
-                           JOIN Radar ON AirDefenseRadar.RadarId = Radar.Id
-                           WHERE AirDefenseRadar.AirDefenseId = @airDefenseId;";
+            string selectQuery = @"SELECT Radar.Id AS RadarId, 
+                                        Radar.Name AS RadarName, 
+                                        Radar.MinDetectionRange, 
+                                        Radar.MaxDetectionRange, 
+                                        Radar.MinAltitude, 
+                                        Radar.MaxAltitude, 
+                                        Radar.MaxTargetSpeed, 
+                                        Radar.RadarType, 
+                                        Radar.MaxTargetVelocity, 
+                                        Radar.RedeploymentTime, 
+                                        AirDefenseRadar.Quantity
+                                    FROM AirDefenseRadar
+                                    JOIN Radar ON AirDefenseRadar.RadarId = Radar.Id
+                                    WHERE AirDefenseRadar.AirDefenseId = @airDefenseId;";
 
             var parameters = new Dictionary<string, object>
-    {
-        { "@airDefenseId", airDefenseId }
-    };
+            {
+                { "@airDefenseId", airDefenseId }
+            };
 
             return _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
         }
@@ -155,10 +165,20 @@ namespace AirDefenseOptimizer.Services
         public List<Dictionary<string, object>> GetAirDefenseMunitions(int airDefenseId)
         {
             using var connection = _connectionManager.GetConnection();
-            string selectQuery = @"SELECT AirDefenseMunition.MunitionId, Munition.Name AS MunitionName, AirDefenseMunition.Quantity 
-                           FROM AirDefenseMunition
-                           JOIN Munition ON AirDefenseMunition.MunitionId = Munition.Id
-                           WHERE AirDefenseMunition.AirDefenseId = @airDefenseId;";
+            string selectQuery = @"SELECT 
+                                        AirDefenseMunition.MunitionId AS MunitionId, 
+                                        Munition.Name AS MunitionName, 
+                                        AirDefenseMunition.Quantity, 
+                                        Munition.Weight, 
+                                        Munition.Speed, 
+                                        Munition.Range, 
+                                        Munition.Maneuverability, 
+                                        Munition.ExplosivePower, 
+                                        Munition.Cost, 
+                                        Munition.MunitionType
+                                  FROM AirDefenseMunition
+                                  JOIN Munition ON AirDefenseMunition.MunitionId = Munition.Id
+                                  WHERE AirDefenseMunition.AirDefenseId = @airDefenseId;";
 
             var parameters = new Dictionary<string, object>
             {

@@ -51,7 +51,15 @@
                 <DataGridTextColumn Header="Payload Capacity" Binding="{Binding PayloadCapacity}" Width="120"/>
                 <DataGridTextColumn Header="Cost" Binding="{Binding Cost}" Width="80"/>
                 <DataGridTextColumn Header="Radar" Binding="{Binding RadarName}" Width="120"/>
-                <DataGridTextColumn Header="Munitions" Binding="{Binding Munitions}" Width="120"/>
+
+                <!-- Munitions Sütunu -->
+                <DataGridTemplateColumn Header="Munitions" Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Munitions}" TextWrapping="Wrap" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
 
                 <!-- İşlem Sütunu -->
                 <DataGridTemplateColumn Header="Actions" Width="200">
