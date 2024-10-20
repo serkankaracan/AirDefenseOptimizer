@@ -31,5 +31,23 @@
                 _ => "Unknown"
             };
         }
+
+        // Radar tipi için işlevler
+        public static (bool CanDetect, bool CanClassify, bool CanTrack, bool CanEngage) GetRadarCapabilities(this RadarType radarType)
+        {
+            return radarType switch
+            {
+                RadarType.LongRangeDetection => (true, false, false, false),
+                RadarType.MissileGuidance => (false, true, true, true),
+                RadarType.LowAltitudeDetection => (true, false, false, false),
+                RadarType.EarlyWarning => (true, false, false, false),
+                RadarType.TargetTracking => (true, true, true, true),
+                RadarType.MultiFunction => (true, true, true, true),
+                RadarType.FireControl => (true, true, true, true),
+                RadarType.SamRadar => (true, true, true, true),
+                RadarType.Airborne => (true, true, true, true),
+                _ => (false, false, false, false)
+            };
+        }
     }
 }

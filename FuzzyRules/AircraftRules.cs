@@ -28,32 +28,37 @@ namespace AirDefenseOptimizer.FuzzyRules
                         {
                             foreach (var payloadCapacity in Enum.GetValues(typeof(EnumAircraft.PayloadCapacity)).Cast<EnumAircraft.PayloadCapacity>())
                             {
-                                foreach (var cost in Enum.GetValues(typeof(EnumAircraft.Cost)).Cast<EnumAircraft.Cost>())
+                                foreach (var rcs in Enum.GetValues(typeof(EnumAircraft.RadarCrossSection)).Cast<EnumAircraft.RadarCrossSection>())
                                 {
-                                    // Yeni bir kural oluştur
-                                    var rule = new FuzzyRule();
-
-                                    // Koşulları ekle
-                                    rule.AddCondition("Speed", speed.ToString());
-                                    rule.AddCondition("Range", range.ToString());
-                                    rule.AddCondition("MaxAltitude", maxAltitude.ToString());
-                                    rule.AddCondition("Maneuverability", maneuverability.ToString());
-                                    rule.AddCondition("PayloadCapacity", payloadCapacity.ToString());
-                                    rule.AddCondition("Cost", cost.ToString());
-
-                                    // Sonuç olarak EngagementScore belirle
-                                    rule.AddConsequence("EngagementScore", CalculateEngagementScoreForAircraft(new Aircraft
+                                    foreach (var cost in Enum.GetValues(typeof(EnumAircraft.Cost)).Cast<EnumAircraft.Cost>())
                                     {
-                                        Speed = (double)speed,
-                                        Range = (double)range,
-                                        MaxAltitude = (double)maxAltitude,
-                                        Maneuverability = (Maneuverability)maneuverability,
-                                        PayloadCapacity = (double)payloadCapacity,
-                                        Cost = (double)cost,
-                                    }));
+                                        // Yeni bir kural oluştur
+                                        var rule = new FuzzyRule();
 
-                                    // Kurala ekle
-                                    Rules.Add(rule);
+                                        // Koşulları ekle
+                                        rule.AddCondition("Speed", speed.ToString());
+                                        rule.AddCondition("Range", range.ToString());
+                                        rule.AddCondition("MaxAltitude", maxAltitude.ToString());
+                                        rule.AddCondition("Maneuverability", maneuverability.ToString());
+                                        rule.AddCondition("PayloadCapacity", payloadCapacity.ToString());
+                                        rule.AddCondition("RadarCrossSection", rcs.ToString());
+                                        rule.AddCondition("Cost", cost.ToString());
+
+                                        // Sonuç olarak EngagementScore belirle
+                                        rule.AddConsequence("EngagementScore", CalculateEngagementScoreForAircraft(new Aircraft
+                                        {
+                                            Speed = (double)speed,
+                                            Range = (double)range,
+                                            MaxAltitude = (double)maxAltitude,
+                                            Maneuverability = (Maneuverability)maneuverability,
+                                            PayloadCapacity = (double)payloadCapacity,
+                                            RadarCrossSection = (double)rcs,
+                                            Cost = (double)cost,
+                                        }));
+
+                                        // Kurala ekle
+                                        Rules.Add(rule);
+                                    }
                                 }
                             }
                         }
@@ -141,15 +146,15 @@ namespace AirDefenseOptimizer.FuzzyRules
             }
 
             // Maneuverability değerlendirmesi
-            switch (aircraft.Maneuverability)
+            switch ((EnumAircraft.Maneuverability)aircraft.Maneuverability)
             {
-                case Maneuverability.High:
+                case EnumAircraft.Maneuverability.High:
                     score += 3;
                     break;
-                case Maneuverability.Medium:
+                case EnumAircraft.Maneuverability.Medium:
                     score += 2;
                     break;
-                case Maneuverability.Low:
+                case EnumAircraft.Maneuverability.Low:
                     score += 1;
                     break;
             }
@@ -164,6 +169,19 @@ namespace AirDefenseOptimizer.FuzzyRules
                     score += 2;
                     break;
                 case EnumAircraft.PayloadCapacity.Small:
+                    score += 1;
+                    break;
+            }
+
+            switch ((EnumAircraft.RadarCrossSection)aircraft.RadarCrossSection)
+            {
+                case EnumAircraft.RadarCrossSection.Low:
+                    score += 3;
+                    break;
+                case EnumAircraft.RadarCrossSection.Medium:
+                    score += 2;
+                    break;
+                case EnumAircraft.RadarCrossSection.High:
                     score += 1;
                     break;
             }

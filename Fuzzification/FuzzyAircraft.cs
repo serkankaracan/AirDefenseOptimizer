@@ -4,7 +4,7 @@ namespace AirDefenseOptimizer.Fuzzification
 {
     /// <summary>
     /// Uçak (Aircraft) nesnesi için Fuzzification işlemini gerçekleştiren sınıf.
-    /// Hız, menzil, maksimum irtifa, manevra kabiliyeti, yük kapasitesi ve maliyet gibi değişkenleri bulanıklaştırır.
+    /// Hız, menzil, maksimum irtifa, manevra kabiliyeti, yük kapasitesi, radar kesit alanı (RCS) ve maliyet gibi değişkenleri bulanıklaştırır.
     /// </summary>
     public class FuzzyAircraft
     {
@@ -13,6 +13,7 @@ namespace AirDefenseOptimizer.Fuzzification
         public FuzzyVariable MaxAltitude { get; set; }      // Maksimum İrtifa
         public FuzzyVariable Maneuverability { get; set; }  // Manevra Kabiliyeti
         public FuzzyVariable PayloadCapacity { get; set; }  // Yük Kapasitesi
+        public FuzzyVariable RadarCrossSection { get; set; } // Radar Kesit Alanı (RCS)
         public FuzzyVariable Cost { get; set; }             // Maliyet
 
         public FuzzyAircraft()
@@ -47,6 +48,12 @@ namespace AirDefenseOptimizer.Fuzzification
             PayloadCapacity.AddMembershipFunction("Medium", new TriangleMembershipFunction("Medium", 800, 1500, 2000));
             PayloadCapacity.AddMembershipFunction("Large", new TriangleMembershipFunction("Large", 1800, 2500, 3000));
 
+            // Radar Kesit Alanı (RCS) için bulanık kümeler
+            RadarCrossSection = new FuzzyVariable("RadarCrossSection");
+            RadarCrossSection.AddMembershipFunction("Low", new TriangleMembershipFunction("Low", 0, 1, 2));
+            RadarCrossSection.AddMembershipFunction("Medium", new TriangleMembershipFunction("Medium", 1.5, 3, 4.5));
+            RadarCrossSection.AddMembershipFunction("High", new TriangleMembershipFunction("High", 4, 6, 8));
+
             // Maliyet için bulanık kümeler
             Cost = new FuzzyVariable("Cost");
             Cost.AddMembershipFunction("Cheap", new TriangleMembershipFunction("Cheap", 0, 50000, 100000));
@@ -55,16 +62,17 @@ namespace AirDefenseOptimizer.Fuzzification
         }
 
         /// <summary>
-        /// Uçağın hız, menzil, maksimum irtifa, manevra kabiliyeti, yük kapasitesi ve maliyet gibi değişkenlerini bulanıklaştırır.
+        /// Uçağın hız, menzil, maksimum irtifa, manevra kabiliyeti, yük kapasitesi, radar kesit alanı ve maliyet gibi değişkenlerini bulanıklaştırır.
         /// </summary>
         /// <param name="speed">Hız</param>
         /// <param name="range">Menzil</param>
         /// <param name="maxAltitude">Maksimum İrtifa</param>
         /// <param name="maneuverability">Manevra Kabiliyeti</param>
         /// <param name="payloadCapacity">Yük Kapasitesi</param>
+        /// <param name="radarCrossSection">Radar Kesit Alanı</param>
         /// <param name="cost">Maliyet</param>
         /// <returns>Her bir değişkenin bulanıklaştırılmış sonuçları</returns>
-        public Dictionary<string, double> FuzzifyAircraft(double speed, double range, double maxAltitude, double maneuverability, double payloadCapacity, double cost)
+        public Dictionary<string, double> FuzzifyAircraft(double speed, double range, double maxAltitude, double maneuverability, double payloadCapacity, double radarCrossSection, double cost)
         {
             var results = new Dictionary<string, double>();
 
@@ -92,6 +100,11 @@ namespace AirDefenseOptimizer.Fuzzification
             results["PayloadCapacity_Small"] = PayloadCapacity.Fuzzify(payloadCapacity)["Small"];
             results["PayloadCapacity_Medium"] = PayloadCapacity.Fuzzify(payloadCapacity)["Medium"];
             results["PayloadCapacity_Large"] = PayloadCapacity.Fuzzify(payloadCapacity)["Large"];
+
+            // Radar Kesit Alanı (RCS) Fuzzification
+            results["RadarCrossSection_Low"] = RadarCrossSection.Fuzzify(radarCrossSection)["Low"];
+            results["RadarCrossSection_Medium"] = RadarCrossSection.Fuzzify(radarCrossSection)["Medium"];
+            results["RadarCrossSection_High"] = RadarCrossSection.Fuzzify(radarCrossSection)["High"];
 
             // Maliyet Fuzzification
             results["Cost_Cheap"] = Cost.Fuzzify(cost)["Cheap"];

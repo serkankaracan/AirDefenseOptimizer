@@ -13,10 +13,10 @@ namespace AirDefenseOptimizer.Services
             _databaseHelper = databaseHelper;
         }
 
-        public int AddAircraft(string name, string type, double speed, double range, double maxAltitude, string maneuverability, double payloadCapacity, double cost, int? radarId = null)
+        public int AddAircraft(string name, string type, double speed, double range, double maxAltitude, string maneuverability, double payloadCapacity, double cost, double? radarCrossSection = null, int? radarId = null)
         {
-            string insertQuery = @"INSERT INTO Aircraft (Name, AircraftType, Speed, Range, MaxAltitude, Maneuverability, PayloadCapacity, RadarId, Cost) 
-                                   VALUES (@name, @type, @speed, @range, @maxAltitude, @maneuverability, @payloadCapacity, @radarId, @cost);";
+            string insertQuery = @"INSERT INTO Aircraft (Name, AircraftType, Speed, Range, MaxAltitude, Maneuverability, PayloadCapacity, RadarCrossSection, RadarId, Cost) 
+                           VALUES (@name, @type, @speed, @range, @maxAltitude, @maneuverability, @payloadCapacity, @radarCrossSection, @radarId, @cost);";
 
             using var connection = _connectionManager.GetConnection();
 
@@ -29,6 +29,7 @@ namespace AirDefenseOptimizer.Services
                 { "@maxAltitude", maxAltitude },
                 { "@maneuverability", maneuverability },
                 { "@payloadCapacity", payloadCapacity },
+                { "@radarCrossSection", radarCrossSection ?? (object)DBNull.Value },
                 { "@radarId", radarId ?? (object)DBNull.Value },
                 { "@cost", cost }
             };
@@ -38,7 +39,6 @@ namespace AirDefenseOptimizer.Services
             // Yeni eklenen uçağın ID'sini döndür
             return (int)connection.LastInsertRowId;
         }
-
 
         // Uçağa mühimmat ekle
         public void AddMunitionToAircraft(int aircraftId, int munitionId, int quantity)
@@ -77,15 +77,14 @@ namespace AirDefenseOptimizer.Services
         }
 
         // Uçağı güncelle
-        public void UpdateAircraft(int aircraftId, string name, string type, double speed, double range, double maxAltitude, string maneuverability, double payloadCapacity, double cost, int? radarId = null)
+        public void UpdateAircraft(int aircraftId, string name, string type, double speed, double range, double maxAltitude, string maneuverability, double payloadCapacity, double cost, double? radarCrossSection = null, int? radarId = null)
         {
             string updateQuery = @"UPDATE Aircraft SET Name = @name, AircraftType = @type, Speed = @speed, Range = @range, MaxAltitude = @maxAltitude, 
-                                   Maneuverability = @maneuverability, PayloadCapacity = @payloadCapacity, RadarId = @radarId, Cost = @cost 
-                                   WHERE Id = @aircraftId;";
+                           Maneuverability = @maneuverability, PayloadCapacity = @payloadCapacity, RadarCrossSection = @radarCrossSection, RadarId = @radarId, Cost = @cost 
+                           WHERE Id = @aircraftId;";
 
             using var connection = _connectionManager.GetConnection();
 
-            // Parametreler sözlüğü
             var parameters = new Dictionary<string, object>
             {
                 { "@aircraftId", aircraftId },
@@ -96,6 +95,7 @@ namespace AirDefenseOptimizer.Services
                 { "@maxAltitude", maxAltitude },
                 { "@maneuverability", maneuverability },
                 { "@payloadCapacity", payloadCapacity },
+                { "@radarCrossSection", radarCrossSection ?? (object)DBNull.Value },
                 { "@radarId", radarId ?? (object)DBNull.Value },
                 { "@cost", cost }
             };

@@ -52,6 +52,13 @@
             Large   // Büyük yük kapasitesi
         }
 
+        public enum RadarCrossSection
+        {
+            Low,
+            Medium,
+            High
+        }
+
         /// <summary>
         /// Uçağın maliyeti için kullanılacak bulanık kümeler
         /// </summary>

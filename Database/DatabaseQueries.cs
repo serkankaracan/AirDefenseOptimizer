@@ -36,6 +36,7 @@
             MaxAltitude REAL NOT NULL,
             Maneuverability TEXT NOT NULL,
             PayloadCapacity REAL NOT NULL,
+            RadarCrossSection REAL,  -- Yeni eklenen sütun
             RadarId INTEGER,
             Cost REAL NOT NULL,
             FOREIGN KEY (RadarId) REFERENCES Radar (Id) ON DELETE SET NULL  -- You may consider ON DELETE CASCADE here
