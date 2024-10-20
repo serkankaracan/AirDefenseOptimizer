@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AirDefenseOptimizer"
         mc:Ignorable="d"
-        Title="Air Defense System Optimizer" Height="650" Width="1500" WindowStartupLocation="CenterScreen">
+        Title="Air Defense System Optimizer" Height="750" Width="1500" WindowStartupLocation="CenterScreen">
     <Grid>
         <!-- İki Sütun: Sol menü ve sağ içerik alanı -->
         <Grid.ColumnDefinitions>
@@ -25,6 +25,7 @@
             <!-- Alt Kısım: Butonlar -->
             <StackPanel VerticalAlignment="Top">
                 <Button x:Name="btnHomePage" Content="Ana Sayfa" Width="200" Height="40" Margin="20,5" Click="btnHomePage_Click" />
+                <Button x:Name="btnFuzzyRulesPage" Content="Fuzzy Rules" Width="200" Height="40" Margin="20,5" Click="btnFuzzyRulesPage_Click" />
                 <Button x:Name="btnAdsPage" Content="Hava Savunma Sistemi" Width="200" Height="40" Margin="20,5" Click="btnAdsPage_Click" />
                 <Button x:Name="btnAircratfPage" Content="Hava Aracı" Width="200" Height="40" Margin="20,5" Click="btnAircratfPage_Click" />
                 <Button x:Name="btnMunitionPage" Content="Mühimmat" Width="200" Height="40" Margin="20,5" Click="btnMunitionPage_Click" />

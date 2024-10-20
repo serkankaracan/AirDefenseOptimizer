@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using AirDefenseOptimizer.Views;
+using System.Windows;
 
 namespace AirDefenseOptimizer
 {
@@ -15,32 +16,37 @@ namespace AirDefenseOptimizer
 
         private void btnHomePage_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new Views.HomeWindow();
+            MainContent.Content = new HomeWindow();
+        }
+
+        private void btnFuzzyRulesPage_Click(object sender, RoutedEventArgs e)
+        {
+            MainContent.Content = new FuzzyRulesWindow();
         }
 
         private void btnAdsPage_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new Views.AirDefenseWindow();
+            MainContent.Content = new AirDefenseWindow();
         }
 
         private void btnAircratfPage_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new Views.AircraftWindow();
+            MainContent.Content = new AircraftWindow();
         }
 
         private void btnMunitionPage_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new Views.MunitionWindow();
+            MainContent.Content = new MunitionWindow();
         }
 
         private void btnRadarPage_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new Views.RadarWindow();
+            MainContent.Content = new RadarWindow();
         }
 
         private void btnAboutPage_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Content = new Views.AboutWindow();
+            MainContent.Content = new AboutWindow();
         }
 
         private void btnExit_Click(object sender, RoutedEventArgs e)

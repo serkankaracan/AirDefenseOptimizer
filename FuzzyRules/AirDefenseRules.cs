@@ -1,4 +1,5 @@
-﻿using AirDefenseOptimizer.FuzzyLogic;
+﻿using AirDefenseOptimizer.FuzzyEnums;
+using AirDefenseOptimizer.FuzzyLogic;
 
 namespace AirDefenseOptimizer.FuzzyRules
 {
@@ -14,26 +15,129 @@ namespace AirDefenseOptimizer.FuzzyRules
         {
             Rules = new List<FuzzyRule>();
 
-            // Örnek Kural 1: Eğer menzil "uzun" ve ECM kabiliyeti "güçlü" ise, angaje skoru "yüksek" olmalı
-            FuzzyRule rule1 = new FuzzyRule();
-            rule1.AddCondition("Range", "Long");
-            rule1.AddCondition("ECMCapability", "Strong");
-            rule1.AddConsequence("EngagementScore", "High");
-            Rules.Add(rule1);
+            // Tüm olası kombinasyonları döngülerle oluştur
+            foreach (var range in Enum.GetValues(typeof(EnumAirDefense.Range)).Cast<EnumAirDefense.Range>())
+            {
+                foreach (var ecmCapability in Enum.GetValues(typeof(EnumAirDefense.ECMCapability)).Cast<EnumAirDefense.ECMCapability>())
+                {
+                    foreach (var maxMissilesFired in Enum.GetValues(typeof(EnumAirDefense.MaxMissilesFired)).Cast<EnumAirDefense.MaxMissilesFired>())
+                    {
+                        foreach (var maxEngagements in Enum.GetValues(typeof(EnumAirDefense.MaxEngagements)).Cast<EnumAirDefense.MaxEngagements>())
+                        {
+                            foreach (var cost in Enum.GetValues(typeof(EnumAirDefense.Cost)).Cast<EnumAirDefense.Cost>())
+                            {
+                                // Yeni bir kural oluştur
+                                var rule = new FuzzyRule();
 
-            // Örnek Kural 2: Eğer füze ateşleme kapasitesi "düşük" ve maliyet "yüksek" ise, angaje skoru "orta" olmalı
-            FuzzyRule rule2 = new FuzzyRule();
-            rule2.AddCondition("MaxMissilesFired", "Low");
-            rule2.AddCondition("Cost", "Expensive");
-            rule2.AddConsequence("EngagementScore", "Medium");
-            Rules.Add(rule2);
+                                // Koşulları ekle
+                                rule.AddCondition("Range", range.ToString());
+                                rule.AddCondition("ECMCapability", ecmCapability.ToString());
+                                rule.AddCondition("MaxMissilesFired", maxMissilesFired.ToString());
+                                rule.AddCondition("MaxEngagements", maxEngagements.ToString());
+                                rule.AddCondition("Cost", cost.ToString());
 
-            // Örnek Kural 3: Eğer maksimum angaje olabilme "yüksek" ve menzil "orta" ise, angaje skoru "düşük" olmalı
-            FuzzyRule rule3 = new FuzzyRule();
-            rule3.AddCondition("MaxEngagements", "High");
-            rule3.AddCondition("Range", "Medium");
-            rule3.AddConsequence("EngagementScore", "Low");
-            Rules.Add(rule3);
+                                // Angaje skoru hesapla ve sonuçları ekle
+                                rule.AddConsequence("EngagementScore", CalculateEngagementScore(range, ecmCapability, maxMissilesFired, maxEngagements, cost));
+
+                                // Kurala ekle
+                                Rules.Add(rule);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Koşullara göre angaje skorunu hesaplar. Bu yöntem isteğe göre özelleştirilebilir.
+        /// </summary>
+        private string CalculateEngagementScore(EnumAirDefense.Range range, EnumAirDefense.ECMCapability ecmCapability, EnumAirDefense.MaxMissilesFired maxMissilesFired, EnumAirDefense.MaxEngagements maxEngagements, EnumAirDefense.Cost cost)
+        {
+            int score = 0;
+
+            // Range değerlendirmesi
+            switch (range)
+            {
+                case EnumAirDefense.Range.Long:
+                    score += 3;
+                    break;
+                case EnumAirDefense.Range.Medium:
+                    score += 2;
+                    break;
+                case EnumAirDefense.Range.Short:
+                    score += 1;
+                    break;
+            }
+
+            // ECM Capability değerlendirmesi
+            switch (ecmCapability)
+            {
+                case EnumAirDefense.ECMCapability.Strong:
+                    score += 3;
+                    break;
+                case EnumAirDefense.ECMCapability.Moderate:
+                    score += 2;
+                    break;
+                case EnumAirDefense.ECMCapability.Weak:
+                    score += 1;
+                    break;
+            }
+
+            // MaxMissilesFired değerlendirmesi
+            switch (maxMissilesFired)
+            {
+                case EnumAirDefense.MaxMissilesFired.High:
+                    score += 3;
+                    break;
+                case EnumAirDefense.MaxMissilesFired.Medium:
+                    score += 2;
+                    break;
+                case EnumAirDefense.MaxMissilesFired.Low:
+                    score += 1;
+                    break;
+            }
+
+            // MaxEngagements değerlendirmesi
+            switch (maxEngagements)
+            {
+                case EnumAirDefense.MaxEngagements.Many:
+                    score += 3;
+                    break;
+                case EnumAirDefense.MaxEngagements.Moderate:
+                    score += 2;
+                    break;
+                case EnumAirDefense.MaxEngagements.Few:
+                    score += 1;
+                    break;
+            }
+
+            // Cost değerlendirmesi
+            switch (cost)
+            {
+                case EnumAirDefense.Cost.Expensive:
+                    score += 1; // Pahalıysa düşük angaje skoru
+                    break;
+                case EnumAirDefense.Cost.Moderate:
+                    score += 2;
+                    break;
+                case EnumAirDefense.Cost.Cheap:
+                    score += 3; // Ucuzsa yüksek angaje skoru
+                    break;
+            }
+
+            // Toplam puana göre angaje skoru
+            if (score >= 13)
+            {
+                return "High";
+            }
+            else if (score >= 8)
+            {
+                return "Medium";
+            }
+            else
+            {
+                return "Low";
+            }
         }
 
         /// <summary>
