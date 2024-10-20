@@ -16,15 +16,15 @@ namespace AirDefenseOptimizer.FuzzyRules
             Rules = new List<FuzzyRule>();
 
             // Tüm olası kombinasyonları döngülerle oluştur
-            foreach (var detectionRange in Enum.GetValues(typeof(DetectionRange)).Cast<DetectionRange>())
+            foreach (var detectionRange in Enum.GetValues(typeof(EnumRadar.DetectionRange)).Cast<EnumRadar.DetectionRange>())
             {
-                foreach (var altitude in Enum.GetValues(typeof(Altitude)).Cast<Altitude>())
+                foreach (var altitude in Enum.GetValues(typeof(EnumRadar.Altitude)).Cast<EnumRadar.Altitude>())
                 {
-                    foreach (var maxTargetSpeed in Enum.GetValues(typeof(MaxTargetSpeed)).Cast<MaxTargetSpeed>())
+                    foreach (var maxTargetSpeed in Enum.GetValues(typeof(EnumRadar.MaxTargetSpeed)).Cast<EnumRadar.MaxTargetSpeed>())
                     {
-                        foreach (var maxTargetVelocity in Enum.GetValues(typeof(MaxTargetVelocity)).Cast<MaxTargetVelocity>())
+                        foreach (var maxTargetVelocity in Enum.GetValues(typeof(EnumRadar.MaxTargetVelocity)).Cast<EnumRadar.MaxTargetVelocity>())
                         {
-                            foreach (var redeploymentTime in Enum.GetValues(typeof(RedeploymentTime)).Cast<RedeploymentTime>())
+                            foreach (var redeploymentTime in Enum.GetValues(typeof(EnumRadar.RedeploymentTime)).Cast<EnumRadar.RedeploymentTime>())
                             {
                                 // Yeni bir kural oluştur
                                 var rule = new FuzzyRule();
@@ -36,8 +36,12 @@ namespace AirDefenseOptimizer.FuzzyRules
                                 rule.AddCondition("MaxTargetVelocity", maxTargetVelocity.ToString() ?? string.Empty);
                                 rule.AddCondition("RedeploymentTime", redeploymentTime.ToString() ?? string.Empty);
 
-                                // Her kombinasyon için sonuç belirle (örneğin, Angaje Skoru)
-                                rule.AddConsequence("EngagementScore", CalculateEngagementScore(detectionRange, altitude, maxTargetSpeed, maxTargetVelocity, redeploymentTime));
+                                // Savunma skorunu hesapla
+                                var (surveillanceLevel, totalScore) = CalculateEngagementScore(detectionRange, altitude, maxTargetSpeed, maxTargetVelocity, redeploymentTime);
+
+                                // Sonuçları ekle
+                                rule.AddConsequence("SurveillanceScore", surveillanceLevel); // Seviye
+                                rule.AddConsequence("TotalScore", totalScore.ToString());    // Toplam puan
 
                                 // Kurala ekle
                                 Rules.Add(rule);
@@ -49,28 +53,22 @@ namespace AirDefenseOptimizer.FuzzyRules
         }
 
         /// <summary>
-        /// Koşullara göre angaje skorunu hesaplar. Bu yöntem isteğe göre özelleştirilebilir.
+        /// Koşullara göre radar savunma skorunu hesaplar.
         /// </summary>
-        /// <param name="detectionRange">Algılama menzili</param>
-        /// <param name="altitude">İrtifa</param>
-        /// <param name="maxTargetSpeed">Maksimum hedef hızı</param>
-        /// <param name="maxTargetVelocity">Maksimum hedef hızı (velocity)</param>
-        /// <param name="redeploymentTime">Redeployment süresi</param>
-        /// <returns>Hesaplanan angaje skoru</returns>
-        private string CalculateEngagementScore(DetectionRange detectionRange, Altitude altitude, MaxTargetSpeed maxTargetSpeed, MaxTargetVelocity maxTargetVelocity, RedeploymentTime redeploymentTime)
+        private (string, int) CalculateEngagementScore(EnumRadar.DetectionRange detectionRange, EnumRadar.Altitude altitude, EnumRadar.MaxTargetSpeed maxTargetSpeed, EnumRadar.MaxTargetVelocity maxTargetVelocity, EnumRadar.RedeploymentTime redeploymentTime)
         {
             int score = 0;
 
             // Detection Range değerlendirmesi
             switch (detectionRange)
             {
-                case DetectionRange.Long:
+                case EnumRadar.DetectionRange.Long:
                     score += 3; // Uzun menzil için yüksek puan
                     break;
-                case DetectionRange.Medium:
+                case EnumRadar.DetectionRange.Medium:
                     score += 2; // Orta menzil için orta puan
                     break;
-                case DetectionRange.Short:
+                case EnumRadar.DetectionRange.Short:
                     score += 1; // Kısa menzil için düşük puan
                     break;
             }
@@ -78,13 +76,13 @@ namespace AirDefenseOptimizer.FuzzyRules
             // Altitude değerlendirmesi
             switch (altitude)
             {
-                case Altitude.High:
+                case EnumRadar.Altitude.High:
                     score += 3; // Yüksek irtifa için yüksek puan
                     break;
-                case Altitude.Medium:
+                case EnumRadar.Altitude.Medium:
                     score += 2; // Orta irtifa için orta puan
                     break;
-                case Altitude.Low:
+                case EnumRadar.Altitude.Low:
                     score += 1; // Düşük irtifa için düşük puan
                     break;
             }
@@ -92,13 +90,13 @@ namespace AirDefenseOptimizer.FuzzyRules
             // Max Target Speed değerlendirmesi
             switch (maxTargetSpeed)
             {
-                case MaxTargetSpeed.High:
+                case EnumRadar.MaxTargetSpeed.High:
                     score += 3; // Yüksek hız için yüksek puan
                     break;
-                case MaxTargetSpeed.Medium:
+                case EnumRadar.MaxTargetSpeed.Medium:
                     score += 2; // Orta hız için orta puan
                     break;
-                case MaxTargetSpeed.Low:
+                case EnumRadar.MaxTargetSpeed.Low:
                     score += 1; // Düşük hız için düşük puan
                     break;
             }
@@ -106,13 +104,13 @@ namespace AirDefenseOptimizer.FuzzyRules
             // Max Target Velocity değerlendirmesi
             switch (maxTargetVelocity)
             {
-                case MaxTargetVelocity.High:
+                case EnumRadar.MaxTargetVelocity.High:
                     score += 3; // Yüksek velocity için yüksek puan
                     break;
-                case MaxTargetVelocity.Medium:
+                case EnumRadar.MaxTargetVelocity.Medium:
                     score += 2; // Orta velocity için orta puan
                     break;
-                case MaxTargetVelocity.Low:
+                case EnumRadar.MaxTargetVelocity.Low:
                     score += 1; // Düşük velocity için düşük puan
                     break;
             }
@@ -120,29 +118,43 @@ namespace AirDefenseOptimizer.FuzzyRules
             // Redeployment Time değerlendirmesi
             switch (redeploymentTime)
             {
-                case RedeploymentTime.Short:
+                case EnumRadar.RedeploymentTime.Short:
                     score += 3; // Kısa redeployment zamanı için yüksek puan
                     break;
-                case RedeploymentTime.Medium:
+                case EnumRadar.RedeploymentTime.Medium:
                     score += 2; // Orta redeployment zamanı için orta puan
                     break;
-                case RedeploymentTime.Long:
+                case EnumRadar.RedeploymentTime.Long:
                     score += 1; // Uzun redeployment zamanı için düşük puan
                     break;
             }
 
-            // Puanın sonucuna göre EngagementScore belirlenir
-            if (score >= 13)
+            // Toplam maksimum puanı belirle
+            int maxScore = 3 * 5; // Her parametre için 3 puan varsayılır
+
+            // Yüzdesel tehdit skoru hesapla
+            double scorePercentage = (double)score / maxScore * 100;
+
+            // Yüzdelik tehdit skoru aralıklarına göre sınıflandırma
+            if (scorePercentage >= 80)
             {
-                return "High";
+                return ("Critical", score);
             }
-            else if (score >= 8)
+            else if (scorePercentage >= 60)
             {
-                return "Medium";
+                return ("High", score);
+            }
+            else if (scorePercentage >= 40)
+            {
+                return ("Medium", score);
+            }
+            else if (scorePercentage >= 20)
+            {
+                return ("Low", score);
             }
             else
             {
-                return "Low";
+                return ("Very Low", score);
             }
         }
 

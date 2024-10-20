@@ -44,8 +44,8 @@ namespace AirDefenseOptimizer.FuzzyRules
                                         rule.AddCondition("RadarCrossSection", rcs.ToString());
                                         rule.AddCondition("Cost", cost.ToString());
 
-                                        // Sonuç olarak EngagementScore belirle
-                                        rule.AddConsequence("EngagementScore", CalculateEngagementScoreForAircraft(new Aircraft
+                                        // Uçağın tehdit seviyesini ve skorunu hesapla
+                                        var (threatLevel, totalScore) = CalculateThreatScore(new Aircraft
                                         {
                                             Speed = (double)speed,
                                             Range = (double)range,
@@ -54,7 +54,11 @@ namespace AirDefenseOptimizer.FuzzyRules
                                             PayloadCapacity = (double)payloadCapacity,
                                             RadarCrossSection = (double)rcs,
                                             Cost = (double)cost,
-                                        }));
+                                        });
+
+                                        // Sonuç olarak ThreatScore ve TotalScore belirle
+                                        rule.AddConsequence("ThreatScore", threatLevel); // Tehdit seviyesi (Critical, High, vb.)
+                                        rule.AddConsequence("TotalScore", totalScore.ToString()); // Toplam skor
 
                                         // Kurala ekle
                                         Rules.Add(rule);
@@ -68,32 +72,39 @@ namespace AirDefenseOptimizer.FuzzyRules
         }
 
         /// <summary>
-        /// Uçağın ve mühimmatlarının birleşik etkisiyle angaje skorunu hesaplar.
+        /// Uçağın ve mühimmatlarının birleşik etkisiyle tehdit skorunu hesaplar.
         /// </summary>
-        public string CalculateEngagementScoreForAircraft(Aircraft aircraft)
+        public (string, int) CalculateThreatScore(Aircraft aircraft)
         {
+            // Uçağın parametrelerine dayalı maksimum skor
+            int maxAircraftScore = CalculateMaxAircraftScore();
+
             // Uçağın angaje skorunu hesapla
             int aircraftScore = CalculateAircraftScore(aircraft);
 
-            // Uçak ve mühimmat skorlarını birleştir (mühimmat listesini burada almanız gerekiyor)
-            int munitionScore = CalculateTotalMunitionScore(aircraft.Munitions);
+            // Mühimmatların parametrelerine dayalı maksimum skor
+            int maxMunitionScore = CalculateMaxMunitionScore(aircraft.Munitions);
 
             // Uçak ve mühimmat skorlarını birleştir
-            int totalScore = aircraftScore + munitionScore;
+            int totalScore = aircraftScore + CalculateTotalMunitionScore(aircraft.Munitions);
 
-            // Toplam skora göre EngagementScore belirlenir
-            if (totalScore >= 20)
-            {
-                return "High";
-            }
-            else if (totalScore >= 12)
-            {
-                return "Medium";
-            }
+            // Maksimum skor
+            int maxTotalScore = maxAircraftScore + maxMunitionScore;
+
+            // Yüzdesel tehdit skoru hesapla
+            double scorePercentage = (double)totalScore / maxTotalScore * 100;
+
+            // Yüzdelik tehdit skoru aralıklarına göre sınıflandırma
+            if (scorePercentage >= 80)
+                return ("Critical", totalScore);
+            else if (scorePercentage >= 60)
+                return ("High", totalScore);
+            else if (scorePercentage >= 40)
+                return ("Medium", totalScore);
+            else if (scorePercentage >= 20)
+                return ("Low", totalScore);
             else
-            {
-                return "Low";
-            }
+                return ("Very Low", totalScore);
         }
 
         /// <summary>
@@ -173,6 +184,7 @@ namespace AirDefenseOptimizer.FuzzyRules
                     break;
             }
 
+            // RadarCrossSection değerlendirmesi
             switch ((EnumAircraft.RadarCrossSection)aircraft.RadarCrossSection)
             {
                 case EnumAircraft.RadarCrossSection.Low:
@@ -204,7 +216,7 @@ namespace AirDefenseOptimizer.FuzzyRules
         }
 
         /// <summary>
-        /// Uçağın taşıdığı mühimmatların toplam angaje skorunu hesaplar.
+        /// Uçağın taşıdığı mühimmatların toplam tehdit skorunu hesaplar.
         /// </summary>
         private int CalculateTotalMunitionScore(List<AircraftMunition> munitions)
         {
@@ -218,7 +230,7 @@ namespace AirDefenseOptimizer.FuzzyRules
         }
 
         /// <summary>
-        /// Tek bir mühimmatın angaje skorunu hesaplar.
+        /// Tek bir mühimmatın tehdit skorunu hesaplar.
         /// </summary>
         private int CalculateMunitionScore(Munition munition)
         {
@@ -280,7 +292,40 @@ namespace AirDefenseOptimizer.FuzzyRules
                     break;
             }
 
+            switch ((EnumMunition.Cost)munition.Cost)
+            {
+                case EnumMunition.Cost.Cheap:
+                    score += 1;
+                    break;
+                case EnumMunition.Cost.Moderate:
+                    score += 2;
+                    break;
+                case EnumMunition.Cost.Expensive:
+                    score += 3;
+                    break;
+                default:
+                    break;
+            }
+
             return score;
+        }
+
+        /// <summary>
+        /// Maksimum uçak skoru hesaplanır.
+        /// </summary>
+        private int CalculateMaxAircraftScore()
+        {
+            // Maksimum her parametre için 3 puan olduğu varsayılır.
+            return 3 * 7; // Speed, Range, MaxAltitude, Maneuverability, PayloadCapacity, RadarCrossSection, Cost için
+        }
+
+        /// <summary>
+        /// Maksimum mühimmat skoru hesaplanır.
+        /// </summary>
+        private int CalculateMaxMunitionScore(List<AircraftMunition> munitions)
+        {
+            // Maksimum her parametre için 3 puan olduğu varsayılır. Burada her mühimmatın 5 parametresi var.
+            return munitions.Count * 3 * 5; // Weight, Speed, Range, ExplosivePower, Cost
         }
     }
 }

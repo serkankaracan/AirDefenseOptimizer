@@ -1,6 +1,6 @@
 ﻿namespace AirDefenseOptimizer.FuzzyEnums
 {
-    internal class EnumAirDefense
+    public class EnumAirDefense
     {
         /// <summary>
         /// Hava savunma sisteminin menzili için kullanılacak bulanık kümeler

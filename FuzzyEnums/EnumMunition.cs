@@ -1,6 +1,6 @@
 ﻿namespace AirDefenseOptimizer.FuzzyEnums
 {
-    internal class EnumMunition
+    public class EnumMunition
     {
         /// <summary>
         /// Mühimmatın ağırlığı için kullanılacak bulanık kümeler
@@ -30,6 +30,16 @@
             Short,  // Kısa menzil
             Medium, // Orta menzil
             Long    // Uzun menzil
+        }
+
+        /// <summary>
+        /// Mühimmatın manevra kabiliyeti için kullanılacak bulanık kümeler
+        /// </summary>
+        public enum Maneuverability
+        {
+            Low,    // Düşük manevra kabiliyeti
+            Medium, // Orta manevra kabiliyeti
+            High    // Yüksek manevra kabiliyeti
         }
 
         /// <summary>

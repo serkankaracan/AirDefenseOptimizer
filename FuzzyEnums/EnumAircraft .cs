@@ -1,6 +1,6 @@
 ﻿namespace AirDefenseOptimizer.FuzzyEnums
 {
-    internal class EnumAircraft
+    public class EnumAircraft
     {
         /// <summary>
         /// Uçağın hızı için kullanılacak bulanık kümeler

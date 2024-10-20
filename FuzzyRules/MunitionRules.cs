@@ -5,7 +5,7 @@ namespace AirDefenseOptimizer.FuzzyRules
 {
     /// <summary>
     /// Mühimmat (Munition) için fuzzy mantık kurallarını otomatik oluşturan sınıf.
-    /// Ağırlık, hız, menzil, patlayıcı güç ve maliyet gibi faktörlerin tüm olası kombinasyonlarına dayalı kurallar oluşturulur.
+    /// Ağırlık, hız, menzil, patlayıcı güç, maliyet ve manevra kabiliyeti gibi faktörlerin tüm olası kombinasyonlarına dayalı kurallar oluşturulur.
     /// </summary>
     public class MunitionRules
     {
@@ -26,21 +26,29 @@ namespace AirDefenseOptimizer.FuzzyRules
                         {
                             foreach (var cost in Enum.GetValues(typeof(EnumMunition.Cost)).Cast<EnumMunition.Cost>())
                             {
-                                // Yeni bir kural oluştur
-                                var rule = new FuzzyRule();
+                                foreach (var maneuverability in Enum.GetValues(typeof(EnumMunition.Maneuverability)).Cast<EnumMunition.Maneuverability>())
+                                {
+                                    // Yeni bir kural oluştur
+                                    var rule = new FuzzyRule();
 
-                                // Koşulları ekle (ağırlık, hız, menzil, patlayıcı güç, maliyet)
-                                rule.AddCondition("Weight", weight.ToString() ?? string.Empty);
-                                rule.AddCondition("Speed", speed.ToString() ?? string.Empty);
-                                rule.AddCondition("Range", range.ToString() ?? string.Empty);
-                                rule.AddCondition("ExplosivePower", explosivePower.ToString() ?? string.Empty);
-                                rule.AddCondition("Cost", cost.ToString() ?? string.Empty);
+                                    // Koşulları ekle (ağırlık, hız, menzil, patlayıcı güç, maliyet ve manevra kabiliyeti)
+                                    rule.AddCondition("Weight", weight.ToString() ?? string.Empty);
+                                    rule.AddCondition("Speed", speed.ToString() ?? string.Empty);
+                                    rule.AddCondition("Range", range.ToString() ?? string.Empty);
+                                    rule.AddCondition("ExplosivePower", explosivePower.ToString() ?? string.Empty);
+                                    rule.AddCondition("Cost", cost.ToString() ?? string.Empty);
+                                    rule.AddCondition("Maneuverability", maneuverability.ToString() ?? string.Empty);
 
-                                // Her kombinasyon için sonuç belirle (örneğin, Angaje Skoru)
-                                rule.AddConsequence("EngagementScore", CalculateEngagementScore(weight, speed, range, explosivePower, cost));
+                                    // Savunma skorunu hesapla
+                                    var (impactLevel, totalScore) = CalculateEngagementScore(weight, speed, range, explosivePower, cost, maneuverability);
 
-                                // Kurala ekle
-                                Rules.Add(rule);
+                                    // Sonuç olarak ImpactScore ve TotalScore belirle
+                                    rule.AddConsequence("ImpactScore", impactLevel); // Seviye
+                                    rule.AddConsequence("TotalScore", totalScore.ToString()); // Toplam skor
+
+                                    // Kurala ekle
+                                    Rules.Add(rule);
+                                }
                             }
                         }
                     }
@@ -49,15 +57,9 @@ namespace AirDefenseOptimizer.FuzzyRules
         }
 
         /// <summary>
-        /// Koşullara göre angaje skorunu hesaplar. Bu yöntem isteğe göre özelleştirilebilir.
+        /// Koşullara göre mühimmat angaje skorunu hesaplar.
         /// </summary>
-        /// <param name="weight">Mühimmatın ağırlığı</param>
-        /// <param name="speed">Mühimmatın hızı</param>
-        /// <param name="range">Mühimmatın menzili</param>
-        /// <param name="explosivePower">Mühimmatın patlayıcı gücü</param>
-        /// <param name="cost">Mühimmatın maliyeti</param>
-        /// <returns>Hesaplanan angaje skoru</returns>
-        private string CalculateEngagementScore(EnumMunition.Weight weight, EnumMunition.Speed speed, EnumMunition.Range range, EnumMunition.ExplosivePower explosivePower, EnumMunition.Cost cost)
+        private (string, int) CalculateEngagementScore(EnumMunition.Weight weight, EnumMunition.Speed speed, EnumMunition.Range range, EnumMunition.ExplosivePower explosivePower, EnumMunition.Cost cost, EnumMunition.Maneuverability maneuverability)
         {
             int score = 0;
 
@@ -121,28 +123,56 @@ namespace AirDefenseOptimizer.FuzzyRules
             switch (cost)
             {
                 case EnumMunition.Cost.Expensive:
-                    score += 3; // Pahalı mühimmat için yüksek puan
+                    score += 1; // Pahalı mühimmat düşük puan alır
                     break;
                 case EnumMunition.Cost.Moderate:
-                    score += 2; // Orta maliyetli mühimmat için orta puan
+                    score += 2;
                     break;
                 case EnumMunition.Cost.Cheap:
-                    score += 1; // Ucuz mühimmat için düşük puan
+                    score += 3; // Ucuz mühimmat yüksek puan alır
                     break;
             }
 
-            // Puanın sonucuna göre EngagementScore belirlenir
-            if (score >= 13)
+            // Maneuverability değerlendirmesi
+            switch (maneuverability)
             {
-                return "High";
+                case EnumMunition.Maneuverability.High:
+                    score += 3; // Yüksek manevra kabiliyeti için yüksek puan
+                    break;
+                case EnumMunition.Maneuverability.Medium:
+                    score += 2; // Orta manevra kabiliyeti için orta puan
+                    break;
+                case EnumMunition.Maneuverability.Low:
+                    score += 1; // Düşük manevra kabiliyeti için düşük puan
+                    break;
             }
-            else if (score >= 8)
+
+            // Toplam maksimum puanı belirle
+            int maxScore = 3 * 6; // Her parametre için 3 puan varsayılır
+
+            // Yüzdesel tehdit skoru hesapla
+            double scorePercentage = (double)score / maxScore * 100;
+
+            // Yüzdelik tehdit skoru aralıklarına göre sınıflandırma
+            if (scorePercentage >= 80)
             {
-                return "Medium";
+                return ("Critical", score);
+            }
+            else if (scorePercentage >= 60)
+            {
+                return ("High", score);
+            }
+            else if (scorePercentage >= 40)
+            {
+                return ("Medium", score);
+            }
+            else if (scorePercentage >= 20)
+            {
+                return ("Low", score);
             }
             else
             {
-                return "Low";
+                return ("Very Low", score);
             }
         }
 
