@@ -1,5 +1,4 @@
 ﻿using AirDefenseOptimizer.Database;
-using System.Windows;  // ConnectionManager ve DatabaseHelper sınıflarını kullanmak için
 
 namespace AirDefenseOptimizer.Services
 {
@@ -146,27 +145,24 @@ namespace AirDefenseOptimizer.Services
                 { "@aircraftId", aircraftId }
             };
 
-            var result = _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
-
-            if (result == null || result.Count == 0)
-            {
-                MessageBox.Show($"No munitions found for AircraftId: {aircraftId}");
-            }
-
-            return result;
+            return _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
         }
 
-
-        public List<Dictionary<string, object>> GetAircraftRadars(int aircraftId)
+        public Dictionary<string, object>? GetAircraftRadar(int aircraftId)
         {
-            string selectQuery = @"SELECT AircraftRadar.RadarId, 
-                                        Radar.Name AS RadarName, 
-                                        Radar.DetectionRange, 
-                                        Radar.MaxTargetsTracked, 
-                                        Radar.RadarType
-                                   FROM AircraftRadar
-                                   JOIN Radar ON AircraftRadar.RadarId = Radar.Id
-                                   WHERE AircraftRadar.AircraftId = @aircraftId;";
+            string selectQuery = @"SELECT Radar.Id, 
+                                  Radar.Name AS RadarName, 
+                                  Radar.MinDetectionRange, 
+                                  Radar.MaxDetectionRange, 
+                                  Radar.MinAltitude, 
+                                  Radar.MaxAltitude, 
+                                  Radar.MaxTargetSpeed, 
+                                  Radar.MaxTargetVelocity, 
+                                  Radar.RedeploymentTime,
+                                  Radar.RadarType
+                           FROM Aircraft
+                           JOIN Radar ON Aircraft.RadarId = Radar.Id
+                           WHERE Aircraft.Id = @aircraftId;";
 
             using var connection = _connectionManager.GetConnection();
 
@@ -175,10 +171,9 @@ namespace AirDefenseOptimizer.Services
                 { "@aircraftId", aircraftId }
             };
 
-            return _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
+            var result = _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
+            return result.FirstOrDefault(); // Tek bir radar kaydı dönecek
         }
-
-
 
         // Tüm uçakları listeleyen metot
         public List<Dictionary<string, object>> GetAllAircrafts()

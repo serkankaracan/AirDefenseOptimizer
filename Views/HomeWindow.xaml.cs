@@ -46,7 +46,7 @@ namespace AirDefenseOptimizer.Views
                         PayloadCapacity = Convert.ToDouble(mAircraft["PayloadCapacity"]),
                         Cost = Convert.ToDouble(mAircraft["Cost"]),
                         Munitions = new List<AircraftMunition>(),
-                        Radar = new Radar() // Radar bilgisi eklenecek
+                        Radar = null
                     };
 
                     // Mühimmatları veritabanından çekip ekleyelim
@@ -73,14 +73,14 @@ namespace AirDefenseOptimizer.Views
                         aircraft.Munitions.Add(aircraftMunition);
                     }
 
-                    // Radarları veritabanından çekip ekleyelim
-                    var radars = _aircraftService.GetAircraftRadars(Convert.ToInt32(mAircraft["Id"]));
-                    foreach (var radar in radars)
+                    var radar = _aircraftService.GetAircraftRadar(Convert.ToInt32(mAircraft["Id"]));
+
+                    if (radar != null)
                     {
                         aircraft.Radar = new Radar
                         {
                             Id = Convert.ToInt32(radar["Id"]),
-                            Name = radar["Name"].ToString(),
+                            Name = radar["RadarName"].ToString(),
                             RadarType = (RadarType)Enum.Parse(typeof(RadarType), radar["RadarType"].ToString()),
                             MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
                             MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
@@ -91,6 +91,25 @@ namespace AirDefenseOptimizer.Views
                             RedeploymentTime = Convert.ToInt32(radar["RedeploymentTime"])
                         };
                     }
+
+                    //// Radarları veritabanından çekip ekleyelim
+                    //var radars = _aircraftService.GetAircraftRadars(Convert.ToInt32(mAircraft["Id"]));
+                    //foreach (var radar in radars)
+                    //{
+                    //    aircraft.Radar = new Radar
+                    //    {
+                    //        Id = Convert.ToInt32(radar["Id"]),
+                    //        Name = radar["Name"].ToString(),
+                    //        RadarType = (RadarType)Enum.Parse(typeof(RadarType), radar["RadarType"].ToString()),
+                    //        MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
+                    //        MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
+                    //        MinAltitude = Convert.ToInt32(radar["MinAltitude"]),
+                    //        MaxAltitude = Convert.ToInt32(radar["MaxAltitude"]),
+                    //        MaxTargetSpeed = Convert.ToInt32(radar["MaxTargetSpeed"]),
+                    //        MaxTargetVelocity = Convert.ToInt32(radar["MaxTargetVelocity"]),
+                    //        RedeploymentTime = Convert.ToInt32(radar["RedeploymentTime"])
+                    //    };
+                    //}
 
                     // Uçağı global listeye ekle
                     _aircraftList.Add(aircraft);
@@ -456,6 +475,12 @@ namespace AirDefenseOptimizer.Views
 
                         if (_aircraft != null)
                         {
+                            //var radars = _aircraftService.GetAircraftRadars(Convert.ToInt32(_aircraft["Id"]));
+                            //var radarsDetails = radars.Select(r => $"Radar Name: {r["RadarName"]}, Quantity: {r["Quantity"]}").ToList();
+                            //var radarsDetails = radars.Select(r => $"\n{r["RadarName"]}, Quantity: {r["Quantity"]}").ToList();
+
+                            var radarsDetails = _aircraftService.GetAircraftRadar(Convert.ToInt32(_aircraft["RadarId"]));
+
                             // Uçağın mühimmatlarını çek
                             var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(_aircraft["Id"]));
                             var munitionsDetails = munitions.Select(m => $"\n{m["MunitionName"]}, Quantity: {m["Quantity"]}").ToList();
@@ -469,6 +494,7 @@ namespace AirDefenseOptimizer.Views
                                 $"\nManeuverability: {_aircraft["Maneuverability"]}, " +
                                 $"\nPayloadCapacity: {_aircraft["PayloadCapacity"]}, " +
                                 $"\nCost: {_aircraft["Cost"]}, " +
+                                $"\nRadar: {radarsDetails["RadarName"]}, " +
                                 $"\nMunitions: {string.Join(", ", munitionsDetails)}, " +
                                 $"\nIFF: {selectedIFF}, " +
                                 $"\nLocation: {location}");
@@ -503,9 +529,9 @@ namespace AirDefenseOptimizer.Views
                         {
                             // Air Defense System'in radar ve mühimmatlarını çek
                             var radars = _airDefenseService.GetAirDefenseRadars(Convert.ToInt32(airDefenseDetails["Id"]));
-                            var munitions = _airDefenseService.GetAirDefenseMunitions(Convert.ToInt32(airDefenseDetails["Id"]));
-
                             var radarsDetails = radars.Select(r => $"Radar Name: {r["RadarName"]}, Quantity: {r["Quantity"]}").ToList();
+
+                            var munitions = _airDefenseService.GetAirDefenseMunitions(Convert.ToInt32(airDefenseDetails["Id"]));
                             var munitionsDetails = munitions.Select(m => $"Munition Name: {m["MunitionName"]}, Quantity: {m["Quantity"]}").ToList();
 
                             // Air Defense System bilgilerini yazdır

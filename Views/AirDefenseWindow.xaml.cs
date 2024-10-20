@@ -101,16 +101,37 @@ namespace AirDefenseOptimizer.Views
         private void SearchAirDefense_Click(object sender, RoutedEventArgs e)
         {
             string searchTerm = txtSearch.Text.ToLower();
+            var allRadars = _radarService.GetAllRadars(); // Tüm radarları çek
+            var allMunitions = _munitionService.GetAllMunitions(); // Tüm mühimmatları çek
+
             var filteredAirDefenses = _airDefenseService.GetAllAirDefenseSystems()
                 .Where(airDefense => airDefense["Name"].ToString()!.ToLower().Contains(searchTerm))
-                .Select(airDefense => new
+                .Select(airDefense =>
                 {
-                    Id = airDefense["Id"],
-                    Name = airDefense["Name"],
-                    AerodynamicTargetRangeMax = airDefense["AerodynamicTargetRangeMax"],
-                    BallisticTargetRangeMax = airDefense["BallisticTargetRangeMax"],
-                    ECMCapability = airDefense["ECMCapability"],
-                    Cost = airDefense["Cost"]
+                    // Radar bilgilerini al
+                    var radars = _airDefenseService.GetAirDefenseRadars(Convert.ToInt32(airDefense["Id"]));
+                    var radarDetails = radars.Select(r => $"{allRadars.FirstOrDefault(rad => rad["Id"].ToString() == r["RadarId"].ToString())?["Name"]?.ToString()} (Quantity: {r["Quantity"]})").ToList();
+
+                    // Mühimmat bilgilerini al
+                    var munitions = _airDefenseService.GetAirDefenseMunitions(Convert.ToInt32(airDefense["Id"]));
+                    var munitionDetails = munitions.Select(m => $"{allMunitions.FirstOrDefault(mun => mun["Id"].ToString() == m["MunitionId"].ToString())?["Name"]?.ToString()} (Quantity: {m["Quantity"]})").ToList();
+
+                    // Tüm bilgileri döndür
+                    return new
+                    {
+                        Id = airDefense["Id"],
+                        Name = airDefense["Name"],
+                        AerodynamicTargetRangeMax = airDefense.ContainsKey("AerodynamicTargetRangeMax") ? airDefense["AerodynamicTargetRangeMax"] : null,
+                        AerodynamicTargetRangeMin = airDefense.ContainsKey("AerodynamicTargetRangeMin") ? airDefense["AerodynamicTargetRangeMin"] : null,
+                        BallisticTargetRangeMax = airDefense.ContainsKey("BallisticTargetRangeMax") ? airDefense["BallisticTargetRangeMax"] : null,
+                        BallisticTargetRangeMin = airDefense.ContainsKey("BallisticTargetRangeMin") ? airDefense["BallisticTargetRangeMin"] : null,
+                        MaxEngagements = airDefense.ContainsKey("MaxEngagements") ? airDefense["MaxEngagements"] : null,
+                        MaxMissilesFired = airDefense.ContainsKey("MaxMissilesFired") ? airDefense["MaxMissilesFired"] : null,
+                        ECMCapability = airDefense["ECMCapability"],
+                        Cost = airDefense["Cost"],
+                        Radars = string.Join(", ", radarDetails), // Radar detaylarını göster
+                        Munitions = string.Join(", ", munitionDetails) // Mühimmat detaylarını göster
+                    };
                 }).ToList();
 
             AirDefenseDataGrid.ItemsSource = filteredAirDefenses;

@@ -31,7 +31,17 @@ namespace AirDefenseOptimizer.Views
 
             AircraftDataGrid.ItemsSource = aircrafts.Select(aircraft =>
             {
-                string radarName = radars.FirstOrDefault(r => r["Id"].ToString() == aircraft["RadarId"]?.ToString())?["Name"]?.ToString() ?? "No Radar";
+                var radar = _aircraftService.GetAircraftRadar(Convert.ToInt32(aircraft["Id"]));
+                string radarName=string.Empty;
+
+                if (radar != null && radar.ContainsKey("RadarName"))
+                {
+                    radarName = radar["RadarName"].ToString();
+                }
+                else
+                {
+                    MessageBox.Show("Radar not found.");
+                }
 
                 // Uçağa ait mühimmatları çek
                 var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(aircraft["Id"]));
@@ -97,24 +107,44 @@ namespace AirDefenseOptimizer.Views
         }
 
         // Arama yap
+        // Arama yap ve tüm bilgileri döndür
         private void SearchAircraft_Click(object sender, RoutedEventArgs e)
         {
             string searchTerm = txtSearch.Text.ToLower();
             var filteredAircrafts = _aircraftService.GetAllAircrafts()
                 .Where(aircraft => aircraft["Name"].ToString()!.ToLower().Contains(searchTerm) ||
                                    aircraft["AircraftType"].ToString()!.ToLower().Contains(searchTerm))
-                .Select(aircraft => new
+                .Select(aircraft =>
                 {
-                    Id = aircraft["Id"],
-                    Name = aircraft["Name"],
-                    AircraftType = aircraft["AircraftType"],
-                    Speed = aircraft["Speed"],
-                    Range = aircraft["Range"],
-                    MaxAltitude = aircraft["MaxAltitude"],
-                    Maneuverability = aircraft["Maneuverability"],
-                    PayloadCapacity = aircraft["PayloadCapacity"],
-                    Cost = aircraft["Cost"],
-                    RadarId = aircraft["RadarId"] != DBNull.Value ? aircraft["RadarId"] : null
+                    // Radar bilgilerini al
+                    var radar = _aircraftService.GetAircraftRadar(Convert.ToInt32(aircraft["Id"]));
+                    string radarName = string.Empty;
+
+                    if (radar != null && radar.ContainsKey("RadarName"))
+                    {
+                        radarName = radar["RadarName"].ToString();
+                    }
+
+                    // Uçağa ait mühimmatları al
+                    var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(aircraft["Id"]));
+                    string munitionsDetails = string.Join(Environment.NewLine, munitions.Select(m => $"{m["MunitionName"]}: {m["Quantity"]}"));
+
+                    // Tüm bilgileri döndür
+                    return new
+                    {
+                        Id = aircraft["Id"],
+                        Name = aircraft["Name"],
+                        AircraftType = aircraft["AircraftType"],
+                        Speed = aircraft["Speed"],
+                        Range = aircraft["Range"],
+                        MaxAltitude = aircraft["MaxAltitude"],
+                        Maneuverability = aircraft["Maneuverability"],
+                        PayloadCapacity = aircraft["PayloadCapacity"],
+                        Cost = aircraft["Cost"],
+                        RadarId = aircraft["RadarId"],
+                        RadarName = radarName,  // Radar adı dahil edildi
+                        Munitions = munitionsDetails // Mühimmat bilgileri dahil edildi
+                    };
                 }).ToList();
 
             AircraftDataGrid.ItemsSource = filteredAircrafts;
