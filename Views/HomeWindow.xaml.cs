@@ -1,4 +1,5 @@
 ﻿using AirDefenseOptimizer.Enums;
+using AirDefenseOptimizer.FuzzyRules;
 using AirDefenseOptimizer.Models;
 using AirDefenseOptimizer.Services;
 using System.Windows;
@@ -452,6 +453,8 @@ namespace AirDefenseOptimizer.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            AircraftRules aircraftRules = new AircraftRules();
+
             // Eklenen Aircraft'ları yazdır
             foreach (Grid threatGrid in ThreatList.Children.OfType<Grid>())
             {
@@ -473,11 +476,16 @@ namespace AirDefenseOptimizer.Views
                         // Aircraft bilgilerini veritabanından çek
                         var _aircraft = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
 
+                        var aircraft = _aircraftList.FirstOrDefault(a => a.Name == selectedAircraft);
+
                         if (_aircraft != null)
                         {
                             //var radars = _aircraftService.GetAircraftRadars(Convert.ToInt32(_aircraft["Id"]));
                             //var radarsDetails = radars.Select(r => $"Radar Name: {r["RadarName"]}, Quantity: {r["Quantity"]}").ToList();
                             //var radarsDetails = radars.Select(r => $"\n{r["RadarName"]}, Quantity: {r["Quantity"]}").ToList();
+
+                            // AircraftRules sınıfını kullanarak tehdit skorunu hesapla
+                            var (threatLevel, totalScore) = aircraftRules.CalculateThreatScore(aircraft);
 
                             var radarsDetails = _aircraftService.GetAircraftRadar(Convert.ToInt32(_aircraft["RadarId"]));
 
@@ -487,6 +495,8 @@ namespace AirDefenseOptimizer.Views
 
                             // Aircraft bilgilerini yazdır
                             MessageBox.Show($"Aircraft: {_aircraft["Name"]}, " +
+                                $"\nThreat Level: {threatLevel}, " +
+                                 $"\nTotal Score: {totalScore}, " +
                                 $"\nAircraft Type: {_aircraft["AircraftType"]}, " +
                                 $"\nSpeed: {_aircraft["Speed"]}, " +
                                 $"\nRange: {_aircraft["Range"]}, " +
