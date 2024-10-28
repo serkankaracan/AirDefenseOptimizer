@@ -1,4 +1,5 @@
 ﻿using AirDefenseOptimizer.Database;
+using System.Windows;
 
 namespace AirDefenseOptimizer.Services
 {
@@ -15,86 +16,112 @@ namespace AirDefenseOptimizer.Services
 
         public void AddRadar(string name, string radarType, double minDetectionRange, double maxDetectionRange, double maxAltitude, double minAltitude, double maxTargetSpeed, double maxTargetVelocity, int redeploymentTime)
         {
-            string insertQuery = @"INSERT INTO Radar (Name, RadarType, MinDetectionRange, MaxDetectionRange, MaxAltitude, MinAltitude, MaxTargetSpeed, MaxTargetVelocity, RedeploymentTime) 
-                                   VALUES (@name, @radarType, @minDetectionRange, @maxDetectionRange, @maxAltitude, @minAltitude, @maxTargetSpeed, @maxTargetVelocity, @redeploymentTime);";
-
-            using var connection = _connectionManager.GetConnection();
-
-            var parameters = new Dictionary<string, object>
+            try
             {
-                { "@name", name },
-                { "@radarType", radarType },
-                { "@minDetectionRange", minDetectionRange },
-                { "@maxDetectionRange", maxDetectionRange },
-                { "@maxAltitude", maxAltitude },
-                { "@minAltitude", minAltitude },
-                { "@maxTargetSpeed", maxTargetSpeed },
-                { "@maxTargetVelocity", maxTargetVelocity },
-                { "@redeploymentTime", redeploymentTime }
-            };
+                string insertQuery = @"INSERT INTO Radar (Name, RadarType, MinDetectionRange, MaxDetectionRange, MaxAltitude, MinAltitude, MaxTargetSpeed, MaxTargetVelocity, RedeploymentTime) 
+                                       VALUES (@name, @radarType, @minDetectionRange, @maxDetectionRange, @maxAltitude, @minAltitude, @maxTargetSpeed, @maxTargetVelocity, @redeploymentTime);";
 
-            _databaseHelper.ExecuteNonQuery(insertQuery, connection, parameters);
+                using var connection = _connectionManager.GetConnection();
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@name", name },
+                    { "@radarType", radarType },
+                    { "@minDetectionRange", minDetectionRange },
+                    { "@maxDetectionRange", maxDetectionRange },
+                    { "@maxAltitude", maxAltitude },
+                    { "@minAltitude", minAltitude },
+                    { "@maxTargetSpeed", maxTargetSpeed },
+                    { "@maxTargetVelocity", maxTargetVelocity },
+                    { "@redeploymentTime", redeploymentTime }
+                };
+
+                _databaseHelper.ExecuteNonQuery(insertQuery, connection, parameters);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding radar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void UpdateRadar(int id, string name, string radarType, double minDetectionRange, double maxDetectionRange, double maxAltitude, double minAltitude, double maxTargetSpeed, double maxTargetVelocity, int redeploymentTime)
         {
-            string updateQuery = @"UPDATE Radar SET Name = @name, RadarType = @radarType, MinDetectionRange = @minDetectionRange, MaxDetectionRange = @maxDetectionRange, 
-                                   MaxAltitude = @maxAltitude, MinAltitude = @minAltitude, MaxTargetSpeed = @maxTargetSpeed, MaxTargetVelocity = @maxTargetVelocity, 
-                                   RedeploymentTime = @redeploymentTime WHERE Id = @id;";
-
-            using var connection = _connectionManager.GetConnection();
-
-            var parameters = new Dictionary<string, object>
+            try
             {
-                { "@id", id },
-                { "@name", name },
-                { "@radarType", radarType },
-                { "@minDetectionRange", minDetectionRange },
-                { "@maxDetectionRange", maxDetectionRange },
-                { "@maxAltitude", maxAltitude },
-                { "@minAltitude", minAltitude },
-                { "@maxTargetSpeed", maxTargetSpeed },
-                { "@maxTargetVelocity", maxTargetVelocity },
-                { "@redeploymentTime", redeploymentTime }
-            };
+                string updateQuery = @"UPDATE Radar SET Name = @name, RadarType = @radarType, MinDetectionRange = @minDetectionRange, MaxDetectionRange = @maxDetectionRange, 
+                                       MaxAltitude = @maxAltitude, MinAltitude = @minAltitude, MaxTargetSpeed = @maxTargetSpeed, MaxTargetVelocity = @maxTargetVelocity, 
+                                       RedeploymentTime = @redeploymentTime WHERE Id = @id;";
 
-            _databaseHelper.ExecuteNonQuery(updateQuery, connection, parameters);
+                using var connection = _connectionManager.GetConnection();
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@id", id },
+                    { "@name", name },
+                    { "@radarType", radarType },
+                    { "@minDetectionRange", minDetectionRange },
+                    { "@maxDetectionRange", maxDetectionRange },
+                    { "@maxAltitude", maxAltitude },
+                    { "@minAltitude", minAltitude },
+                    { "@maxTargetSpeed", maxTargetSpeed },
+                    { "@maxTargetVelocity", maxTargetVelocity },
+                    { "@redeploymentTime", redeploymentTime }
+                };
+
+                _databaseHelper.ExecuteNonQuery(updateQuery, connection, parameters);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error updating radar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void DeleteRadar(int id)
         {
-            string deleteQuery = @"DELETE FROM Radar WHERE Id = @id;";
+            try
+            {
+                string deleteQuery = @"DELETE FROM Radar WHERE Id = @id;";
+                using var connection = _connectionManager.GetConnection();
+                var parameters = new Dictionary<string, object> { { "@id", id } };
 
-            using var connection = _connectionManager.GetConnection();
-
-            var parameters = new Dictionary<string, object> { { "@id", id } };
-
-            _databaseHelper.ExecuteNonQuery(deleteQuery, connection, parameters);
+                _databaseHelper.ExecuteNonQuery(deleteQuery, connection, parameters);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error deleting radar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public Dictionary<string, object>? GetRadar(int id)
         {
-            string selectQuery = @"SELECT * FROM Radar WHERE Id = @id;";
+            try
+            {
+                string selectQuery = @"SELECT * FROM Radar WHERE Id = @id;";
+                using var connection = _connectionManager.GetConnection();
+                var parameters = new Dictionary<string, object> { { "@id", id } };
 
-            using var connection = _connectionManager.GetConnection();
-
-            var parameters = new Dictionary<string, object> { { "@id", id } };
-
-            var result = _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
-
-            // İlk sonucu döndür, ya da null
-            return result.Count > 0 ? result[0] : null;
+                var result = _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
+                return result.Count > 0 ? result[0] : null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error retrieving radar: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return null;
+            }
         }
 
         public List<Dictionary<string, object>> GetAllRadars()
         {
-            string selectQuery = @"SELECT * FROM Radar;";
+            try
+            {
+                string selectQuery = @"SELECT * FROM Radar;";
+                using var connection = _connectionManager.GetConnection();
 
-            using var connection = _connectionManager.GetConnection();
-
-            var result = _databaseHelper.ExecuteReader(selectQuery, connection, null);
-
-            return result;
+                return _databaseHelper.ExecuteReader(selectQuery, connection, null);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error retrieving all radars: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return new List<Dictionary<string, object>>();
+            }
         }
     }
 }

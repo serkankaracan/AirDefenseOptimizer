@@ -1,5 +1,6 @@
 ﻿using System.Data.SqlClient;
 using System.Data.SQLite;
+using System.Windows;
 
 namespace AirDefenseOptimizer.Database
 {
@@ -16,15 +17,24 @@ namespace AirDefenseOptimizer.Database
         // Veritabanını başlat ve tabloları oluştur
         private void InitializeDatabase()
         {
-            using var connection = _connectionManager.GetConnection();
+            try
+            {
+                using var connection = _connectionManager.GetConnection();
 
-            ExecuteNonQuery(DatabaseQueries.CreateRadarTable, connection);
-            ExecuteNonQuery(DatabaseQueries.CreateMunitionTable, connection);
-            ExecuteNonQuery(DatabaseQueries.CreateAircraftTable, connection);
-            ExecuteNonQuery(DatabaseQueries.CreateAircraftMunitionTable, connection);
-            ExecuteNonQuery(DatabaseQueries.CreateAirDefenseTable, connection);
-            ExecuteNonQuery(DatabaseQueries.CreateAirDefenseRadarTable, connection);
-            ExecuteNonQuery(DatabaseQueries.CreateAirDefenseMunitionTable, connection);
+                if (connection == null) return;
+
+                ExecuteNonQuery(DatabaseQueries.CreateRadarTable, connection);
+                ExecuteNonQuery(DatabaseQueries.CreateMunitionTable, connection);
+                ExecuteNonQuery(DatabaseQueries.CreateAircraftTable, connection);
+                ExecuteNonQuery(DatabaseQueries.CreateAircraftMunitionTable, connection);
+                ExecuteNonQuery(DatabaseQueries.CreateAirDefenseTable, connection);
+                ExecuteNonQuery(DatabaseQueries.CreateAirDefenseRadarTable, connection);
+                ExecuteNonQuery(DatabaseQueries.CreateAirDefenseMunitionTable, connection);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Veritabanı başlatılamadı: {ex.Message}");
+            }
         }
 
         // SQL sorgularını çalıştıran yardımcı fonksiyon (INSERT, UPDATE, DELETE için)
@@ -46,12 +56,12 @@ namespace AirDefenseOptimizer.Database
             }
             catch (SQLiteException ex)
             {
-                Console.WriteLine($"SQLite Exception: {ex.Message}");
+                MessageBox.Show($"SQLite Hatası: {ex.Message}");
                 // Hata yönetimi ve loglama burada yapılabilir
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"General Exception: {ex.Message}");
+                MessageBox.Show($"Genel Hata: {ex.Message}");
                 // Hata yönetimi ve loglama burada yapılabilir
             }
         }
@@ -86,37 +96,56 @@ namespace AirDefenseOptimizer.Database
             }
             catch (SQLiteException ex)
             {
-                Console.WriteLine($"SQLite Exception: {ex.Message}");
+                MessageBox.Show($"SQLite Hatası: {ex.Message}");
                 // Hata yönetimi ve loglama burada yapılabilir
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"General Exception: {ex.Message}");
+                MessageBox.Show($"Genel Hata: {ex.Message}");
                 // Hata yönetimi ve loglama burada yapılabilir
             }
 
             return resultList;
         }
 
-        public object ExecuteScalar(string query, SqlConnection connection, Dictionary<string, object> parameters)
+        public object? ExecuteScalar(string query, SqlConnection connection, Dictionary<string, object> parameters)
         {
-            using var command = new SqlCommand(query, connection);
-
-            foreach (var param in parameters)
+            try
             {
-                command.Parameters.AddWithValue(param.Key, param.Value);
+                using var command = new SqlCommand(query, connection);
+
+                foreach (var param in parameters)
+                {
+                    command.Parameters.AddWithValue(param.Key, param.Value);
+                }
+
+                return command.ExecuteScalar(); // Sorgudan ilk değeri döndürür
             }
-
-            return command.ExecuteScalar(); // Sorgudan ilk değeri döndürür
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"SQL Hatası: {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Genel Hata: {ex.Message}");
+                return null;
+            }
         }
-
 
         // Bağlantıyı kapatma işlemi
         public void CloseConnection(SQLiteConnection connection)
         {
-            if (connection != null && connection.State == System.Data.ConnectionState.Open)
+            try
             {
-                connection.Close();
+                if (connection != null && connection.State == System.Data.ConnectionState.Open)
+                {
+                    connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Bağlantı kapatılamadı: {ex.Message}");
             }
         }
     }

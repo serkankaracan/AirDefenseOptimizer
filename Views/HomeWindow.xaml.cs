@@ -45,6 +45,8 @@ namespace AirDefenseOptimizer.Views
                         MaxAltitude = Convert.ToDouble(mAircraft["MaxAltitude"]),
                         Maneuverability = (Maneuverability)Enum.Parse(typeof(Maneuverability), mAircraft["Maneuverability"].ToString()),
                         PayloadCapacity = Convert.ToDouble(mAircraft["PayloadCapacity"]),
+                        RadarCrossSection = Convert.ToDouble(mAircraft["RadarCrossSection"]),
+                        ECMCapability = (ECMCapability)Enum.Parse(typeof(ECMCapability), mAircraft["ECMCapability"].ToString()),
                         Cost = Convert.ToDouble(mAircraft["Cost"]),
                         Munitions = new List<AircraftMunition>(),
                         Radar = null
@@ -487,7 +489,8 @@ namespace AirDefenseOptimizer.Views
                             // AircraftRules sınıfını kullanarak tehdit skorunu hesapla
                             var (threatLevel, totalScore) = aircraftRules.CalculateThreatScore(aircraft);
 
-                            var radarsDetails = _aircraftService.GetAircraftRadar(Convert.ToInt32(_aircraft["RadarId"]));
+                            //var radarsDetails = _aircraftService.GetAircraftRadar(Convert.ToInt32(_aircraft["RadarId"]));
+                            var radarsDetails = _aircraftService.GetAircraftRadar(Convert.ToInt32(_aircraft["Id"]));
 
                             // Uçağın mühimmatlarını çek
                             var munitions = _aircraftService.GetAircraftMunitions(Convert.ToInt32(_aircraft["Id"]));
@@ -503,6 +506,8 @@ namespace AirDefenseOptimizer.Views
                                 $"\nMax Altitude: {_aircraft["MaxAltitude"]}, " +
                                 $"\nManeuverability: {_aircraft["Maneuverability"]}, " +
                                 $"\nPayloadCapacity: {_aircraft["PayloadCapacity"]}, " +
+                                $"\nRadarCrossSection: {_aircraft["RadarCrossSection"]}, " +
+                                $"\nECMCapability: {_aircraft["ECMCapability"]}, " +
                                 $"\nCost: {_aircraft["Cost"]}, " +
                                 $"\nRadar: {radarsDetails["RadarName"]}, " +
                                 $"\nMunitions: {string.Join(", ", munitionsDetails)}, " +

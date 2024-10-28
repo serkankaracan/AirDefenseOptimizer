@@ -17,24 +17,25 @@ namespace AirDefenseOptimizer.Views
         private void LoadFuzzyRules()
         {
             // Air Defense Kuralları
-            LoadRules(new AirDefenseRules(), AirDefenseRulesList, "DefenseScore");
+            LoadRules(new AirDefenseRules(), AirDefenseRulesList, "DefenseScore", AirDefenseInfo);
 
             // Aircraft Kuralları
-            LoadRules(new AircraftRules(), AircraftRulesList, "ThreatScore");
+            LoadRules(new AircraftRules(), AircraftRulesList, "ThreatScore", AircraftInfo);
 
             // Radar Kuralları
-            LoadRules(new RadarRules(), RadarRulesList, "SurveillanceScore");
+            LoadRules(new RadarRules(), RadarRulesList, "SurveillanceScore", RadarInfo);
 
             // Munition Kuralları
-            LoadRules(new MunitionRules(), MunitionRulesList, "ImpactScore");
+            LoadRules(new MunitionRules(), MunitionRulesList, "ImpactScore", MunitionInfo);
         }
 
-        private void LoadRules<T>(T ruleSet, ItemsControl rulesList, string consequenceKey) where T : class
+        private void LoadRules<T>(T ruleSet, ItemsControl rulesList, string consequenceKey, TextBlock infoBlock) where T : class
         {
             List<FuzzyRuleViewModel> ruleViewModels = new List<FuzzyRuleViewModel>();
             dynamic rules = ruleSet.GetType().GetProperty("Rules").GetValue(ruleSet);
 
             int ruleIndex = 1; // Kurallar için bir sayaç
+            int criticalCount = 0, highCount = 0, mediumCount = 0, lowCount = 0, veryLowCount = 0;
 
             foreach (var rule in rules)
             {
@@ -46,6 +47,26 @@ namespace AirDefenseOptimizer.Views
 
                 var backgroundColor = GetButtonColor(score);
 
+                // Seviyeye göre sayma
+                switch (score)
+                {
+                    case "Critical":
+                        criticalCount++;
+                        break;
+                    case "High":
+                        highCount++;
+                        break;
+                    case "Medium":
+                        mediumCount++;
+                        break;
+                    case "Low":
+                        lowCount++;
+                        break;
+                    case "Very Low":
+                        veryLowCount++;
+                        break;
+                }
+
                 ruleViewModels.Add(new FuzzyRuleViewModel
                 {
                     ButtonLabel = $"Kural {ruleIndex}",
@@ -56,6 +77,10 @@ namespace AirDefenseOptimizer.Views
             }
 
             rulesList.ItemsSource = ruleViewModels;
+
+            // Bilgi alanını güncelle
+            infoBlock.Text = $"Toplam Kural: {ruleIndex - 1}\n" +
+                             $"Critical: {criticalCount}, High: {highCount}, Medium: {mediumCount}, Low: {lowCount}, Very Low: {veryLowCount}";
         }
 
         private void RuleButton_Click(object sender, RoutedEventArgs e)

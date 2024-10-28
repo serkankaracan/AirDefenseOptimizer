@@ -11,9 +11,10 @@ namespace AirDefenseOptimizer.Models
         public double Range { get; set; }
         public double MaxAltitude { get; set; }
         public Maneuverability Maneuverability { get; set; }
+        public ECMCapability ECMCapability { get; set; }
         public double PayloadCapacity { get; set; }
-        public Radar? Radar { get; set; }
         public double RadarCrossSection { get; set; }
+        public Radar? Radar { get; set; }
         public double Cost { get; set; }
 
         public List<AircraftMunition> Munitions { get; set; } = new List<AircraftMunition>();

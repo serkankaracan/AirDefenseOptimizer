@@ -1,5 +1,8 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -25,241 +28,253 @@ namespace AirDefenseOptimizer.Views
             _aircraftData = aircraftData;
             _isReadOnly = isReadOnly;
 
-            // AircraftType enum'ını ComboBox'a doldur
-            cbAircraftType.ItemsSource = Enum.GetValues(typeof(AircraftType))
-                .Cast<AircraftType>()
-                .Select(a => new KeyValuePair<AircraftType, string>(a, a.GetAircraftTypeName()))
-                .ToList();
-
-            cbManeuverability.ItemsSource = Enum.GetValues(typeof(Maneuverability))
-               .Cast<Maneuverability>()
-               .Select(a => new KeyValuePair<Maneuverability, string>(a, a.GetManeuverabilityName()))
-               .ToList();
-
-            // Radarları combobox'a doldur
-            var radars = _radarService.GetAllRadars();
-            if (radars == null || radars.Count == 0)
+            try
             {
-                MessageBox.Show("No radars found in the database.");
+                // Enum değerlerini ComboBox'a doldur
+                cbAircraftType.ItemsSource = Enum.GetValues(typeof(AircraftType))
+                    .Cast<AircraftType>()
+                    .Select(a => new KeyValuePair<AircraftType, string>(a, a.GetAircraftTypeName()))
+                    .ToList();
+
+                cbManeuverability.ItemsSource = Enum.GetValues(typeof(Maneuverability))
+                    .Cast<Maneuverability>()
+                    .Select(a => new KeyValuePair<Maneuverability, string>(a, a.GetManeuverabilityName()))
+                    .ToList();
+
+                cbECMCapability.ItemsSource = Enum.GetValues(typeof(ECMCapability))
+                    .Cast<ECMCapability>()
+                    .Select(a => new KeyValuePair<ECMCapability, string>(a, a.GetECMCapabilityName()))
+                    .ToList();
+
+                var radars = _radarService.GetAllRadars();
+                if (radars == null || radars.Count == 0)
+                {
+                    MessageBox.Show("No radars found in the database.");
+                }
+                else
+                {
+                    cbRadar.ItemsSource = radars.Select(r => new KeyValuePair<long, string>(
+                        Convert.ToInt64(r["Id"]),
+                        r["Name"]?.ToString() ?? "Unnamed Radar"
+                    )).ToList();
+
+                    cbRadar.DisplayMemberPath = "Value";
+                    cbRadar.SelectedValuePath = "Key";
+                }
+
+                if (_aircraftData != null)
+                {
+                    // Var olan uçak verilerini doldur
+                    txtAircraftName.Text = _aircraftData.Name;
+                    cbAircraftType.SelectedValue = Enum.Parse<AircraftType>(_aircraftData.AircraftType.ToString());
+                    txtSpeed.Text = _aircraftData.Speed.ToString();
+                    txtRange.Text = _aircraftData.Range.ToString();
+                    txtMaxAltitude.Text = _aircraftData.MaxAltitude.ToString();
+                    cbManeuverability.SelectedValue = Enum.Parse<Maneuverability>(_aircraftData.Maneuverability.ToString());
+                    txtPayloadCapacity.Text = _aircraftData.PayloadCapacity.ToString();
+                    txtRadarCrossSection.Text = _aircraftData.RadarCrossSection.ToString();
+                    cbECMCapability.SelectedValue = Enum.Parse<ECMCapability>(_aircraftData.ECMCapability);
+                    cbRadar.SelectedValue = _aircraftData.RadarId;
+                    txtCost.Text = _aircraftData.Cost.ToString();
+
+                    LoadAircraftMunitions((int)_aircraftData.Id);
+                }
+
+                if (_isReadOnly)
+                {
+                    txtAircraftName.IsEnabled = false;
+                    cbAircraftType.IsEnabled = false;
+                    txtSpeed.IsEnabled = false;
+                    txtRange.IsEnabled = false;
+                    txtMaxAltitude.IsEnabled = false;
+                    cbManeuverability.IsEnabled = false;
+                    txtPayloadCapacity.IsEnabled = false;
+                    txtRadarCrossSection.IsEnabled = false;
+                    cbECMCapability.IsEnabled = false;
+                    cbRadar.IsEnabled = false;
+                    txtCost.IsEnabled = false;
+                    btnAddMunition.IsEnabled = false;
+                    btnSave.IsEnabled = false;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                cbRadar.ItemsSource = radars.Select(r => new KeyValuePair<long, string>(
-                    Convert.ToInt64(r["Id"]),
-                    r["Name"]?.ToString() ?? "Unnamed Radar"
-                )).ToList();
-
-                // Radarın adını göstermek için DisplayMemberPath ve SelectedValuePath ayarlarını yapın
-                cbRadar.DisplayMemberPath = "Value"; // Radar adı
-                cbRadar.SelectedValuePath = "Key"; // Radar ID
-            }
-
-            if (_aircraftData != null)
-            {
-                // Var olan uçak verilerini doldur
-                txtAircraftName.Text = _aircraftData.Name;
-                cbAircraftType.SelectedValue = _aircraftData.AircraftType != null ? Enum.Parse<AircraftType>(_aircraftData.AircraftType.ToString()) : null;
-                txtSpeed.Text = _aircraftData.Speed.ToString();
-                txtRange.Text = _aircraftData.Range.ToString();
-                txtMaxAltitude.Text = _aircraftData.MaxAltitude.ToString();
-                cbManeuverability.SelectedValue = _aircraftData.Maneuverability != null ? Enum.Parse<Maneuverability>(_aircraftData.Maneuverability.ToString()) : null; 
-                txtPayloadCapacity.Text = _aircraftData.PayloadCapacity.ToString();
-                string radarName = radars.FirstOrDefault(r => r["Id"].ToString() == _aircraftData.RadarId?.ToString())?["Name"]?.ToString() ?? "No Radar";
-                cbRadar.SelectedValue = radars.FirstOrDefault(r => r["Name"].ToString() == radarName)?["Id"];
-                txtCost.Text = _aircraftData.Cost.ToString();
-
-                // Mühimmatları yükleme
-                LoadAircraftMunitions((int)_aircraftData.Id);
-            }
-
-            // Eğer sadece önizleme modundaysak tüm alanları read-only yap
-            if (_isReadOnly)
-            {
-                txtAircraftName.IsEnabled = false;
-                cbAircraftType.IsEnabled = false;
-                txtSpeed.IsEnabled = false;
-                txtRange.IsEnabled = false;
-                txtMaxAltitude.IsEnabled = false;
-                cbManeuverability.IsEnabled = false;
-                txtPayloadCapacity.IsEnabled = false;
-                cbRadar.IsEnabled = false;
-                txtCost.IsEnabled = false;
-                btnAddMunition.IsEnabled = false;
-                btnSave.IsEnabled = false;  // Kaydet butonunu devre dışı bırak
+                MessageBox.Show($"Initialization error: {ex.Message}");
             }
         }
 
         // Mühimmatları yükleme işlemi
         private void LoadAircraftMunitions(int aircraftId)
         {
-            var munitions = _aircraftService.GetAircraftMunitions(aircraftId);
-
-            foreach (var munition in munitions)
+            try
             {
-                // Her mühimmat için satır ekle
-                AddMunitionRow(munition["MunitionId"], munition["Quantity"]);
+                var munitions = _aircraftService.GetAircraftMunitions(aircraftId);
+
+                foreach (var munition in munitions)
+                {
+                    AddMunitionRow(munition["MunitionId"], munition["Quantity"]);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading munitions: {ex.Message}");
             }
         }
 
-        // Yeni mühimmat eklemek için butona tıklandığında çalışacak metot
         private void AddMunition_Click(object sender, RoutedEventArgs e)
         {
             AddMunitionRow(null, null);
         }
 
-        // Mühimmat ekleme satırı oluşturma
         private void AddMunitionRow(object? selectedMunitionId, object? quantity)
         {
-            // Mühimmat türü seçmek için bir ComboBox oluştur
-            ComboBox munitionComboBox = new ComboBox
+            try
             {
-                Width = 150,
-                Margin = new Thickness(0, 0, 10, 10)
-            };
+                ComboBox munitionComboBox = new ComboBox
+                {
+                    Width = 150,
+                    Margin = new Thickness(0, 0, 10, 10)
+                };
 
-            // Mühimmat türlerini ComboBox'a ekle
-            var munitions = _munitionService.GetAllMunitions();
-            munitionComboBox.ItemsSource = munitions.Select(m => new KeyValuePair<long, string>(Convert.ToInt64(m["Id"]), m["Name"]?.ToString() ?? "Unnamed Munition")).ToList();
+                var munitions = _munitionService.GetAllMunitions();
+                munitionComboBox.ItemsSource = munitions.Select(m => new KeyValuePair<long, string>(Convert.ToInt64(m["Id"]), m["Name"]?.ToString() ?? "Unnamed Munition")).ToList();
 
-            munitionComboBox.DisplayMemberPath = "Value";
-            munitionComboBox.SelectedValuePath = "Key";
+                munitionComboBox.DisplayMemberPath = "Value";
+                munitionComboBox.SelectedValuePath = "Key";
 
-            if (selectedMunitionId != null)
-                munitionComboBox.SelectedValue = (long)selectedMunitionId;
+                if (selectedMunitionId != null)
+                    munitionComboBox.SelectedValue = (long)selectedMunitionId;
 
-            // Mühimmat miktarını girmek için bir TextBox oluştur
-            TextBox quantityTextBox = new TextBox
+                TextBox quantityTextBox = new TextBox
+                {
+                    Width = 50,
+                    Margin = new Thickness(0, 0, 10, 10),
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    Text = quantity?.ToString() ?? string.Empty
+                };
+
+                Button removeButton = new Button
+                {
+                    Content = "Remove",
+                    Width = 75,
+                    Margin = new Thickness(0, 0, 10, 10)
+                };
+
+                StackPanel stackPanel = new StackPanel
+                {
+                    Orientation = Orientation.Horizontal
+                };
+
+                stackPanel.Children.Add(munitionComboBox);
+                stackPanel.Children.Add(quantityTextBox);
+                stackPanel.Children.Add(removeButton);
+
+                MunitionList.Children.Add(stackPanel);
+
+                _munitionComboBoxes.Add(munitionComboBox);
+                _munitionQuantityTextBoxes.Add(quantityTextBox);
+
+                removeButton.Click += (s, ev) =>
+                {
+                    MunitionList.Children.Remove(stackPanel);
+                    _munitionComboBoxes.Remove(munitionComboBox);
+                    _munitionQuantityTextBoxes.Remove(quantityTextBox);
+                };
+            }
+            catch (Exception ex)
             {
-                Width = 50,
-                Margin = new Thickness(0, 0, 10, 10),
-                HorizontalAlignment = HorizontalAlignment.Left,
-                Text = quantity?.ToString() ?? string.Empty
-            };
-
-            // Mühimmat satırını kaldırmak için bir Buton oluştur
-            Button removeButton = new Button
-            {
-                Content = "Remove",
-                Width = 75,
-                Margin = new Thickness(0, 0, 10, 10)
-            };
-
-            // Yeni mühimmat satırını içeren StackPanel
-            StackPanel stackPanel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal
-            };
-
-            // ComboBox, TextBox ve Remove Button'u StackPanel'e ekle
-            stackPanel.Children.Add(munitionComboBox);
-            stackPanel.Children.Add(quantityTextBox);
-            stackPanel.Children.Add(removeButton);
-
-            // StackPanel'i MunitionList'e ekle
-            MunitionList.Children.Add(stackPanel);
-
-            // ComboBox ve TextBox'ı listelere ekle
-            _munitionComboBoxes.Add(munitionComboBox);
-            _munitionQuantityTextBoxes.Add(quantityTextBox);
-
-            // Mühimmat satırını silmek için event handler
-            removeButton.Click += (s, ev) =>
-            {
-                MunitionList.Children.Remove(stackPanel);
-                _munitionComboBoxes.Remove(munitionComboBox);
-                _munitionQuantityTextBoxes.Remove(quantityTextBox);
-            };
+                MessageBox.Show($"Error adding munition row: {ex.Message}");
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            int aircraftId;
-
-            // Radar ID'sini nullable int olarak al
-            int? radarIdAsInt = null;
-            if (cbRadar.SelectedValue != null)
+            try
             {
-                long selectedRadarId;
-                if (long.TryParse(cbRadar.SelectedValue.ToString(), out selectedRadarId))
+                int aircraftId;
+                int? radarIdAsInt = cbRadar.SelectedValue != null ? (int?)Convert.ToInt32(cbRadar.SelectedValue) : null;
+
+                if (_aircraftData == null)
                 {
-                    radarIdAsInt = Convert.ToInt32(selectedRadarId);
-                }
-            }
-
-            if (_aircraftData == null)
-            {
-                // Yeni uçak ekleme işlemi
-                aircraftId = _aircraftService.AddAircraft(
-                    txtAircraftName.Text,
-                    ((AircraftType)cbAircraftType.SelectedValue).ToString(),
-                    double.Parse(txtSpeed.Text),
-                    double.Parse(txtRange.Text),
-                    double.Parse(txtMaxAltitude.Text),
-                    ((Maneuverability)cbManeuverability.SelectedValue).ToString(),
-                    double.Parse(txtPayloadCapacity.Text),
-                    double.Parse(txtCost.Text),
-                    radarIdAsInt);
-            }
-            else
-            {
-                // Var olan uçak güncelleme işlemi
-                aircraftId = (int)_aircraftData.Id;
-                _aircraftService.UpdateAircraft(aircraftId, txtAircraftName.Text,
-                    ((AircraftType)cbAircraftType.SelectedValue).ToString(),
-                    double.Parse(txtSpeed.Text),
-                    double.Parse(txtRange.Text),
-                    double.Parse(txtMaxAltitude.Text),
-                    ((Maneuverability)cbManeuverability.SelectedValue).ToString(),
-                    double.Parse(txtPayloadCapacity.Text),
-                    double.Parse(txtCost.Text),
-                    radarIdAsInt);
-            }
-
-            // Mühimmatları kaydet
-            SaveAircraftMunitions(aircraftId);
-
-            this.Close();
-        }
-
-        // Mühimmatları kaydetme işlemi
-        private void SaveAircraftMunitions(int aircraftId)
-        {
-            var existingMunitions = _aircraftService.GetAircraftMunitions(aircraftId); // Önceden eklenmiş mühimmatlar
-
-            for (int i = 0; i < _munitionComboBoxes.Count; i++)
-            {
-                // Mühimmatın seçili olup olmadığını kontrol et
-                if (_munitionComboBoxes[i].SelectedValue == null || string.IsNullOrEmpty(_munitionQuantityTextBoxes[i].Text))
-                {
-                    MessageBox.Show("Mühimmat türünü ve miktarını seçtiğinizden emin olun.");
-                    continue; // Seçim yapılmadıysa o mühimmatla ilgili işlemi atla
-                }
-
-                var selectedMunitionId = Convert.ToInt64(_munitionComboBoxes[i].SelectedValue);
-                int quantity = int.Parse(_munitionQuantityTextBoxes[i].Text);
-
-                // Var olan mühimmat mı yoksa yeni mi kontrol et
-                var existingMunition = existingMunitions.FirstOrDefault(m => (long)m["MunitionId"] == selectedMunitionId);
-                if (existingMunition != null)
-                {
-                    // Var olan mühimmat için güncelleme
-                    _aircraftService.UpdateAircraftMunition(aircraftId, (int)selectedMunitionId, quantity);
+                    aircraftId = _aircraftService.AddAircraft(
+                        txtAircraftName.Text,
+                        cbAircraftType.SelectedValue != null ? ((AircraftType)cbAircraftType.SelectedValue).ToString() : string.Empty,
+                        double.TryParse(txtSpeed.Text, out double speed) ? speed : 0,
+                        double.TryParse(txtRange.Text, out double range) ? range : 0,
+                        double.TryParse(txtMaxAltitude.Text, out double maxAltitude) ? maxAltitude : 0,
+                        cbManeuverability.SelectedValue != null ? ((Maneuverability)cbManeuverability.SelectedValue).ToString() : string.Empty,
+                        double.TryParse(txtPayloadCapacity.Text, out double payloadCapacity) ? payloadCapacity : 0,
+                        double.TryParse(txtRadarCrossSection.Text, out double radarCrossSection) ? radarCrossSection : 0,
+                        cbECMCapability.SelectedValue != null ? ((ECMCapability)cbECMCapability.SelectedValue).ToString() : string.Empty,
+                        double.TryParse(txtCost.Text, out double cost) ? cost : 0,
+                        radarIdAsInt);
                 }
                 else
                 {
-                    // Yeni mühimmat ekleme
-                    _aircraftService.AddMunitionToAircraft(aircraftId, (int)selectedMunitionId, quantity);
+                    aircraftId = (int)_aircraftData.Id;
+                    _aircraftService.UpdateAircraft(
+                        aircraftId, txtAircraftName.Text,
+                        cbAircraftType.SelectedValue != null ? ((AircraftType)cbAircraftType.SelectedValue).ToString() : string.Empty,
+                        double.TryParse(txtSpeed.Text, out double speed) ? speed : 0,
+                        double.TryParse(txtRange.Text, out double range) ? range : 0,
+                        double.TryParse(txtMaxAltitude.Text, out double maxAltitude) ? maxAltitude : 0,
+                        cbManeuverability.SelectedValue != null ? ((Maneuverability)cbManeuverability.SelectedValue).ToString() : string.Empty,
+                        double.TryParse(txtPayloadCapacity.Text, out double payloadCapacity) ? payloadCapacity : 0,
+                        double.TryParse(txtRadarCrossSection.Text, out double radarCrossSection) ? radarCrossSection : 0,
+                        cbECMCapability.SelectedValue != null ? ((ECMCapability)cbECMCapability.SelectedValue).ToString() : string.Empty,
+                        double.TryParse(txtCost.Text, out double cost) ? cost : 0,
+                        radarIdAsInt);
+                }
+
+                SaveAircraftMunitions(aircraftId);
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving aircraft: {ex.Message}");
+            }
+        }
+
+        private void SaveAircraftMunitions(int aircraftId)
+        {
+            try
+            {
+                var existingMunitions = _aircraftService.GetAircraftMunitions(aircraftId);
+
+                for (int i = 0; i < _munitionComboBoxes.Count; i++)
+                {
+                    if (_munitionComboBoxes[i].SelectedValue == null || string.IsNullOrEmpty(_munitionQuantityTextBoxes[i].Text))
+                    {
+                        MessageBox.Show("Mühimmat türünü ve miktarını seçtiğinizden emin olun.");
+                        continue;
+                    }
+
+                    var selectedMunitionId = Convert.ToInt64(_munitionComboBoxes[i].SelectedValue);
+                    int quantity = int.TryParse(_munitionQuantityTextBoxes[i].Text, out int qty) ? qty : 0;
+
+                    var existingMunition = existingMunitions.FirstOrDefault(m => (long)m["MunitionId"] == selectedMunitionId);
+                    if (existingMunition != null)
+                    {
+                        _aircraftService.UpdateAircraftMunition(aircraftId, (int)selectedMunitionId, quantity);
+                    }
+                    else
+                    {
+                        _aircraftService.AddMunitionToAircraft(aircraftId, (int)selectedMunitionId, quantity);
+                    }
+                }
+
+                foreach (var munition in existingMunitions)
+                {
+                    var munitionId = (long)munition["MunitionId"];
+                    if (!_munitionComboBoxes.Any(c => Convert.ToInt64(c.SelectedValue) == munitionId))
+                    {
+                        _aircraftService.DeleteAircraftMunition(aircraftId, (int)munitionId);
+                    }
                 }
             }
-
-            // Silinen mühimmatları tespit et
-            foreach (var munition in existingMunitions)
+            catch (Exception ex)
             {
-                var munitionId = (long)munition["MunitionId"];
-                if (!_munitionComboBoxes.Any(c => Convert.ToInt64(c.SelectedValue) == munitionId))
-                {
-                    _aircraftService.DeleteAircraftMunition(aircraftId, (int)munitionId);
-                }
+                MessageBox.Show($"Error saving munitions: {ex.Message}");
             }
         }
     }

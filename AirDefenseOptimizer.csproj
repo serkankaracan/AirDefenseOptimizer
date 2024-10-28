@@ -16,7 +16,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Icons\ads.png" />
+    <None Remove="Icons\aircraft.png" />
+    <None Remove="Icons\exit.png" />
+    <None Remove="Icons\fuzzy.png" />
+    <None Remove="Icons\home.png" />
+    <None Remove="Icons\info.png" />
     <None Remove="Icons\logo.png" />
+    <None Remove="Icons\munition.png" />
+    <None Remove="Icons\radar.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +36,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Icons\ads.png" />
+    <Resource Include="Icons\aircraft.png" />
+    <Resource Include="Icons\exit.png" />
+    <Resource Include="Icons\fuzzy.png" />
+    <Resource Include="Icons\home.png" />
+    <Resource Include="Icons\info.png" />
     <Resource Include="Icons\logo.png" />
+    <Resource Include="Icons\munition.png" />
+    <Resource Include="Icons\radar.png" />
   </ItemGroup>
 
 </Project>

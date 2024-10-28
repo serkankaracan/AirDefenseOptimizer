@@ -48,7 +48,9 @@
                 <DataGridTextColumn Header="Range" Binding="{Binding Range}" Width="80"/>
                 <DataGridTextColumn Header="Max Altitude" Binding="{Binding MaxAltitude}" Width="100"/>
                 <DataGridTextColumn Header="Maneuverability" Binding="{Binding Maneuverability}" Width="100"/>
+                <DataGridTextColumn Header="ECM Capability" Binding="{Binding ECMCapability}" Width="120"/>
                 <DataGridTextColumn Header="Payload Capacity" Binding="{Binding PayloadCapacity}" Width="120"/>
+                <DataGridTextColumn Header="Radar Cross Section" Binding="{Binding RadarCrossSection}" Width="120"/>
                 <DataGridTextColumn Header="Cost" Binding="{Binding Cost}" Width="80"/>
                 <DataGridTextColumn Header="Radar" Binding="{Binding RadarName}" Width="120"/>
 

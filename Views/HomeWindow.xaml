@@ -23,21 +23,21 @@
             </Grid.ColumnDefinitions>
 
             <!-- Başlık -->
-            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Threat and Air Defense Management" 
+            <TextBlock Grid.Row="0" Grid.ColumnSpan="3" Text="Tehdit ve Hava Savunma Yönetimi" 
                        FontSize="28" FontWeight="Bold" Foreground="DarkSlateGray" 
                        HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
             <!-- Açıklama Metni -->
-            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Manage aircraft threats and air defense systems with positions and details." 
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Uçak tehditlerini ve hava savunma sistemlerini pozisyonlar ve detaylarla yönetin." 
                        FontSize="14" FontStyle="Italic" Foreground="Gray" TextAlignment="Center" 
-                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
+                       HorizontalAlignment="Center" Margin="0,0,0,20" TextWrapping="Wrap" MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"/>
 
             <!-- Sol Sütun: Uçak Tehditleri -->
             <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
-                <TextBlock Text="Aircraft Threats" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
+                <TextBlock Text="Tehditler" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
 
                 <!-- Uçak Ekle Butonu -->
-                <Button Content="Add Aircraft Threat" Width="220" Height="35" Background="LightSteelBlue" Foreground="Black" Click="AddAircraftThreat_Click" Margin="0,10"/>
+                <Button Content="Tehdit Ekle" Width="220" Height="35" Background="LightSteelBlue" Foreground="Black" Click="AddAircraftThreat_Click" Margin="0,10"/>
 
                 <!-- Dinamik Uçak Tehditleri Listesi -->
                 <StackPanel x:Name="ThreatList" Orientation="Vertical" Margin="0,20" HorizontalAlignment="Center"/>
@@ -48,10 +48,10 @@
 
             <!-- Sağ Sütun: Hava Savunma Sistemleri -->
             <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
-                <TextBlock Text="Air Defense Systems" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
+                <TextBlock Text="Savunma Sistemleri" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
 
                 <!-- Hava Savunma Ekle Butonu -->
-                <Button Content="Add Air Defense System" Width="220" Height="35" Background="LightSteelBlue" Foreground="Black" Click="AddAirDefenseSystem_Click" Margin="0,10"/>
+                <Button Content="Savunma Sistemi Ekle" Width="220" Height="35" Background="LightSteelBlue" Foreground="Black" Click="AddAirDefenseSystem_Click" Margin="0,10"/>
 
                 <!-- Dinamik Hava Savunma Sistemleri Listesi -->
                 <StackPanel x:Name="DefenseList" Orientation="Vertical" Margin="0,20" HorizontalAlignment="Center"/>
@@ -59,7 +59,7 @@
 
             <!-- En Altta Buton Eklemek için Grid -->
             <Grid Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-                <Button Content="Submit" Width="150" Height="40" Background="LightGreen" Foreground="Black" Click="Button_Click"/>
+                <Button Content="Hesapla" Width="150" Height="40" Background="LightGreen" Foreground="Black" Click="Button_Click"/>
             </Grid>
         </Grid>
     </ScrollViewer>

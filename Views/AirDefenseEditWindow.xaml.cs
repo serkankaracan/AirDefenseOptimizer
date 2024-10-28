@@ -32,8 +32,15 @@ namespace AirDefenseOptimizer.Views
                .Select(a => new KeyValuePair<ECMCapability, string>(a, a.GetECMCapabilityName()))
                .ToList();
 
-            LoadRadarList();
-            LoadMunitionList();
+            try
+            {
+                LoadRadarList();
+                LoadMunitionList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading data: {ex.Message}");
+            }
 
             if (_airDefenseData != null)
             {
@@ -48,20 +55,26 @@ namespace AirDefenseOptimizer.Views
                 cbECMCapability.SelectedValue = Enum.Parse<ECMCapability>(_airDefenseData.ECMCapability);
                 txtCost.Text = _airDefenseData.Cost.ToString();
 
-                // Radarlar ekle
-                var radars = _airDefenseService.GetAirDefenseRadars((int)_airDefenseData.Id);
-                foreach (var radar in radars)
+                try
                 {
-                    AddRadarRow(radar["RadarId"].ToString(), Convert.ToInt32(radar["Quantity"]));
-                }
+                    // Radarlar ekle
+                    var radars = _airDefenseService.GetAirDefenseRadars((int)_airDefenseData.Id);
+                    foreach (var radar in radars)
+                    {
+                        AddRadarRow(radar["RadarId"].ToString(), Convert.ToInt32(radar["Quantity"]));
+                    }
 
-                // Mühimmatları ekle
-                var munitions = _airDefenseService.GetAirDefenseMunitions((int)_airDefenseData.Id);
-                foreach (var munition in munitions)
+                    // Mühimmatları ekle
+                    var munitions = _airDefenseService.GetAirDefenseMunitions((int)_airDefenseData.Id);
+                    foreach (var munition in munitions)
+                    {
+                        AddMunitionRow(munition["MunitionId"].ToString(), Convert.ToInt32(munition["Quantity"]));
+                    }
+                }
+                catch (Exception ex)
                 {
-                    AddMunitionRow(munition["MunitionId"].ToString(), Convert.ToInt32(munition["Quantity"]));
+                    MessageBox.Show($"Error loading radar and munition data: {ex.Message}");
                 }
-
             }
 
             if (_isReadOnly)
@@ -84,17 +97,38 @@ namespace AirDefenseOptimizer.Views
 
         private void LoadRadarList()
         {
-            var radars = _radarService.GetAllRadars();
+            try
+            {
+                var radars = _radarService.GetAllRadars();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading radar list: {ex.Message}");
+            }
         }
 
         private void LoadMunitionList()
         {
-            var munitions = _munitionService.GetAllMunitions();
+            try
+            {
+                var munitions = _munitionService.GetAllMunitions();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading munition list: {ex.Message}");
+            }
         }
 
         private void AddRadar_Click(object sender, RoutedEventArgs e)
         {
-            AddRadarRow(null, 1);
+            try
+            {
+                AddRadarRow(null, 1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding radar row: {ex.Message}");
+            }
         }
 
         private void AddRadarRow(string? selectedRadarId, int quantity)
@@ -105,10 +139,17 @@ namespace AirDefenseOptimizer.Views
                 Margin = new Thickness(0, 5, 0, 5)
             };
 
-            var radars = _radarService.GetAllRadars();
-            radarComboBox.ItemsSource = radars.Select(r => new KeyValuePair<long, string>(Convert.ToInt64(r["Id"]), r["Name"]?.ToString() ?? "Unnamed Radar")).ToList();
-            radarComboBox.DisplayMemberPath = "Value";
-            radarComboBox.SelectedValuePath = "Key";
+            try
+            {
+                var radars = _radarService.GetAllRadars();
+                radarComboBox.ItemsSource = radars.Select(r => new KeyValuePair<long, string>(Convert.ToInt64(r["Id"]), r["Name"]?.ToString() ?? "Unnamed Radar")).ToList();
+                radarComboBox.DisplayMemberPath = "Value";
+                radarComboBox.SelectedValuePath = "Key";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading radar data: {ex.Message}");
+            }
 
             if (!string.IsNullOrEmpty(selectedRadarId))
             {
@@ -148,7 +189,14 @@ namespace AirDefenseOptimizer.Views
 
         private void AddMunition_Click(object sender, RoutedEventArgs e)
         {
-            AddMunitionRow(null, 1);
+            try
+            {
+                AddMunitionRow(null, 1);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error adding munition row: {ex.Message}");
+            }
         }
 
         private void AddMunitionRow(string? selectedMunitionId, int quantity)
@@ -159,10 +207,17 @@ namespace AirDefenseOptimizer.Views
                 Margin = new Thickness(0, 5, 0, 5)
             };
 
-            var munitions = _munitionService.GetAllMunitions();
-            munitionComboBox.ItemsSource = munitions.Select(m => new KeyValuePair<long, string>(Convert.ToInt64(m["Id"]), m["Name"]?.ToString() ?? "Unnamed Munition")).ToList();
-            munitionComboBox.DisplayMemberPath = "Value";
-            munitionComboBox.SelectedValuePath = "Key";
+            try
+            {
+                var munitions = _munitionService.GetAllMunitions();
+                munitionComboBox.ItemsSource = munitions.Select(m => new KeyValuePair<long, string>(Convert.ToInt64(m["Id"]), m["Name"]?.ToString() ?? "Unnamed Munition")).ToList();
+                munitionComboBox.DisplayMemberPath = "Value";
+                munitionComboBox.SelectedValuePath = "Key";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading munition data: {ex.Message}");
+            }
 
             if (!string.IsNullOrEmpty(selectedMunitionId))
             {
@@ -202,121 +257,128 @@ namespace AirDefenseOptimizer.Views
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            int airDefenseId;
-
-            if (_airDefenseData == null)
+            try
             {
-                // Yeni hava savunma sistemi ekliyorsunuz
-                airDefenseId = _airDefenseService.AddAirDefense(
-                    txtAirDefenseName.Text,
-                    double.Parse(txtAerodynamicRangeMax.Text),
-                    double.Parse(txtAerodynamicRangeMin.Text),
-                    double.Parse(txtBallisticRangeMax.Text),
-                    double.Parse(txtBallisticRangeMin.Text),
-                    int.Parse(txtMaxEngagements.Text),
-                    int.Parse(txtMaxMissilesFired.Text),
-                    ((ECMCapability)cbECMCapability.SelectedValue).ToString(),
-                    double.Parse(txtCost.Text));
+                int airDefenseId;
+
+                if (_airDefenseData == null)
+                {
+                    airDefenseId = _airDefenseService.AddAirDefense(
+                        txtAirDefenseName.Text,
+                        double.Parse(txtAerodynamicRangeMax.Text),
+                        double.Parse(txtAerodynamicRangeMin.Text),
+                        double.Parse(txtBallisticRangeMax.Text),
+                        double.Parse(txtBallisticRangeMin.Text),
+                        int.Parse(txtMaxEngagements.Text),
+                        int.Parse(txtMaxMissilesFired.Text),
+                        ((ECMCapability)cbECMCapability.SelectedValue).ToString(),
+                        double.Parse(txtCost.Text));
+                }
+                else
+                {
+                    airDefenseId = (int)_airDefenseData.Id;
+                    _airDefenseService.UpdateAirDefense(
+                        airDefenseId,
+                        txtAirDefenseName.Text,
+                        double.Parse(txtAerodynamicRangeMax.Text),
+                        double.Parse(txtAerodynamicRangeMin.Text),
+                        double.Parse(txtBallisticRangeMax.Text),
+                        double.Parse(txtBallisticRangeMin.Text),
+                        int.Parse(txtMaxEngagements.Text),
+                        int.Parse(txtMaxMissilesFired.Text),
+                        ((ECMCapability)cbECMCapability.SelectedValue).ToString(),
+                        double.Parse(txtCost.Text));
+                }
+
+                SaveRadars(airDefenseId);
+                SaveMunitions(airDefenseId);
+
+                this.Close();
             }
-            else
+            catch (Exception ex)
             {
-                // Var olan hava savunma sistemini güncelliyorsunuz
-                airDefenseId = (int)_airDefenseData.Id;
-                _airDefenseService.UpdateAirDefense(
-                    airDefenseId,
-                    txtAirDefenseName.Text,
-                    double.Parse(txtAerodynamicRangeMax.Text),
-                    double.Parse(txtAerodynamicRangeMin.Text),
-                    double.Parse(txtBallisticRangeMax.Text),
-                    double.Parse(txtBallisticRangeMin.Text),
-                    int.Parse(txtMaxEngagements.Text),
-                    int.Parse(txtMaxMissilesFired.Text),
-                    ((ECMCapability)cbECMCapability.SelectedValue).ToString(),
-                    double.Parse(txtCost.Text));
+                MessageBox.Show($"Error saving Air Defense: {ex.Message}");
             }
-
-            // Radarı ve mühimmatı doğru airDefenseId ile kaydedin
-            SaveRadars(airDefenseId);
-            SaveMunitions(airDefenseId);
-
-            this.Close();
         }
 
         private void SaveRadars(int airDefenseId)
         {
-            var existingRadars = _airDefenseService.GetAirDefenseRadars(airDefenseId);
-
-            // Mevcut radarları kontrol ederek güncelle veya sil
-            foreach (var existingRadar in existingRadars)
+            try
             {
-                var radarId = Convert.ToInt64(existingRadar["RadarId"]);
-                var selectedRadarComboBox = _radarComboBoxes.FirstOrDefault(cb => Convert.ToInt64(cb.SelectedValue) == radarId);
+                var existingRadars = _airDefenseService.GetAirDefenseRadars(airDefenseId);
 
-                if (selectedRadarComboBox == null)
+                foreach (var existingRadar in existingRadars)
                 {
-                    // Eğer radar listede yoksa, radarı sil
-                    _airDefenseService.DeleteAirDefenseRadar(airDefenseId, (int)radarId);
+                    var radarId = Convert.ToInt64(existingRadar["RadarId"]);
+                    var selectedRadarComboBox = _radarComboBoxes.FirstOrDefault(cb => Convert.ToInt64(cb.SelectedValue) == radarId);
+
+                    if (selectedRadarComboBox == null)
+                    {
+                        _airDefenseService.DeleteAirDefenseRadar(airDefenseId, (int)radarId);
+                    }
+                    else
+                    {
+                        int index = _radarComboBoxes.IndexOf(selectedRadarComboBox);
+                        int quantity = int.Parse(_radarQuantityTextBoxes[index].Text);
+                        _airDefenseService.UpdateAirDefenseRadar(airDefenseId, (int)radarId, quantity);
+                    }
                 }
-                else
+
+                foreach (var radarComboBox in _radarComboBoxes)
                 {
-                    // Eğer radar listede varsa, miktarı güncelle
-                    int index = _radarComboBoxes.IndexOf(selectedRadarComboBox);
-                    int quantity = int.Parse(_radarQuantityTextBoxes[index].Text);
-                    _airDefenseService.UpdateAirDefenseRadar(airDefenseId, (int)radarId, quantity);
+                    var selectedRadarId = Convert.ToInt64(radarComboBox.SelectedValue);
+                    if (!existingRadars.Any(r => Convert.ToInt64(r["RadarId"]) == selectedRadarId))
+                    {
+                        int index = _radarComboBoxes.IndexOf(radarComboBox);
+                        int quantity = int.Parse(_radarQuantityTextBoxes[index].Text);
+                        _airDefenseService.AddRadarToAirDefense(airDefenseId, (int)selectedRadarId, quantity);
+                    }
                 }
             }
-
-            // Yeni eklenen radarları ekleyin
-            foreach (var radarComboBox in _radarComboBoxes)
+            catch (Exception ex)
             {
-                var selectedRadarId = Convert.ToInt64(radarComboBox.SelectedValue);
-                if (!existingRadars.Any(r => Convert.ToInt64(r["RadarId"]) == selectedRadarId))
-                {
-                    int index = _radarComboBoxes.IndexOf(radarComboBox);
-                    int quantity = int.Parse(_radarQuantityTextBoxes[index].Text);
-                    _airDefenseService.AddRadarToAirDefense(airDefenseId, (int)selectedRadarId, quantity);
-                }
+                MessageBox.Show($"Error saving radar data: {ex.Message}");
             }
         }
 
         private void SaveMunitions(int airDefenseId)
         {
-            var existingMunitions = _airDefenseService.GetAirDefenseMunitions(airDefenseId);
-
-            // Mevcut mühimmatları kontrol ederek güncelle veya sil
-            foreach (var existingMunition in existingMunitions)
+            try
             {
-                var munitionId = Convert.ToInt64(existingMunition["MunitionId"]);
-                var selectedMunitionComboBox = _munitionComboBoxes.FirstOrDefault(cb => Convert.ToInt64(cb.SelectedValue) == munitionId);
+                var existingMunitions = _airDefenseService.GetAirDefenseMunitions(airDefenseId);
 
-                if (selectedMunitionComboBox == null)
+                foreach (var existingMunition in existingMunitions)
                 {
-                    // Eğer mühimmat listede yoksa, mühimmatı sil
-                    _airDefenseService.DeleteAirDefenseMunition(airDefenseId, (int)munitionId);
+                    var munitionId = Convert.ToInt64(existingMunition["MunitionId"]);
+                    var selectedMunitionComboBox = _munitionComboBoxes.FirstOrDefault(cb => Convert.ToInt64(cb.SelectedValue) == munitionId);
+
+                    if (selectedMunitionComboBox == null)
+                    {
+                        _airDefenseService.DeleteAirDefenseMunition(airDefenseId, (int)munitionId);
+                    }
+                    else
+                    {
+                        int index = _munitionComboBoxes.IndexOf(selectedMunitionComboBox);
+                        int quantity = int.Parse(_munitionQuantityTextBoxes[index].Text);
+                        _airDefenseService.UpdateAirDefenseMunition(airDefenseId, (int)munitionId, quantity);
+                    }
                 }
-                else
+
+                foreach (var munitionComboBox in _munitionComboBoxes)
                 {
-                    // Eğer mühimmat listede varsa, miktarı güncelle
-                    int index = _munitionComboBoxes.IndexOf(selectedMunitionComboBox);
-                    int quantity = int.Parse(_munitionQuantityTextBoxes[index].Text);
-                    _airDefenseService.UpdateAirDefenseMunition(airDefenseId, (int)munitionId, quantity);
+                    var selectedMunitionId = Convert.ToInt64(munitionComboBox.SelectedValue);
+                    if (!existingMunitions.Any(m => Convert.ToInt64(m["MunitionId"]) == selectedMunitionId))
+                    {
+                        int index = _munitionComboBoxes.IndexOf(munitionComboBox);
+                        int quantity = int.Parse(_munitionQuantityTextBoxes[index].Text);
+                        _airDefenseService.AddMunitionToAirDefense(airDefenseId, (int)selectedMunitionId, quantity);
+                    }
                 }
             }
-
-            // Yeni eklenen mühimmatları ekleyin
-            foreach (var munitionComboBox in _munitionComboBoxes)
+            catch (Exception ex)
             {
-                var selectedMunitionId = Convert.ToInt64(munitionComboBox.SelectedValue);
-                if (!existingMunitions.Any(m => Convert.ToInt64(m["MunitionId"]) == selectedMunitionId))
-                {
-                    int index = _munitionComboBoxes.IndexOf(munitionComboBox);
-                    int quantity = int.Parse(_munitionQuantityTextBoxes[index].Text);
-                    _airDefenseService.AddMunitionToAirDefense(airDefenseId, (int)selectedMunitionId, quantity);
-                }
+                MessageBox.Show($"Error saving munition data: {ex.Message}");
             }
         }
-
-
-
     }
 }

@@ -35,11 +35,12 @@
             Range REAL NOT NULL,
             MaxAltitude REAL NOT NULL,
             Maneuverability TEXT NOT NULL,
+            ECMCapability TEXT NOT NULL, 
             PayloadCapacity REAL NOT NULL,
-            RadarCrossSection REAL,  -- Yeni eklenen sütun
+            RadarCrossSection REAL NOT NULL,  
             RadarId INTEGER,
             Cost REAL NOT NULL,
-            FOREIGN KEY (RadarId) REFERENCES Radar (Id) ON DELETE SET NULL  -- You may consider ON DELETE CASCADE here
+            FOREIGN KEY (RadarId) REFERENCES Radar (Id) ON DELETE SET NULL
         );";
 
         public const string CreateAircraftMunitionTable = @"CREATE TABLE IF NOT EXISTS AircraftMunition (

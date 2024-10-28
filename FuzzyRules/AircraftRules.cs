@@ -26,44 +26,49 @@ namespace AirDefenseOptimizer.FuzzyRules
                     {
                         foreach (var maneuverability in Enum.GetValues(typeof(EnumAircraft.Maneuverability)).Cast<EnumAircraft.Maneuverability>())
                         {
-                            foreach (var payloadCapacity in Enum.GetValues(typeof(EnumAircraft.PayloadCapacity)).Cast<EnumAircraft.PayloadCapacity>())
+                            foreach (var ecmCapability in Enum.GetValues(typeof(EnumAircraft.EcmCapability)).Cast<EnumAircraft.EcmCapability>())
                             {
-                                foreach (var rcs in Enum.GetValues(typeof(EnumAircraft.RadarCrossSection)).Cast<EnumAircraft.RadarCrossSection>())
+                                foreach (var payloadCapacity in Enum.GetValues(typeof(EnumAircraft.PayloadCapacity)).Cast<EnumAircraft.PayloadCapacity>())
                                 {
-                                    foreach (var cost in Enum.GetValues(typeof(EnumAircraft.Cost)).Cast<EnumAircraft.Cost>())
+                                    foreach (var rcs in Enum.GetValues(typeof(EnumAircraft.RadarCrossSection)).Cast<EnumAircraft.RadarCrossSection>())
                                     {
-                                        // Yeni bir kural oluştur
-                                        var rule = new FuzzyRule();
-
-                                        // Koşulları ekle
-                                        rule.AddCondition("Speed", speed.ToString());
-                                        rule.AddCondition("Range", range.ToString());
-                                        rule.AddCondition("MaxAltitude", maxAltitude.ToString());
-                                        rule.AddCondition("Maneuverability", maneuverability.ToString());
-                                        rule.AddCondition("PayloadCapacity", payloadCapacity.ToString());
-                                        rule.AddCondition("RadarCrossSection", rcs.ToString());
-                                        rule.AddCondition("Cost", cost.ToString());
-
-                                        // Uçağın tehdit seviyesini ve skorunu hesapla
-                                        var (threatLevel, totalScore) = CalculateThreatScore(new Aircraft
+                                        foreach (var cost in Enum.GetValues(typeof(EnumAircraft.Cost)).Cast<EnumAircraft.Cost>())
                                         {
-                                            Speed = (double)speed,
-                                            Range = (double)range,
-                                            MaxAltitude = (double)maxAltitude,
-                                            Maneuverability = (Maneuverability)maneuverability,
-                                            PayloadCapacity = (double)payloadCapacity,
-                                            RadarCrossSection = (double)rcs,
-                                            Cost = (double)cost,
-                                        });
+                                            // Yeni bir kural oluştur
+                                            var rule = new FuzzyRule();
 
-                                        // Sonuç olarak ThreatScore ve TotalScore belirle
-                                        rule.AddConsequence("ThreatScore", threatLevel); // Tehdit seviyesi (Critical, High, vb.)
-                                        rule.AddConsequence("TotalScore", totalScore.ToString()); // Toplam skor
+                                            // Koşulları ekle
+                                            rule.AddCondition("Speed", speed.ToString());
+                                            rule.AddCondition("Range", range.ToString());
+                                            rule.AddCondition("MaxAltitude", maxAltitude.ToString());
+                                            rule.AddCondition("Maneuverability", maneuverability.ToString());
+                                            rule.AddCondition("EcmCapability", ecmCapability.ToString());
+                                            rule.AddCondition("PayloadCapacity", payloadCapacity.ToString());
+                                            rule.AddCondition("RadarCrossSection", rcs.ToString());
+                                            rule.AddCondition("Cost", cost.ToString());
 
-                                        // Kurala ekle
-                                        Rules.Add(rule);
+                                            // Uçağın tehdit seviyesini ve skorunu hesapla
+                                            var (threatLevel, totalScore) = CalculateThreatScore(new Aircraft
+                                            {
+                                                Speed = (double)speed,
+                                                Range = (double)range,
+                                                MaxAltitude = (double)maxAltitude,
+                                                Maneuverability = (Maneuverability)maneuverability,
+                                                ECMCapability = (ECMCapability)ecmCapability,
+                                                PayloadCapacity = (double)payloadCapacity,
+                                                RadarCrossSection = (double)rcs,
+                                                Cost = (double)cost,
+                                            });
+
+                                            // Sonuç olarak ThreatScore ve TotalScore belirle
+                                            rule.AddConsequence("ThreatScore", threatLevel); // Tehdit seviyesi (Critical, High, vb.)
+                                            rule.AddConsequence("TotalScore", totalScore.ToString()); // Toplam skor
+
+                                            // Kurala ekle
+                                            Rules.Add(rule);
+                                        }
                                     }
-                                }
+                                } 
                             }
                         }
                     }
@@ -180,6 +185,19 @@ namespace AirDefenseOptimizer.FuzzyRules
                     score += 2;
                     break;
                 case EnumAircraft.PayloadCapacity.Small:
+                    score += 1;
+                    break;
+            }
+
+            switch ((EnumAircraft.EcmCapability)aircraft.ECMCapability)
+            {
+                case EnumAircraft.EcmCapability.High:
+                    score += 3;
+                    break;
+                case EnumAircraft.EcmCapability.Medium:
+                    score += 2;
+                    break;
+                case EnumAircraft.EcmCapability.Low:
                     score += 1;
                     break;
             }
@@ -316,7 +334,7 @@ namespace AirDefenseOptimizer.FuzzyRules
         private int CalculateMaxAircraftScore()
         {
             // Maksimum her parametre için 3 puan olduğu varsayılır.
-            return 3 * 7; // Speed, Range, MaxAltitude, Maneuverability, PayloadCapacity, RadarCrossSection, Cost için
+            return 3 * 8; // Speed, Range, MaxAltitude, Maneuverability, EcmCapability, PayloadCapacity, RadarCrossSection, Cost için
         }
 
         /// <summary>

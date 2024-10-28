@@ -42,6 +42,13 @@
             High    // Yüksek manevra kabiliyeti
         }
 
+        public enum EcmCapability
+        {
+            Low,    // Düşük manevra kabiliyeti
+            Medium, // Orta manevra kabiliyeti
+            High    // Yüksek manevra kabiliyeti
+        }
+
         /// <summary>
         /// Uçağın yük kapasitesi için kullanılacak bulanık kümeler
         /// </summary>

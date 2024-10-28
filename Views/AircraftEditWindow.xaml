@@ -11,7 +11,7 @@
             <!-- Uçak Adı -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Name:" VerticalAlignment="Center" Grid.Column="0"/>
@@ -21,7 +21,7 @@
             <!-- Uçak Tipi -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Type:" VerticalAlignment="Center" Grid.Column="0"/>
@@ -31,7 +31,7 @@
             <!-- Speed -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Speed:" VerticalAlignment="Center" Grid.Column="0"/>
@@ -41,7 +41,7 @@
             <!-- Range -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Range:" VerticalAlignment="Center" Grid.Column="0"/>
@@ -51,7 +51,7 @@
             <!-- Max Altitude -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Max Altitude:" VerticalAlignment="Center" Grid.Column="0"/>
@@ -61,7 +61,7 @@
             <!-- Maneuverability -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Maneuverability:" VerticalAlignment="Center" Grid.Column="0"/>
@@ -71,17 +71,37 @@
             <!-- Payload Capacity -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Payload:" VerticalAlignment="Center" Grid.Column="0"/>
                 <TextBox x:Name="txtPayloadCapacity" Grid.Column="1" Margin="5,0"/>
             </Grid>
 
+            <!-- Radar Cross Section -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Radar Cross Section:" VerticalAlignment="Center" Grid.Column="0"/>
+                <TextBox x:Name="txtRadarCrossSection" Grid.Column="1" Margin="5,0"/>
+            </Grid>
+
+            <!-- ECM Capability -->
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="ECM Capability:" VerticalAlignment="Center" Grid.Column="0"/>
+                <ComboBox x:Name="cbECMCapability" Grid.Column="1" Margin="5" DisplayMemberPath="Value" SelectedValuePath="Key"/>
+            </Grid>
+
             <!-- Radar -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Radar:" VerticalAlignment="Center" Grid.Column="0"/>
@@ -106,7 +126,7 @@
             <!-- Cost -->
             <Grid Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="75"/>
+                    <ColumnDefinition Width="110"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Cost:" VerticalAlignment="Center" Grid.Column="0"/>
