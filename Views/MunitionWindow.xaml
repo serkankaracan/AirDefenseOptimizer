@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Başlık -->
-        <TextBlock Grid.Row="0" Text="Munition Management" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Text="Mühimmat Yönetimi" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
         <!-- Bilgilendirici Mesaj -->
         <TextBlock Grid.Row="1" Text="Here you can manage munitions. You can add, search, preview, edit, or delete munitions." 

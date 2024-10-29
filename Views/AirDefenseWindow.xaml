@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <!-- Başlık -->
-        <TextBlock Grid.Row="0" Text="Air Defense Management" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Text="Hava Savunma Sistemi Yönetimi" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
         <!-- Bilgilendirici Mesaj -->
         <TextBlock Grid.Row="1" Text="Here you can manage air defense systems. You can add, search, preview, edit, or delete air defense systems." 

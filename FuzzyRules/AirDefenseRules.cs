@@ -1,4 +1,5 @@
-﻿using AirDefenseOptimizer.FuzzyEnums;
+﻿using AirDefenseOptimizer.Enums;
+using AirDefenseOptimizer.FuzzyEnums;
 using AirDefenseOptimizer.FuzzyLogic;
 using AirDefenseOptimizer.Models;
 
@@ -20,164 +21,96 @@ namespace AirDefenseOptimizer.FuzzyRules
             // Tüm olası kombinasyonları döngülerle oluştur
             foreach (var range in Enum.GetValues(typeof(EnumAirDefense.Range)).Cast<EnumAirDefense.Range>())
             {
-                foreach (var ecmCapability in Enum.GetValues(typeof(EnumAirDefense.ECMCapability)).Cast<EnumAirDefense.ECMCapability>())
+                foreach (var maxEngagements in Enum.GetValues(typeof(EnumAirDefense.MaxEngagements)).Cast<EnumAirDefense.MaxEngagements>())
                 {
                     foreach (var maxMissilesFired in Enum.GetValues(typeof(EnumAirDefense.MaxMissilesFired)).Cast<EnumAirDefense.MaxMissilesFired>())
                     {
-                        foreach (var maxEngagements in Enum.GetValues(typeof(EnumAirDefense.MaxEngagements)).Cast<EnumAirDefense.MaxEngagements>())
+                        foreach (var ecmCapability in Enum.GetValues(typeof(EnumAirDefense.ECMCapability)).Cast<EnumAirDefense.ECMCapability>())
                         {
                             foreach (var cost in Enum.GetValues(typeof(EnumAirDefense.Cost)).Cast<EnumAirDefense.Cost>())
                             {
-                                //foreach (var radar in GetRadarListFromEnum())
-                                //{
-                                //    foreach (var munition in GetMunitionListFromEnum())
-                                //    {
-                                        // Yeni bir kural oluştur
-                                        var rule = new FuzzyRule();
+                                var rule = new FuzzyRule();
 
-                                        // Hava savunma sisteminin koşullarını ekle
-                                        rule.AddCondition("Range", range.ToString());
-                                        rule.AddCondition("ECMCapability", ecmCapability.ToString());
-                                        rule.AddCondition("MaxMissilesFired", maxMissilesFired.ToString());
-                                        rule.AddCondition("MaxEngagements", maxEngagements.ToString());
-                                        rule.AddCondition("Cost", cost.ToString());
-
-                                // Radar koşullarını eklerken cast işlemi uygulayın
-                                //rule.AddCondition("RadarDetectionRange", ((double)radar.MaxDetectionRange).ToString());
-                                //rule.AddCondition("RadarMaxAltitude", ((double)radar.MaxAltitude).ToString());
-                                //rule.AddCondition("RadarMaxTargetSpeed", ((double)radar.MaxTargetSpeed).ToString());
-                                //rule.AddCondition("RadarMaxTargetVelocity", ((double)radar.MaxTargetVelocity).ToString());
-                                //rule.AddCondition("RadarRedeploymentTime", ((int)radar.RedeploymentTime).ToString());
-
-                                //// Mühimmat koşullarını eklerken cast işlemi uygulayın
-                                //rule.AddCondition("MunitionWeight", ((double)munition.Weight).ToString());
-                                //rule.AddCondition("MunitionSpeed", ((double)munition.Speed).ToString());
-                                //rule.AddCondition("MunitionRange", ((double)munition.Range).ToString());
-                                //rule.AddCondition("MunitionExplosivePower", ((double)munition.ExplosivePower).ToString());
-                                //rule.AddCondition("MunitionCost", ((double)munition.Cost).ToString());
+                                // Hava savunma sisteminin koşullarını ekle
+                                rule.AddCondition("Range", range.ToString());
+                                rule.AddCondition("MaxEngagements", maxEngagements.ToString());
+                                rule.AddCondition("MaxMissilesFired", maxMissilesFired.ToString());
+                                rule.AddCondition("ECMCapability", ecmCapability.ToString());
+                                rule.AddCondition("Cost", cost.ToString());
 
                                 // Hava savunma sisteminin savunma seviyesini ve toplam skorunu hesapla
-                                var (defenseLevel, totalScore) = CalculateDefenseScore(range, ecmCapability, maxMissilesFired, maxEngagements, cost);//, radar, munition);
+                                //var (defenseLevel, totalScore) = CalculateDefenseScore(range, ecmCapability, maxMissilesFired, maxEngagements, cost);//, radar, munition);
 
-                                        // Radarlar ve Mühimmatlar skorlarını ayrı ayrı hesapla
-                                        int radarScore = CalculateTotalRadarScore(new List<Radar>()); // Radar listesi
-                                        int munitionScore = CalculateTotalMunitionScore(new List<Munition>()); // Mühimmat listesi
-
-                                        // Toplam skorları ekle
-                                        totalScore += radarScore + munitionScore;
-
-                                        // Maksimum skor hesapla
-                                        int maxTotalScore = CalculateMaxDefenseScore() + CalculateMaxRadarScore() + CalculateMaxMunitionScore(new List<Munition>());
-
-                                        // Yüzdesel savunma skoru hesapla
-                                        double scorePercentage = (double)totalScore / maxTotalScore * 100;
-
-                                        // Yüzdelik savunma skoru aralıklarına göre sınıflandırma
-                                        if (scorePercentage >= 80)
-                                            defenseLevel = "Critical";
-                                        else if (scorePercentage >= 60)
-                                            defenseLevel = "High";
-                                        else if (scorePercentage >= 40)
-                                            defenseLevel = "Medium";
-                                        else if (scorePercentage >= 20)
-                                            defenseLevel = "Low";
-                                        else
-                                            defenseLevel = "Very Low";
-
-                                        // Sonuç olarak DefenseScore ve TotalScore belirle
-                                        rule.AddConsequence("DefenseScore", defenseLevel); // Savunma seviyesi
-                                        rule.AddConsequence("TotalScore", totalScore.ToString()); // Toplam skor
-
-                                        // Kurala ekle
-                                        Rules.Add(rule);
-                                //    }
-                                //}
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public List<Radar> GetRadarListFromEnum()
-        {
-            var radarList = new List<Radar>();
-
-            foreach (EnumRadar.DetectionRange detectionRange in Enum.GetValues(typeof(EnumRadar.DetectionRange)))
-            {
-                foreach (EnumRadar.Altitude altitude in Enum.GetValues(typeof(EnumRadar.Altitude)))
-                {
-                    foreach (EnumRadar.MaxTargetSpeed maxTargetSpeed in Enum.GetValues(typeof(EnumRadar.MaxTargetSpeed)))
-                    {
-                        foreach (EnumRadar.MaxTargetVelocity maxTargetVelocity in Enum.GetValues(typeof(EnumRadar.MaxTargetVelocity)))
-                        {
-                            foreach (EnumRadar.RedeploymentTime redeploymentTime in Enum.GetValues(typeof(EnumRadar.RedeploymentTime)))
-                            {
-                                radarList.Add(new Radar
+                                var (defenseLevel, totalScore) = CalculateTotalDefenseScore(new AirDefense
                                 {
-                                    MaxDetectionRange = (double)detectionRange,
-                                    MaxAltitude = (double)altitude,
-                                    MaxTargetSpeed = (double)maxTargetSpeed,
-                                    MaxTargetVelocity = (double)maxTargetVelocity,
-                                    RedeploymentTime = (int)redeploymentTime
+                                    AerodynamicTargetRangeMin = (double)range,
+                                    AerodynamicTargetRangeMax = (double)range,
+                                    BallisticTargetRangeMin = (double)range,
+                                    BallisticTargetRangeMax = (double)range,
+                                    MaxEngagements = (int)maxEngagements,
+                                    MaxMissilesFired = (int)maxMissilesFired,
+                                    ECMCapability = (ECMCapability)ecmCapability,
+                                    Cost = (double)cost,
                                 });
+
+                                // Sonuç olarak DefenseScore ve TotalScore belirle
+                                rule.AddConsequence("DefenseScore", defenseLevel); // Savunma seviyesi
+                                rule.AddConsequence("TotalScore", totalScore.ToString()); // Toplam skor
+
+                                // Kurala ekle
+                                Rules.Add(rule);
                             }
                         }
                     }
                 }
             }
-
-            return radarList;
         }
 
-        public List<Munition> GetMunitionListFromEnum()
+        private (string defenseLevel, int totalScore) CalculateTotalDefenseScore(AirDefense airDefense)
         {
-            var munitionList = new List<Munition>();
+            int maxDefenseScore = CalculateMaxDefenseScore();
 
-            foreach (EnumMunition.Weight weight in Enum.GetValues(typeof(EnumMunition.Weight)))
-            {
-                foreach (EnumMunition.Speed speed in Enum.GetValues(typeof(EnumMunition.Speed)))
-                {
-                    foreach (EnumMunition.Range range in Enum.GetValues(typeof(EnumMunition.Range)))
-                    {
-                        foreach (EnumMunition.ExplosivePower explosivePower in Enum.GetValues(typeof(EnumMunition.ExplosivePower)))
-                        {
-                            foreach (EnumMunition.Cost cost in Enum.GetValues(typeof(EnumMunition.Cost)))
-                            {
-                                munitionList.Add(new Munition
-                                {
-                                    Weight = (double)weight,
-                                    Speed = (double)speed,
-                                    Range = (double)range,
-                                    ExplosivePower = (double)explosivePower,
-                                    Cost = (double)cost
-                                });
-                            }
-                        }
-                    }
-                }
-            }
+            int defenseScore = CalculateDefenseScore(airDefense);
 
-            return munitionList;
+            int maxMunitionScore = CalculateMaxMunitionScore(airDefense.Munitions);
+
+            int maxRadarScore = CalculateMaxRadarScore(airDefense.Radars);
+
+            int totalScore = defenseScore + CalculateTotalMunitionScore(airDefense.Munitions) + CalculateTotalRadarScore(airDefense.Radars);
+
+            int maxTotalScore = maxDefenseScore + maxMunitionScore + maxRadarScore;
+
+            double scorePercentage = (double)totalScore / maxTotalScore * 100;
+
+            if (scorePercentage >= 80)
+                return ("Critical", totalScore);
+            else if (scorePercentage >= 60)
+                return ("High", totalScore);
+            else if (scorePercentage >= 40)
+                return ("Medium", totalScore);
+            else if (scorePercentage >= 20)
+                return ("Low", totalScore);
+            else
+                return ("Very Low", totalScore);
         }
 
+        /// <summary>
+        /// Maksimum savunma skoru hesaplanır.
+        /// </summary>
+        private int CalculateMaxDefenseScore()
+        {
+            return 3 * 5; // Range, ECMCapability, MaxMissilesFired, MaxEngagements, Cost için 3 puan varsayılır
+        }
 
         /// <summary>
         /// Hava savunma sisteminin savunma skorunu hesaplar.
         /// </summary>
-        public (string, int) CalculateDefenseScore(
-            EnumAirDefense.Range range,
-            EnumAirDefense.ECMCapability ecmCapability,
-            EnumAirDefense.MaxMissilesFired maxMissilesFired,
-            EnumAirDefense.MaxEngagements maxEngagements,
-            EnumAirDefense.Cost cost)
-            //Radar radar,
-            //Munition munition)
+        public int CalculateDefenseScore(AirDefense airDefense)
         {
             int score = 0;
 
             // Range değerlendirmesi
-            switch (range)
+            switch ((EnumAirDefense.Range)airDefense.AerodynamicTargetRangeMax)
             {
                 case EnumAirDefense.Range.Long:
                     score += 3;
@@ -191,7 +124,7 @@ namespace AirDefenseOptimizer.FuzzyRules
             }
 
             // ECM Capability değerlendirmesi
-            switch (ecmCapability)
+            switch ((EnumAirDefense.ECMCapability)airDefense.ECMCapability)
             {
                 case EnumAirDefense.ECMCapability.Strong:
                     score += 3;
@@ -205,7 +138,7 @@ namespace AirDefenseOptimizer.FuzzyRules
             }
 
             // MaxMissilesFired değerlendirmesi
-            switch (maxMissilesFired)
+            switch ((EnumAirDefense.MaxMissilesFired)airDefense.MaxMissilesFired)
             {
                 case EnumAirDefense.MaxMissilesFired.High:
                     score += 3;
@@ -219,7 +152,7 @@ namespace AirDefenseOptimizer.FuzzyRules
             }
 
             // MaxEngagements değerlendirmesi
-            switch (maxEngagements)
+            switch ((EnumAirDefense.MaxEngagements)airDefense.MaxEngagements)
             {
                 case EnumAirDefense.MaxEngagements.Many:
                     score += 3;
@@ -233,7 +166,7 @@ namespace AirDefenseOptimizer.FuzzyRules
             }
 
             // Cost değerlendirmesi
-            switch (cost)
+            switch ((EnumAirDefense.Cost)airDefense.Cost)
             {
                 case EnumAirDefense.Cost.Expensive:
                     score += 1;
@@ -246,22 +179,30 @@ namespace AirDefenseOptimizer.FuzzyRules
                     break;
             }
 
-            return ("", score);
+            return score;
         }
 
         /// <summary>
         /// Radarların toplam skorunu hesaplar.
         /// </summary>
-        private int CalculateTotalRadarScore(List<Radar> radars)
+        private int CalculateTotalRadarScore(List<AirDefenseRadar> radars)
         {
             int totalRadarScore = 0;
 
             foreach (var radar in radars)
             {
-                totalRadarScore += CalculateRadarScore(radar);
+                totalRadarScore += CalculateRadarScore(radar.Radar);
             }
 
             return totalRadarScore;
+        }
+
+        /// <summary>
+        /// Maksimum radar skoru hesaplanır.
+        /// </summary>
+        private int CalculateMaxRadarScore(List<AirDefenseRadar> radars)
+        {
+            return radars.Count * 3 * 5; // 5 radar parametresi için 3 puan varsayılır
         }
 
         /// <summary>
@@ -347,16 +288,24 @@ namespace AirDefenseOptimizer.FuzzyRules
         /// <summary>
         /// Mühimmatların toplam skorunu hesaplar.
         /// </summary>
-        private int CalculateTotalMunitionScore(List<Munition> munitions)
+        private int CalculateTotalMunitionScore(List<AirDefenseMunition> munitions)
         {
             int totalMunitionScore = 0;
 
             foreach (var munition in munitions)
             {
-                totalMunitionScore += CalculateMunitionScore(munition);
+                totalMunitionScore += CalculateMunitionScore(munition.Munition);
             }
 
             return totalMunitionScore;
+        }
+
+        /// <summary>
+        /// Maksimum mühimmat skoru hesaplanır.
+        /// </summary>
+        private int CalculateMaxMunitionScore(List<AirDefenseMunition> munitions)
+        {
+            return munitions.Count * 3 * 5; // Her mühimmat için 5 parametre ve 3 maksimum puan varsayılır
         }
 
         /// <summary>
@@ -439,28 +388,5 @@ namespace AirDefenseOptimizer.FuzzyRules
             return score;
         }
 
-        /// <summary>
-        /// Maksimum radar skoru hesaplanır.
-        /// </summary>
-        private int CalculateMaxRadarScore()
-        {
-            return 3 * 5; // 5 radar parametresi için 3 puan varsayılır
-        }
-
-        /// <summary>
-        /// Maksimum mühimmat skoru hesaplanır.
-        /// </summary>
-        private int CalculateMaxMunitionScore(List<Munition> munitions)
-        {
-            return munitions.Count * 3 * 5; // Her mühimmat için 5 parametre ve 3 maksimum puan varsayılır
-        }
-
-        /// <summary>
-        /// Maksimum savunma skoru hesaplanır.
-        /// </summary>
-        private int CalculateMaxDefenseScore()
-        {
-            return 3 * 5; // Range, ECMCapability, MaxMissilesFired, MaxEngagements, Cost için 3 puan varsayılır
-        }
     }
 }

@@ -9,14 +9,14 @@
     <Grid Background="#FFF">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <!-- Başlık -->
-            <TextBlock Text="Air Defense Optimization System" 
+            <TextBlock Text="Hava Savunma Optimizasyon Sistemi" 
                        FontSize="28" 
                        FontWeight="Bold" 
                        Foreground="#333"
                        HorizontalAlignment="Center" />
 
             <!-- Alt Başlık -->
-            <TextBlock Text="Project Design and Development by" 
+            <TextBlock Text="Proje Tasarımı ve Geliştiren" 
                        FontSize="18" 
                        Margin="0,20,0,10" 
                        HorizontalAlignment="Center" />
@@ -28,13 +28,13 @@
                        Foreground="#2E8B57"
                        HorizontalAlignment="Center" />
 
-            <TextBlock Text="Computer Engineer" 
+            <TextBlock Text="Bilgisayar Mühendisi" 
                        FontSize="16" 
                        Foreground="#666" 
                        HorizontalAlignment="Center" />
 
             <!-- Alt Metin -->
-            <TextBlock Text="This software was designed as part of İsmail CIRRIK's master's thesis in the field of air defense systems optimization and was implemented by Serkan KARACAN."
+            <TextBlock Text="Bu yazılım, hava savunma sistemleri optimizasyonu alanında İsmail CIRRIK'in yüksek lisans tezi kapsamında tasarlanmış olup, Serkan KARACAN tarafından kodlanmıştır."
                        FontSize="14" 
                        TextAlignment="Center" 
                        TextWrapping="Wrap" 
