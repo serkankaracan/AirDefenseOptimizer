@@ -222,7 +222,7 @@ namespace AirDefenseOptimizer.Services
                                            Radar.MaxTargetSpeed, 
                                            Radar.MaxTargetVelocity, 
                                            Radar.RedeploymentTime,
-                                           Radar.RadarType
+                                           Radar.RadarType AS RadarType
                                    FROM Aircraft
                                    JOIN Radar ON Aircraft.RadarId = Radar.Id
                                    WHERE Aircraft.Id = @aircraftId;";
@@ -239,7 +239,16 @@ namespace AirDefenseOptimizer.Services
                 };
 
                 var result = _databaseHelper.ExecuteReader(selectQuery, connection, parameters);
-                return result.FirstOrDefault(); // Tek bir radar kaydı dönecek
+
+                if (result == null || result.Count == 0)
+                {
+                    MessageBox.Show("Radar bilgisi bulunamadı.");
+                    return null;
+                }
+                else
+                {
+                    return result.FirstOrDefault(); // Tek bir radar kaydı dönecek
+                }
             }
             catch (Exception ex)
             {
