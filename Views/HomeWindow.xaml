@@ -4,12 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="950">
 
     <!-- ScrollViewer ile tüm içerik kaydırılabilir hale getirildi -->
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <Grid Margin="20">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -28,12 +29,35 @@
                        HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
             <!-- Açıklama Metni -->
-            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Uçak tehditlerini ve hava savunma sistemlerini pozisyonlar ve detaylarla yönetin." 
-                       FontSize="14" FontStyle="Italic" Foreground="Gray" TextAlignment="Center" 
-                       HorizontalAlignment="Center" Margin="0,0,0,20" TextWrapping="Wrap" MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"/>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="Bu arayüz ile uçak tehditlerini ve hava savunma sistemlerini detaylı olarak yönetebilirsiniz. Konum bilgilerini girerek tehdit seviyelerini hesaplayın." 
+                       FontSize="14" FontStyle="Italic" Foreground="Gray" 
+                       TextAlignment="Center" Margin="0,0,0,20" TextWrapping="Wrap" />
+
+            <!-- Konum Bilgileri Girişi -->
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,20">
+                
+                <!-- Latitude -->
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Latitude:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="LatitudeTextBox" Width="80" Margin="5" Text="39.9334"/>
+                </StackPanel>
+
+                <!-- Longitude -->
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Longitude:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="LongitudeTextBox" Width="80" Margin="5" Text="32.8597"/>
+                </StackPanel>
+
+                <!-- Altitude -->
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <TextBlock Text="Altitude:" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBox x:Name="AltitudeTextBox" Width="80" Margin="5" Text="890"/>
+                </StackPanel>
+                
+            </StackPanel>
 
             <!-- Sol Sütun: Uçak Tehditleri -->
-            <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
+            <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
                 <TextBlock Text="Tehditler" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
 
                 <!-- Uçak Ekle Butonu -->
@@ -44,10 +68,10 @@
             </StackPanel>
 
             <!-- GridSplitter -->
-            <GridSplitter Grid.Row="2" Grid.Column="1" Width="5" HorizontalAlignment="Center" Background="Gray" ShowsPreview="True"/>
+            <GridSplitter Grid.Row="3" Grid.Column="1" Width="5" HorizontalAlignment="Center" Background="Gray" ShowsPreview="True"/>
 
             <!-- Sağ Sütun: Hava Savunma Sistemleri -->
-            <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
+            <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Stretch" Margin="10,0,10,0">
                 <TextBlock Text="Savunma Sistemleri" FontSize="20" FontWeight="Bold" Foreground="SteelBlue" Margin="0,0,0,10" TextAlignment="Center"/>
 
                 <!-- Hava Savunma Ekle Butonu -->
@@ -57,10 +81,14 @@
                 <StackPanel x:Name="DefenseList" Orientation="Vertical" Margin="0,20" HorizontalAlignment="Center"/>
             </StackPanel>
 
-            <!-- En Altta Buton Eklemek için Grid -->
-            <Grid Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-                <Button Content="Hesapla" Width="150" Height="40" Background="LightGreen" Foreground="Black" Click="CalculateButton_Click"/>
+            <!-- En Altta Buton Eklemek için UniformGrid -->
+            <Grid Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+                <UniformGrid Columns="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10" Width="320">
+                    <Button Content="Tehdit Seviyeleri" Width="150" Height="40" Background="LightGreen" Foreground="Black" Click="ShowThreatLevelButton_Click"/>
+                    <Button Content="Hesapla" Width="150" Height="40" Background="LightGreen" Foreground="Black" Click="CalculateButton_Click"/>
+                </UniformGrid>
             </Grid>
+
         </Grid>
     </ScrollViewer>
 </UserControl>

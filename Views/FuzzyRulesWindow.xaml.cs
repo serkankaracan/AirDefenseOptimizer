@@ -20,7 +20,7 @@ namespace AirDefenseOptimizer.Views
             LoadRules(new AirDefenseRules(), AirDefenseRulesList, "DefenseScore", AirDefenseInfo);
 
             // Aircraft Kuralları
-            LoadRules(new AircraftRules(), AircraftRulesList, "ThreatScore", AircraftInfo);
+            LoadRules(new AircraftRules(), AircraftRulesList, "ThreatLevel", AircraftInfo);
 
             // Radar Kuralları
             LoadRules(new RadarRules(), RadarRulesList, "SurveillanceScore", RadarInfo);

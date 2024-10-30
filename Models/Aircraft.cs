@@ -17,7 +17,7 @@ namespace AirDefenseOptimizer.Models
         public Radar? Radar { get; set; }
         public double Cost { get; set; }
 
-        public List<AircraftMunition> Munitions { get; set; } = new List<AircraftMunition>();
+        public List<AircraftMunition> Munitions { get; set; } = new List<AircraftMunition>(); // List of munitions
     }
 
     public class AircraftMunition

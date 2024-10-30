@@ -67,6 +67,16 @@
         }
 
         /// <summary>
+        /// Uçağın kimliği için kullanılacak bulanık kümeler
+        /// </summary>
+        public enum IFFMode
+        {
+            Foe,
+            Unknown,
+            Friend
+        }
+
+        /// <summary>
         /// Uçağın maliyeti için kullanılacak bulanık kümeler
         /// </summary>
         public enum Cost

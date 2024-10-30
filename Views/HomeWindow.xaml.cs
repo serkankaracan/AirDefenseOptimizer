@@ -1,8 +1,10 @@
 ﻿using AirDefenseOptimizer.Enums;
+using AirDefenseOptimizer.Fuzzification;
 using AirDefenseOptimizer.FuzzyRules;
 using AirDefenseOptimizer.Helpers;
 using AirDefenseOptimizer.Models;
 using AirDefenseOptimizer.Services;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -15,14 +17,10 @@ namespace AirDefenseOptimizer.Views
         private readonly AirDefenseService _airDefenseService;
         private readonly AircraftService _aircraftService;
 
-        //private List<Aircraft> _aircraftList = new List<Aircraft>();
-        //private List<AirDefense> _airDefenseList = new List<AirDefense>();
-
-        //private List<(Aircraft aircraft, string iffMode, string location)> _aircraftList = new List<(Aircraft, string, string)>();
-        //private List<(AirDefense airDefense, string location)> _airDefenseList = new List<(AirDefense, string)>();
-
         private List<AircraftInput> _aircraftThreats = new List<AircraftInput>();
         private List<AirDefenseInput> _airDefenseSystems = new List<AirDefenseInput>();
+
+        List<ThreatDetail> threatDetails = new List<ThreatDetail>();
 
         public HomeWindow()
         {
@@ -447,7 +445,34 @@ namespace AirDefenseOptimizer.Views
 
         private void CalculateButton_Click(object sender, RoutedEventArgs e)
         {
+            var aircraft = new Aircraft
+            {
+                Speed = 1200, // Hız (örneğin 1200 km/h)
+                Range = 2000, // Menzil (örneğin 2000 km)
+                MaxAltitude = 15000, // İrtifa (örneğin 15.000 m)
+                Maneuverability = Maneuverability.High, // Manevra kabiliyeti
+                ECMCapability = ECMCapability.Basic, // Elektronik karşı önlem kabiliyeti
+                PayloadCapacity = 1000, // Yük kapasitesi
+                RadarCrossSection = 3, // Radar kesit alanı
+                Cost = 150000 // Maliyet
+            };
+
+            // 2. FuzzyAircraft nesnesi oluşturun
+            var fuzzyAircraft = new FuzzyAircraft();
+
+            // 3. Tehdit seviyesini hesaplayın
+            double threatLevel = fuzzyAircraft.CalculateThreatLevel(aircraft);
+
+            // 4. Sonucu gösterin
+            MessageBox.Show($"Calculated Threat Level: {threatLevel}");
+        }
+
+        private void ShowThreatLevelButton_Click(object sender, RoutedEventArgs e)
+        {
             AircraftRules aircraftRules = new AircraftRules();
+
+            // Örnek konum tanımla
+            Position examplePosition = new Position(double.Parse(LatitudeTextBox.Text, CultureInfo.InvariantCulture), double.Parse(LongitudeTextBox.Text, CultureInfo.InvariantCulture), double.Parse(AltitudeTextBox.Text, CultureInfo.InvariantCulture));
 
             // Aircraft verilerini listeye ekleyelim
             _aircraftThreats.Clear(); // Önceki verileri temizleyelim
@@ -462,10 +487,11 @@ namespace AirDefenseOptimizer.Views
                 {
                     // Seçilen Aircraft ve IFF modunu al
                     string? selectedAircraft = aircraftComboBox.SelectedItem?.ToString();
-                    string? selectedIFF = iffComboBox.SelectedItem?.ToString();
                     string location = locationTextBox.Text;
 
-                    if (!string.IsNullOrEmpty(selectedAircraft) && !string.IsNullOrEmpty(selectedIFF) && !string.IsNullOrEmpty(location))
+                    if (Enum.TryParse<IFF>(iffComboBox.SelectedItem.ToString(), out var selectedIFF) &&
+                        !string.IsNullOrEmpty(selectedAircraft) &&
+                        !string.IsNullOrEmpty(location))
                     {
                         // Aircraft bilgilerini veritabanından çek
                         var aircraftData = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
@@ -525,8 +551,41 @@ namespace AirDefenseOptimizer.Views
                                 };
                             }
 
-                            // AircraftInput nesnesini oluştur ve listeye ekle
-                            _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, location));
+                            var locationParts = location.Split(',');
+                            if (locationParts.Length == 3 &&
+                           double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double userLatitude) &&
+                           double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double userLongitude) &&
+                           double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double userAltitude))
+                            {
+                                Position userPosition = new Position(userLatitude, userLongitude, userAltitude);
+                                MessageBox.Show($"Latitude: {userLatitude}, Longitude: {userLongitude}, Altitude: {userAltitude}");
+
+                                double distance = Position.CalculateDistance(examplePosition, userPosition);
+                                MessageBox.Show($"Example konumu ile kullanıcı konumu arasındaki mesafe: {distance:F2} km");
+
+                                // Eğer IFF Friend veya Neutral ise tehdit seviyesi 0 olarak ayarlanır
+                                int threatScore = 0;
+                                string threatLevel = "None";
+                                if (selectedIFF == IFF.Foe || selectedIFF == IFF.Unknown)
+                                {
+                                    // Tehdit skorunu hesapla
+                                    (threatLevel, threatScore) = aircraftRules.CalculateThreatScore(aircraft);
+                                }
+
+                                // AircraftInput nesnesini oluştur ve listeye ekle
+                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, location, distance));
+
+                                // Tehdit detaylarını güncelle
+                                threatDetails.Add(new ThreatDetail
+                                {
+                                    Aircraft = aircraft,
+                                    IFFMode = selectedIFF,
+                                    Location = location,
+                                    Distance = distance,
+                                    ThreatScore = threatScore,
+                                    ThreatLevel = threatLevel
+                                });
+                            }
                         }
                         else
                         {
@@ -624,18 +683,24 @@ namespace AirDefenseOptimizer.Views
                 }
             }
 
+            threatDetails.Clear();
+
             // Listeye eklenen Aircraft ve Air Defense System'ler üzerinden işlem yapalım
             foreach (var aircraftInput in _aircraftThreats)
             {
                 // Tehdit skorunu hesapla
                 var (threatLevel, totalScore) = aircraftRules.CalculateThreatScore(aircraftInput.Aircraft);
 
-                MessageBox.Show(
-                    $"Aircraft: {aircraftInput.Aircraft.Name}, " +
-                    $"\nThreat Level: {threatLevel}, " +
-                    $"\nThreat Score: {totalScore}, " +
-                    $"\nIFF Mode: {aircraftInput.IFFMode}, " +
-                    $"\nLocation: {aircraftInput.Location}");
+                threatDetails.Add(new ThreatDetail
+                {
+                    Aircraft = aircraftInput.Aircraft,
+                    IFFMode = aircraftInput.IFFMode,
+                    Location = aircraftInput.Location,
+                    Distance = aircraftInput.Distance,
+                    ThreatScore = totalScore,
+                    ThreatLevel = threatLevel
+                });
+
             }
 
             foreach (var airDefenseInput in _airDefenseSystems)
@@ -644,7 +709,13 @@ namespace AirDefenseOptimizer.Views
                     $"Air Defense System: {airDefenseInput.AirDefense.Name}, " +
                     $"\nLocation: {airDefenseInput.Location}");
             }
-        }
 
+            ThreatDetailsWindow threatDetailsWindow = new ThreatDetailsWindow(threatDetails.Select((detail, index) =>
+            {
+                detail.Index = index + 1; 
+                return detail;
+            }).ToList());
+            threatDetailsWindow.Show();
+        }
     }
 }

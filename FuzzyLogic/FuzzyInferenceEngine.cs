@@ -1,4 +1,6 @@
-﻿namespace AirDefenseOptimizer.FuzzyLogic
+﻿using System.Windows;
+
+namespace AirDefenseOptimizer.FuzzyLogic
 {
     /// <summary>
     /// Bulanık mantık çıkarım motoru (inference engine), 
@@ -61,6 +63,37 @@
             }
 
             return outputValues;
+        }
+
+        /// <summary>
+        /// Durulaştırma işlemi (Defuzzification) için merkezi ortalama yöntemini uygular.
+        /// </summary>
+        /// <param name="outputValues">Çıkış bulanık kümeleri ve üyelik dereceleri</param>
+        /// <param name="outputVariable">Çıkış değişkeni (örneğin tehdit seviyesi)</param>
+        /// <returns>Durulaştırılmış tehdit seviyesi</returns>
+        public double Defuzzify(Dictionary<string, double> outputValues, FuzzyVariable outputVariable)
+        {
+            double sumProduct = 0;
+            double sumMembership = 0;
+
+            foreach (var output in outputValues)
+            {
+                // Anahtarın mevcut olup olmadığını kontrol et
+                if (outputVariable.MembershipFunctions.ContainsKey(output.Key))
+                {
+                    double representativeValue = outputVariable.MembershipFunctions[output.Key].GetRepresentativeValue();
+                    double membershipDegree = output.Value;
+
+                    sumProduct += membershipDegree * representativeValue;
+                    sumMembership += membershipDegree;
+                }
+                else
+                {
+                    MessageBox.Show($"Warning: The key '{output.Key}' is not present in ThreatLevel's membership functions.");
+                }
+            }
+
+            return sumMembership > 0 ? sumProduct / sumMembership : 0;
         }
     }
 }

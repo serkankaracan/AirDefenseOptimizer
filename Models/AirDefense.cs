@@ -6,14 +6,14 @@ namespace AirDefenseOptimizer.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public double AerodynamicTargetRangeMin { get; set; } // Minimum range for aerodynamic targets in m
-        public double AerodynamicTargetRangeMax { get; set; } // Maximum range for aerodynamic targets in km
-        public double BallisticTargetRangeMin { get; set; } // Minimum range for ballistic targets in m
-        public double BallisticTargetRangeMax { get; set; } // Maximum range for ballistic targets in km
-        public int MaxEngagements { get; set; } // Maximum number of simultaneous engagements
-        public int MaxMissilesFired { get; set; } // Maximum number of missiles fired at once
-        public ECMCapability ECMCapability { get; set; } // Enum for ECM capability
-        public double Cost { get; set; } // Cost in USD
+        public double AerodynamicTargetRangeMin { get; set; }
+        public double AerodynamicTargetRangeMax { get; set; }
+        public double BallisticTargetRangeMin { get; set; }
+        public double BallisticTargetRangeMax { get; set; }
+        public int MaxEngagements { get; set; }
+        public int MaxMissilesFired { get; set; }
+        public ECMCapability ECMCapability { get; set; }
+        public double Cost { get; set; }
 
         public List<AirDefenseRadar> Radars { get; set; } = new List<AirDefenseRadar>(); // List of radars
         public List<AirDefenseMunition> Munitions { get; set; } = new List<AirDefenseMunition>(); // List of munitions

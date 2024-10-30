@@ -1,18 +1,21 @@
-﻿using AirDefenseOptimizer.Models;
+﻿using AirDefenseOptimizer.Enums;
+using AirDefenseOptimizer.Models;
 
 namespace AirDefenseOptimizer.Helpers
 {
     internal class AircraftInput
     {
         public Aircraft Aircraft { get; set; }
-        public string IFFMode { get; set; }
+        public IFF IFFMode { get; set; }
         public string Location { get; set; } // Latitude, Longitude, Altitude gibi bilgileri birleştirir
+        public double Distance { get; set; }
 
-        public AircraftInput(Aircraft aircraft, string iffMode, string location)
+        public AircraftInput(Aircraft aircraft, IFF iffMode, string location, double distance)
         {
             Aircraft = aircraft;
             IFFMode = iffMode;
             Location = location;
+            Distance = distance;
         }
     }
 }
