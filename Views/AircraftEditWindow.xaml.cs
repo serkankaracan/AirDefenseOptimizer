@@ -1,8 +1,6 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -204,7 +202,8 @@ namespace AirDefenseOptimizer.Views
                         double.TryParse(txtMaxAltitude.Text, out double maxAltitude) ? maxAltitude : 0,
                         cbManeuverability.SelectedValue != null ? ((Maneuverability)cbManeuverability.SelectedValue).ToString() : string.Empty,
                         double.TryParse(txtPayloadCapacity.Text, out double payloadCapacity) ? payloadCapacity : 0,
-                        double.TryParse(txtRadarCrossSection.Text, out double radarCrossSection) ? radarCrossSection : 0,
+                        double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double radarCrossSection) ? radarCrossSection : 0,
+                        //double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out double radarCrossSection) ? radarCrossSection : 0,
                         cbECMCapability.SelectedValue != null ? ((ECMCapability)cbECMCapability.SelectedValue).ToString() : string.Empty,
                         double.TryParse(txtCost.Text, out double cost) ? cost : 0,
                         radarIdAsInt);
@@ -220,7 +219,8 @@ namespace AirDefenseOptimizer.Views
                         double.TryParse(txtMaxAltitude.Text, out double maxAltitude) ? maxAltitude : 0,
                         cbManeuverability.SelectedValue != null ? ((Maneuverability)cbManeuverability.SelectedValue).ToString() : string.Empty,
                         double.TryParse(txtPayloadCapacity.Text, out double payloadCapacity) ? payloadCapacity : 0,
-                        double.TryParse(txtRadarCrossSection.Text, out double radarCrossSection) ? radarCrossSection : 0,
+                        double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double radarCrossSection) ? radarCrossSection : 0,
+                        //double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out double radarCrossSection) ? radarCrossSection : 0,
                         cbECMCapability.SelectedValue != null ? ((ECMCapability)cbECMCapability.SelectedValue).ToString() : string.Empty,
                         double.TryParse(txtCost.Text, out double cost) ? cost : 0,
                         radarIdAsInt);

@@ -7,6 +7,8 @@ namespace AirDefenseOptimizer.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public RadarType RadarType { get; set; }
+        public int MaxDetectionTargets { get; set; }
+        public int MaxTrackingTargets { get; set; }
         public double MinDetectionRange { get; set; }
         public double MaxDetectionRange { get; set; }
         public double MinAltitude { get; set; }

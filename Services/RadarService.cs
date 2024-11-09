@@ -14,18 +14,20 @@ namespace AirDefenseOptimizer.Services
             _databaseHelper = databaseHelper;
         }
 
-        public void AddRadar(string name, string radarType, double minDetectionRange, double maxDetectionRange, double maxAltitude, double minAltitude, double maxTargetSpeed, double maxTargetVelocity, int redeploymentTime)
+        public void AddRadar(string name, string radarType, int maxDetectionTargets, int maxTrackingTargets, double minDetectionRange, double maxDetectionRange, double maxAltitude, double minAltitude, double maxTargetSpeed, double maxTargetVelocity, int redeploymentTime)
         {
             try
             {
-                string insertQuery = @"INSERT INTO Radar (Name, RadarType, MinDetectionRange, MaxDetectionRange, MaxAltitude, MinAltitude, MaxTargetSpeed, MaxTargetVelocity, RedeploymentTime) 
-                                       VALUES (@name, @radarType, @minDetectionRange, @maxDetectionRange, @maxAltitude, @minAltitude, @maxTargetSpeed, @maxTargetVelocity, @redeploymentTime);";
+                string insertQuery = @"INSERT INTO Radar (Name, RadarType, MaxDetectionTargets, MaxTrackingTargets, MinDetectionRange, MaxDetectionRange, MaxAltitude, MinAltitude, MaxTargetSpeed, MaxTargetVelocity, RedeploymentTime) 
+                                       VALUES (@name, @radarType, @maxDetectionTargets, @maxTrackingTargets, @minDetectionRange, @maxDetectionRange, @maxAltitude, @minAltitude, @maxTargetSpeed, @maxTargetVelocity, @redeploymentTime);";
 
                 using var connection = _connectionManager.GetConnection();
                 var parameters = new Dictionary<string, object>
                 {
                     { "@name", name },
                     { "@radarType", radarType },
+                    { "@maxDetectionTargets", maxDetectionTargets },
+                    { "@maxTrackingTargets", maxTrackingTargets },
                     { "@minDetectionRange", minDetectionRange },
                     { "@maxDetectionRange", maxDetectionRange },
                     { "@maxAltitude", maxAltitude },
@@ -43,11 +45,11 @@ namespace AirDefenseOptimizer.Services
             }
         }
 
-        public void UpdateRadar(int id, string name, string radarType, double minDetectionRange, double maxDetectionRange, double maxAltitude, double minAltitude, double maxTargetSpeed, double maxTargetVelocity, int redeploymentTime)
+        public void UpdateRadar(int id, string name, string radarType, int maxDetectionTargets, int maxTrackingTargets, double minDetectionRange, double maxDetectionRange, double maxAltitude, double minAltitude, double maxTargetSpeed, double maxTargetVelocity, int redeploymentTime)
         {
             try
             {
-                string updateQuery = @"UPDATE Radar SET Name = @name, RadarType = @radarType, MinDetectionRange = @minDetectionRange, MaxDetectionRange = @maxDetectionRange, 
+                string updateQuery = @"UPDATE Radar SET Name = @name, RadarType = @radarType, MaxDetectionTargets = @maxDetectionTargets, MaxTrackingTargets = @maxTrackingTargets, MinDetectionRange = @minDetectionRange, MaxDetectionRange = @maxDetectionRange, 
                                        MaxAltitude = @maxAltitude, MinAltitude = @minAltitude, MaxTargetSpeed = @maxTargetSpeed, MaxTargetVelocity = @maxTargetVelocity, 
                                        RedeploymentTime = @redeploymentTime WHERE Id = @id;";
 
@@ -57,6 +59,8 @@ namespace AirDefenseOptimizer.Services
                     { "@id", id },
                     { "@name", name },
                     { "@radarType", radarType },
+                    { "@maxDetectionTargets", maxDetectionTargets },
+                    { "@maxTrackingTargets", maxTrackingTargets },
                     { "@minDetectionRange", minDetectionRange },
                     { "@maxDetectionRange", maxDetectionRange },
                     { "@maxAltitude", maxAltitude },

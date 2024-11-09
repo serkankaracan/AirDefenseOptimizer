@@ -31,6 +31,8 @@ namespace AirDefenseOptimizer.Views
                     // Var olan radar verilerini doldur
                     txtRadarName.Text = _radarData.Name;
                     cbRadarType.SelectedValue = Enum.Parse<RadarType>(_radarData.RadarType);
+                    txtMaxDetectionTargets.Text = _radarData.MaxDetectionTargets.ToString();
+                    txtMaxTrackingTargets.Text = _radarData.MaxTrackingTargets.ToString();
                     txtMinDetectionRange.Text = _radarData.MinDetectionRange.ToString();
                     txtMaxDetectionRange.Text = _radarData.MaxDetectionRange.ToString();
                     txtMinAltitude.Text = _radarData.MinAltitude.ToString();
@@ -44,6 +46,8 @@ namespace AirDefenseOptimizer.Views
                     {
                         txtRadarName.IsEnabled = false;
                         cbRadarType.IsEnabled = false;
+                        txtMaxDetectionTargets.IsEnabled = false;
+                        txtMaxTrackingTargets.IsEnabled = false;
                         txtMinDetectionRange.IsEnabled = false;
                         txtMaxDetectionRange.IsEnabled = false;
                         txtMinAltitude.IsEnabled = false;
@@ -51,7 +55,7 @@ namespace AirDefenseOptimizer.Views
                         txtMaxTargetSpeed.IsEnabled = false;
                         txtMaxTargetVelocity.IsEnabled = false;
                         txtRedeploymentTime.IsEnabled = false;
-                        btnSave.IsEnabled = false;  // Kaydet butonunu devre dışı bırak
+                        btnSave.IsEnabled = false; 
                     }
                 }
             }
@@ -71,6 +75,8 @@ namespace AirDefenseOptimizer.Views
                     _radarService.AddRadar(
                         txtRadarName.Text,
                         ((RadarType)cbRadarType.SelectedValue).ToString(),
+                        int.Parse(txtMaxDetectionTargets.Text),
+                        int.Parse(txtMaxTrackingTargets.Text),
                         double.Parse(txtMinDetectionRange.Text),
                         double.Parse(txtMaxDetectionRange.Text),
                         double.Parse(txtMaxAltitude.Text),
@@ -87,6 +93,8 @@ namespace AirDefenseOptimizer.Views
                         (int)_radarData.Id,
                         txtRadarName.Text,
                         ((RadarType)cbRadarType.SelectedValue).ToString(),
+                        int.Parse(txtMaxDetectionTargets.Text),
+                        int.Parse(txtMaxTrackingTargets.Text),
                         double.Parse(txtMinDetectionRange.Text),
                         double.Parse(txtMaxDetectionRange.Text),
                         double.Parse(txtMaxAltitude.Text),

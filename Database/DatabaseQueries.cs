@@ -6,6 +6,8 @@
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
             RadarType TEXT NOT NULL,
+            MaxDetectionTargets INTEGER NOT NULL,
+            MaxTrackingTargets INTEGER NOT NULL,
             MinDetectionRange REAL NOT NULL,
             MaxDetectionRange REAL NOT NULL,
             MaxAltitude REAL NOT NULL,

@@ -215,6 +215,8 @@ namespace AirDefenseOptimizer.Services
         {
             string selectQuery = @"SELECT Radar.Id, 
                                            Radar.Name AS RadarName, 
+                                           Radar.MaxDetectionTargets, 
+                                           Radar.MaxTrackingTargets,
                                            Radar.MinDetectionRange, 
                                            Radar.MaxDetectionRange, 
                                            Radar.MinAltitude, 

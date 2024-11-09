@@ -35,5 +35,24 @@
                 _ => "Unknown"
             };
         }
+
+        public static int GetManeuverabilityNumber(this Maneuverability maneuverability)
+        {
+            return maneuverability switch
+            {
+                Maneuverability.Limited => 1,
+                Maneuverability.VeryLow => 1,
+                Maneuverability.Low => 1,
+                Maneuverability.BelowAverage => 2,
+                Maneuverability.Medium => 2,
+                Maneuverability.AboveAverage => 2,
+                Maneuverability.High => 3,
+                Maneuverability.VeryHigh => 3,
+                Maneuverability.Agile => 4,
+                Maneuverability.Extreme => 4,
+                Maneuverability.Supreme => 4,
+                _ => -1 // Belirsiz bir değer için varsayılan
+            };
+        }
     }
 }

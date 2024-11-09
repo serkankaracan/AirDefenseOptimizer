@@ -31,6 +31,26 @@
                 <ComboBox x:Name="cbRadarType" Grid.Column="1" Margin="5" DisplayMemberPath="Value" SelectedValuePath="Key"/>
             </Grid>
 
+            <UniformGrid Columns="2" Margin="0,0,0,5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Max Detection Targets:" VerticalAlignment="Center" Margin="0,0,0,5" Grid.Row="0"/>
+                    <TextBox x:Name="txtMaxDetectionTargets" Grid.Row="1" Margin="0,0,23,0"/>
+                </Grid>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Max Tracking Targets:" VerticalAlignment="Center" Margin="0,0,0,5" Grid.Row="0"/>
+                    <TextBox x:Name="txtMaxTrackingTargets" Grid.Row="1" Margin="0,0,10,0"/>
+                </Grid>
+            </UniformGrid>
+
             <!-- Detection Range -->
             <TextBlock Text="Detection Range" FontWeight="Bold" Margin="0,15,0,5"/>
             <UniformGrid Columns="2" Margin="0,0,0,5">
@@ -40,7 +60,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Max:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBox x:Name="txtMaxDetectionRange" Width="100"/>
+                    <TextBox x:Name="txtMaxDetectionRange" Width="110"/>
                 </StackPanel>
             </UniformGrid>
 
@@ -53,7 +73,7 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Max:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBox x:Name="txtMaxAltitude" Width="100"/>
+                    <TextBox x:Name="txtMaxAltitude" Width="110"/>
                 </StackPanel>
             </UniformGrid>
 

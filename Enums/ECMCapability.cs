@@ -27,5 +27,20 @@
                 _ => "Unknown"
             };
         }
+
+        public static int GetECMCapabilityNumber(this ECMCapability ecmCapability)
+        {
+            return ecmCapability switch
+            {
+                ECMCapability.None => 0,
+                ECMCapability.Basic => 1,
+                ECMCapability.Advanced => 3,
+                ECMCapability.Jammer => 2,
+                ECMCapability.Decoy => 2,
+                ECMCapability.MultiMode => 3,
+                ECMCapability.Stealth => 4,
+                _ => -1 // Belirsiz bir değer için varsayılan
+            };
+        }
     }
 }

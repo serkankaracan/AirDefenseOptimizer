@@ -1,5 +1,6 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Fuzzification;
+using AirDefenseOptimizer.FuzzyCalculator;
 using AirDefenseOptimizer.FuzzyRules;
 using AirDefenseOptimizer.Helpers;
 using AirDefenseOptimizer.Models;
@@ -8,7 +9,6 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Maneuverability = AirDefenseOptimizer.Enums.Maneuverability;
 
 namespace AirDefenseOptimizer.Views
 {
@@ -91,6 +91,8 @@ namespace AirDefenseOptimizer.Views
                             Id = Convert.ToInt32(radar["Id"]),
                             Name = radar["RadarName"].ToString() ?? "",
                             RadarType = (RadarType)Enum.Parse(typeof(RadarType), radar["RadarType"].ToString() ?? ""),
+                            MaxDetectionTargets = Convert.ToInt32(radar["MaxDetectionTargets"]),
+                            MaxTrackingTargets = Convert.ToInt32(radar["MaxTrackingTargets"]),
                             MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
                             MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
                             MinAltitude = Convert.ToInt32(radar["MinAltitude"]),
@@ -137,6 +139,8 @@ namespace AirDefenseOptimizer.Views
                                 Id = Convert.ToInt32(radar["RadarId"]),
                                 Name = radar["RadarName"].ToString() ?? "",
                                 RadarType = (RadarType)Enum.Parse(typeof(RadarType), radar["RadarType"].ToString() ?? ""),
+                                MaxDetectionTargets = Convert.ToInt32(radar["MaxDetectionTargets"]),
+                                MaxTrackingTargets = Convert.ToInt32(radar["MaxTrackingTargets"]),
                                 MinDetectionRange = Convert.ToDouble(radar["MinDetectionRange"]),
                                 MaxDetectionRange = Convert.ToDouble(radar["MaxDetectionRange"]),
                                 MinAltitude = Convert.ToInt32(radar["MinAltitude"]),
@@ -187,7 +191,6 @@ namespace AirDefenseOptimizer.Views
             // Eğer daha önce satır eklenmediyse, üst kısma label'lar ekleyelim.
             if (ThreatList.Children.Count == 0)
             {
-                // Uçak, IFF ve Konum için label'lar ekleyelim
                 StackPanel labelsPanel = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
@@ -213,7 +216,15 @@ namespace AirDefenseOptimizer.Views
                 labelsPanel.Children.Add(new Label
                 {
                     Content = "Location (Latitude, Longitude, Altitude)",
-                    Width = 240,
+                    Width = 160,
+                    Margin = new Thickness(0),
+                    Padding = new Thickness(5)
+                });
+
+                labelsPanel.Children.Add(new Label
+                {
+                    Content = "Speed",
+                    Width = 80,
                     Margin = new Thickness(0),
                     Padding = new Thickness(5)
                 });
@@ -221,7 +232,7 @@ namespace AirDefenseOptimizer.Views
                 ThreatList.Children.Add(labelsPanel);
             }
 
-            // Grid'in estetik olarak düzenlenmesi ve daha dengeli görünmesi için yeniden ayarladım.
+            // Grid oluşturuyoruz
             Grid threatGrid = new Grid
             {
                 Margin = new Thickness(0, 10, 0, 10)
@@ -232,21 +243,22 @@ namespace AirDefenseOptimizer.Views
             threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
             threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
             threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
 
             // Uçak Seçimi
             ComboBox aircraftComboBox = new ComboBox
             {
+                Name = "AircraftComboBox",
                 Width = 180,
                 Height = 30,
                 Margin = new Thickness(0),
                 Padding = new Thickness(5)
             };
-            // Placeholder olarak "Uçak seçin" ekleniyor, ancak seçilemeyecek
             aircraftComboBox.Items.Add(new ComboBoxItem
             {
-                Content = "Aircraft",
-                IsEnabled = false, // Bu öğe seçilemez
-                IsSelected = true  // Varsayılan olarak seçili
+                Content = "Select Aircraft",
+                IsEnabled = false,
+                IsSelected = true
             });
 
             var aircrafts = _aircraftService.GetAllAircrafts();
@@ -265,17 +277,17 @@ namespace AirDefenseOptimizer.Views
             // IFF Seçimi
             ComboBox iffComboBox = new ComboBox
             {
+                Name = "IFFComboBox",
                 Width = 100,
                 Height = 30,
                 Margin = new Thickness(0),
                 Padding = new Thickness(5)
             };
-            // Placeholder olarak "IFF seçin" ekleniyor, ancak seçilemeyecek
             iffComboBox.Items.Add(new ComboBoxItem
             {
-                Content = "IFF mode",
-                IsEnabled = false, // Bu öğe seçilemez
-                IsSelected = true  // Varsayılan olarak seçili
+                Content = "Select IFF Mode",
+                IsEnabled = false,
+                IsSelected = true
             });
 
             var iffValues = Enum.GetValues(typeof(IFF));
@@ -287,16 +299,27 @@ namespace AirDefenseOptimizer.Views
             // Konum Girdisi (Latitude, Longitude, Altitude)
             TextBox locationTextBox = new TextBox
             {
+                Name = "LocationTextBox",
                 Width = 160,
                 Margin = new Thickness(0),
                 Padding = new Thickness(5),
                 MaxLength = 25
             };
 
+            // Speed TextBox'ı
+            TextBox speedTextBox = new TextBox
+            {
+                Name = "SpeedTextBox",
+                Width = 80,
+                Margin = new Thickness(0),
+                Padding = new Thickness(5),
+                MaxLength = 10
+            };
+
             // Kaldır Butonu
             Button removeButton = new Button
             {
-                Content = "Kaldır",
+                Content = "Remove",
                 Width = 80,
                 Height = 30,
                 Margin = new Thickness(0),
@@ -307,7 +330,7 @@ namespace AirDefenseOptimizer.Views
             removeButton.Click += (s, ev) =>
             {
                 ThreatList.Children.Remove(threatGrid);
-                if (ThreatList.Children.Count == 1) // Yalnızca label'lar kaldıysa onları da kaldıralım
+                if (ThreatList.Children.Count == 1)
                 {
                     ThreatList.Children.Clear();
                 }
@@ -323,8 +346,11 @@ namespace AirDefenseOptimizer.Views
             threatGrid.Children.Add(locationTextBox);
             Grid.SetColumn(locationTextBox, 2);
 
+            threatGrid.Children.Add(speedTextBox);
+            Grid.SetColumn(speedTextBox, 3);
+
             threatGrid.Children.Add(removeButton);
-            Grid.SetColumn(removeButton, 3);
+            Grid.SetColumn(removeButton, 4);
 
             // Tehdit Listesine ekliyoruz
             ThreatList.Children.Add(threatGrid);
@@ -472,26 +498,39 @@ namespace AirDefenseOptimizer.Views
             AircraftRules aircraftRules = new AircraftRules();
 
             // Örnek konum tanımla
-            Position examplePosition = new Position(double.Parse(LatitudeTextBox.Text, CultureInfo.InvariantCulture), double.Parse(LongitudeTextBox.Text, CultureInfo.InvariantCulture), double.Parse(AltitudeTextBox.Text, CultureInfo.InvariantCulture));
+            Position examplePosition = new Position(
+                double.Parse(LatitudeTextBox.Text, CultureInfo.InvariantCulture),
+                double.Parse(LongitudeTextBox.Text, CultureInfo.InvariantCulture),
+                double.Parse(AltitudeTextBox.Text, CultureInfo.InvariantCulture));
 
             // Aircraft verilerini listeye ekleyelim
             _aircraftThreats.Clear(); // Önceki verileri temizleyelim
             foreach (Grid threatGrid in ThreatList.Children.OfType<Grid>())
             {
                 // Grid içindeki ComboBox'ları ve TextBox'ı bulalım
-                var aircraftComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Width == 180);
-                var iffComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Width == 100);
-                var locationTextBox = threatGrid.Children.OfType<TextBox>().FirstOrDefault();
+                var aircraftComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Name == "AircraftComboBox");
+                var iffComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Name == "IFFComboBox");
+                var locationTextBox = threatGrid.Children.OfType<TextBox>().FirstOrDefault(c => c.Name == "LocationTextBox");
+                var speedTextBox = threatGrid.Children.OfType<TextBox>().FirstOrDefault(c => c.Name == "SpeedTextBox");
 
-                if (aircraftComboBox != null && iffComboBox != null && locationTextBox != null)
+                IFF selectedIFF = IFF.Unknown;
+
+                if (aircraftComboBox != null && iffComboBox != null && locationTextBox != null && speedTextBox != null)
                 {
                     // Seçilen Aircraft ve IFF modunu al
                     string? selectedAircraft = aircraftComboBox.SelectedItem?.ToString();
-                    string location = locationTextBox.Text;
+                    string? stringIFF = iffComboBox.SelectedItem?.ToString();
+                    string stringSpeed = speedTextBox.Text;
 
-                    if (Enum.TryParse<IFF>(iffComboBox.SelectedItem.ToString(), out var selectedIFF) &&
-                        !string.IsNullOrEmpty(selectedAircraft) &&
-                        !string.IsNullOrEmpty(location))
+                    if (stringIFF != null && Enum.TryParse<IFF>(stringIFF, out var parsedIFF))
+                        selectedIFF = parsedIFF;
+
+                    string location = locationTextBox.Text;
+                    string speed = speedTextBox.Text;
+
+                    if (!string.IsNullOrEmpty(selectedAircraft) &&
+                        !string.IsNullOrEmpty(location) &&
+                        !string.IsNullOrEmpty(speed))
                     {
                         // Aircraft bilgilerini veritabanından çek
                         var aircraftData = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
@@ -541,6 +580,8 @@ namespace AirDefenseOptimizer.Views
                                     Id = Convert.ToInt32(radarData["Id"]),
                                     Name = radarData["RadarName"].ToString() ?? "",
                                     RadarType = (RadarType)Enum.Parse(typeof(RadarType), radarData["RadarType"].ToString() ?? ""),
+                                    MaxDetectionTargets = Convert.ToInt32(radarData["MaxDetectionTargets"]),
+                                    MaxTrackingTargets = Convert.ToInt32(radarData["MaxTrackingTargets"]),
                                     MinDetectionRange = Convert.ToDouble(radarData["MinDetectionRange"]),
                                     MaxDetectionRange = Convert.ToDouble(radarData["MaxDetectionRange"]),
                                     MinAltitude = Convert.ToInt32(radarData["MinAltitude"]),
@@ -553,38 +594,39 @@ namespace AirDefenseOptimizer.Views
 
                             var locationParts = location.Split(',');
                             if (locationParts.Length == 3 &&
-                           double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double userLatitude) &&
-                           double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double userLongitude) &&
-                           double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double userAltitude))
+                               double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double userLatitude) &&
+                               double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double userLongitude) &&
+                               double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double userAltitude))
                             {
                                 Position userPosition = new Position(userLatitude, userLongitude, userAltitude);
-                                MessageBox.Show($"Latitude: {userLatitude}, Longitude: {userLongitude}, Altitude: {userAltitude}");
 
                                 double distance = Position.CalculateDistance(examplePosition, userPosition);
-                                MessageBox.Show($"Example konumu ile kullanıcı konumu arasındaki mesafe: {distance:F2} km");
 
-                                // Eğer IFF Friend veya Neutral ise tehdit seviyesi 0 olarak ayarlanır
-                                int threatScore = 0;
-                                string threatLevel = "None";
-                                if (selectedIFF == IFF.Foe || selectedIFF == IFF.Unknown)
-                                {
-                                    // Tehdit skorunu hesapla
-                                    (threatLevel, threatScore) = aircraftRules.CalculateThreatScore(aircraft);
-                                }
+                                var threatCalculator = new AircraftThreatCalculator();
+                                double threatLevel = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, Convert.ToDouble(speed));
+
+                                MessageBox.Show($"Tehdit: {aircraft.Name}\n" +
+                                                $"Latitude: {userLatitude}, Longitude: {userLongitude}, Altitude: {userAltitude}\n" +
+                                                $"Hedefe olan mesafe: {distance:F2} km\n" +
+                                                $"IFF mod: {selectedIFF}\n" +
+                                                $"Tehdit Seviyesi: {threatLevel}");
+
 
                                 // AircraftInput nesnesini oluştur ve listeye ekle
-                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, location, distance));
+                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, Convert.ToDouble(stringSpeed), location, distance));
 
                                 // Tehdit detaylarını güncelle
                                 threatDetails.Add(new ThreatDetail
                                 {
                                     Aircraft = aircraft,
                                     IFFMode = selectedIFF,
+                                    Speed = Convert.ToDouble(stringSpeed),
                                     Location = location,
                                     Distance = distance,
-                                    ThreatScore = threatScore,
-                                    ThreatLevel = threatLevel
+                                    ThreatLevel = threatLevel.ToString()
+                                    //ThreatScore = Convert.ToDouble(threatScore)
                                 });
+
                             }
                         }
                         else
@@ -639,6 +681,8 @@ namespace AirDefenseOptimizer.Views
                                         Id = Convert.ToInt32(r["RadarId"]),
                                         Name = r["RadarName"].ToString() ?? "",
                                         RadarType = (RadarType)Enum.Parse(typeof(RadarType), r["RadarType"].ToString() ?? ""),
+                                        MaxDetectionTargets = Convert.ToInt32(r["MaxDetectionTargets"]),
+                                        MaxTrackingTargets = Convert.ToInt32(r["MaxTrackingTargets"]),
                                         MinDetectionRange = Convert.ToDouble(r["MinDetectionRange"]),
                                         MaxDetectionRange = Convert.ToDouble(r["MaxDetectionRange"]),
                                         MinAltitude = Convert.ToInt32(r["MinAltitude"]),
@@ -695,6 +739,7 @@ namespace AirDefenseOptimizer.Views
                 {
                     Aircraft = aircraftInput.Aircraft,
                     IFFMode = aircraftInput.IFFMode,
+                    Speed = aircraftInput.Speed,
                     Location = aircraftInput.Location,
                     Distance = aircraftInput.Distance,
                     ThreatScore = totalScore,
@@ -712,7 +757,7 @@ namespace AirDefenseOptimizer.Views
 
             ThreatDetailsWindow threatDetailsWindow = new ThreatDetailsWindow(threatDetails.Select((detail, index) =>
             {
-                detail.Index = index + 1; 
+                detail.Index = index + 1;
                 return detail;
             }).ToList());
             threatDetailsWindow.Show();

@@ -139,6 +139,8 @@ namespace AirDefenseOptimizer.Services
             using var connection = _connectionManager.GetConnection();
             string selectQuery = @"SELECT Radar.Id AS RadarId, 
                                         Radar.Name AS RadarName, 
+                                        Radar.MaxDetectionTargets, 
+                                        Radar.MaxTrackingTargets,
                                         Radar.MinDetectionRange, 
                                         Radar.MaxDetectionRange, 
                                         Radar.MinAltitude, 
