@@ -5,18 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AirDefenseOptimizer.Views"
         mc:Ignorable="d"
-        Title="ThreatDetailsWindow" Height="450" Width="800">
+        Title="ThreatDetailsWindow" Height="450" Width="1153">
     <Grid>
         <DataGrid x:Name="ThreatDataGrid" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Index" Binding="{Binding Index}" Width="*"/>
-                <DataGridTextColumn Header="Aircraft Name" Binding="{Binding Aircraft.Name}" Width="*"/>
+                <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="15"/>
+                <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft.Name}" Width="*"/>
                 <DataGridTextColumn Header="IFF Mode" Binding="{Binding IFFMode}" Width="*"/>
                 <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="*"/>
-                <DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*"/>
+                <!--DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*"/-->
                 <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="*"/>
                 <DataGridTextColumn Header="Threat Level" Binding="{Binding ThreatLevel}" Width="*"/>
                 <DataGridTextColumn Header="Threat Score" Binding="{Binding ThreatScore}" Width="*"/>
+                <DataGridTextColumn Header="Detecting ADS"  Width="*"/>
+                <DataGridTextColumn Header="Detecting Radar"  Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

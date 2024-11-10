@@ -1,5 +1,6 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Models;
+using System.Windows;
 
 namespace AirDefenseOptimizer.FuzzyCalculator
 {
@@ -19,14 +20,19 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double speedFuzzy = _fuzzyCalculator.FuzzifySpeed(speed);
 
             double munitionThreatContribution = CalculateMunitionThreatContribution(aircraft.Munitions);
+            MessageBox.Show("munitionThreatContribution: " + munitionThreatContribution + "\n" +
+            "Munitions: " + string.Join(", ", aircraft.Munitions.Select(m => m.Munition.Name.ToString())));
+
+            MessageBox.Show("radarCrossSectionFuzzy: " + radarCrossSectionFuzzy + "\n" +
+                "ecmCapabilityFuzzy: " + ecmCapabilityFuzzy + "\n" +
+                "distanceFuzzy: " + distanceFuzzy + "\n" +
+                "speedFuzzy: " + speedFuzzy);
 
             double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy);
 
             double totalThreatLevel = aircraftThreatLevel + munitionThreatContribution;
 
             return _fuzzyCalculator.Defuzzify(totalThreatLevel);
-            //return Math.Min(1, Math.Max(0, totalThreatLevel / 100));
-            //return Math.Min(1, Math.Max(0, _fuzzyCalculator.Defuzzify(totalThreatLevel) / 100));
         }
 
         private double CalculateMunitionThreatContribution(List<AircraftMunition> munitions)
