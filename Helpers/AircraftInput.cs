@@ -10,14 +10,16 @@ namespace AirDefenseOptimizer.Helpers
         public double Speed { get; set; }
         public string Location { get; set; } // Latitude, Longitude, Altitude gibi bilgileri birleştirir
         public double Distance { get; set; }
+        public double ThreatLevel { get; set; }
 
-        public AircraftInput(Aircraft aircraft, IFF iffMode, double speed, string location, double distance)
+        public AircraftInput(Aircraft aircraft, IFF iffMode, double speed, string location, double distance, double threatLevel)
         {
             Aircraft = aircraft;
             IFFMode = iffMode;
             Speed = speed;
             Location = location;
             Distance = distance;
+            ThreatLevel = threatLevel;
         }
     }
 }

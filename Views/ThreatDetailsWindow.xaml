@@ -17,8 +17,6 @@
                 <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="*"/>
                 <DataGridTextColumn Header="Threat Level" Binding="{Binding ThreatLevel}" Width="*"/>
                 <DataGridTextColumn Header="Threat Score" Binding="{Binding ThreatScore}" Width="*"/>
-                <DataGridTextColumn Header="Detecting ADS"  Width="*"/>
-                <DataGridTextColumn Header="Detecting Radar"  Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

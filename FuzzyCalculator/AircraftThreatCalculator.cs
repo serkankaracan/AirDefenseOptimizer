@@ -20,17 +20,19 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double speedFuzzy = _fuzzyCalculator.FuzzifySpeed(speed);
 
             double munitionThreatContribution = CalculateMunitionThreatContribution(aircraft.Munitions);
-            MessageBox.Show("munitionThreatContribution: " + munitionThreatContribution + "\n" +
-            "Munitions: " + string.Join(", ", aircraft.Munitions.Select(m => m.Munition.Name.ToString())));
 
-            MessageBox.Show("radarCrossSectionFuzzy: " + radarCrossSectionFuzzy + "\n" +
-                "ecmCapabilityFuzzy: " + ecmCapabilityFuzzy + "\n" +
-                "distanceFuzzy: " + distanceFuzzy + "\n" +
-                "speedFuzzy: " + speedFuzzy);
+            //MessageBox.Show("munitionThreatContribution: " + munitionThreatContribution + "\n" +
+            //"Munitions: " + string.Join(", ", aircraft.Munitions.Select(m => m.Munition.Name.ToString())));
+
+            //MessageBox.Show("radarCrossSectionFuzzy: " + radarCrossSectionFuzzy + "\n" +
+            //    "ecmCapabilityFuzzy: " + ecmCapabilityFuzzy + "\n" +
+            //    "distanceFuzzy: " + distanceFuzzy + "\n" +
+            //    "speedFuzzy: " + speedFuzzy);
 
             double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy);
 
-            double totalThreatLevel = aircraftThreatLevel + munitionThreatContribution;
+            // Normalize edilmiş toplam tehdit seviyesini hesapla
+            double totalThreatLevel = (0.6 * aircraftThreatLevel) + (0.4 * munitionThreatContribution);
 
             return _fuzzyCalculator.Defuzzify(totalThreatLevel);
         }
@@ -41,18 +43,41 @@ namespace AirDefenseOptimizer.FuzzyCalculator
 
             foreach (var aircraftMunition in munitions)
             {
+                // Fuzzified değerler
                 double explosivePowerFuzzy = _munitionCalculator.FuzzifyExplosivePower(aircraftMunition.Munition.ExplosivePower);
                 double rangeFuzzy = _munitionCalculator.FuzzifyRange(aircraftMunition.Munition.Range);
                 double speedFuzzy = _munitionCalculator.FuzzifySpeed(aircraftMunition.Munition.Speed);
-                double mFuzzy = _munitionCalculator.FuzzifySpeed(aircraftMunition.Munition.Speed);
+                double maneuverabilityFuzzy = _munitionCalculator.FuzzifyManeuverability(aircraftMunition.Munition.Maneuverability);
+
+                //MessageBox.Show("explosivePowerFuzzy: " + explosivePowerFuzzy + "\n" +
+                //                "rangeFuzzy: " + rangeFuzzy + "\n" +
+                //                "speedFuzzy: " + speedFuzzy + "\n" +
+                //                "maneuverabilityFuzzy: " + maneuverabilityFuzzy);
 
                 double munitionThreat = 0;
+                string appliedRule = string.Empty;
+
+                // Tehdit katkısını belirle
                 if (explosivePowerFuzzy > 0.7 && rangeFuzzy > 0.7)
+                {
                     munitionThreat = 0.8;
-
-                if (speedFuzzy > 0.5 && rangeFuzzy > 0.5)
+                    appliedRule = "High explosive power and long range";
+                }
+                else if (speedFuzzy > 0.5 && rangeFuzzy > 0.5)
+                {
                     munitionThreat = Math.Max(munitionThreat, 0.6);
+                    appliedRule = "High speed and medium range";
+                }
+                else
+                {
+                    // Fuzzified değerlerin ortalaması ile düşük tehdit
+                    munitionThreat = (explosivePowerFuzzy + rangeFuzzy + speedFuzzy + maneuverabilityFuzzy) / 4 * 0.5;
+                    appliedRule = "Low average fuzzy values - Threat Level: " + munitionThreat;
+                }
 
+                //MessageBox.Show("Applied rule for " + aircraftMunition.Munition.Name + ": " + appliedRule);
+
+                // Her mühimmatın tehdit düzeyine göre toplam katkısını hesapla
                 totalMunitionThreat += munitionThreat * aircraftMunition.Quantity;
             }
 

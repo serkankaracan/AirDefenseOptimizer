@@ -1,7 +1,6 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Fuzzification;
 using AirDefenseOptimizer.FuzzyCalculator;
-using AirDefenseOptimizer.FuzzyRules;
 using AirDefenseOptimizer.Helpers;
 using AirDefenseOptimizer.Models;
 using AirDefenseOptimizer.Services;
@@ -21,6 +20,9 @@ namespace AirDefenseOptimizer.Views
         private List<AirDefenseInput> _airDefenseSystems = new List<AirDefenseInput>();
 
         List<ThreatDetail> threatDetails = new List<ThreatDetail>();
+
+        // Hava Savunma Sistemi Ekleme Butonuna Tıklanınca Çalışacak
+        private int defenseIndex = 1;
 
         public HomeWindow()
         {
@@ -106,7 +108,6 @@ namespace AirDefenseOptimizer.Views
             }
         }
 
-        // Veritabanından AirDefenseSystem'leri çekip global listeye ekleyelim
         private void LoadAirDefenseSystems()
         {
             var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems();
@@ -185,7 +186,32 @@ namespace AirDefenseOptimizer.Views
             }
         }
 
-        // Uçak Tehdidi Ekleme Butonuna Tıklanınca Çalışacak
+        private Position? ParsePosition(string location)
+        {
+            var locationParts = location.Split(',');
+            if (locationParts.Length == 3 &&
+                double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double latitude) &&
+                double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double longitude) &&
+                double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double altitude))
+            {
+                return new Position(latitude, longitude, altitude);
+            }
+            return null;
+        }
+
+        private void UpdateIndices(Panel list)
+        {
+            int index = 1;
+            foreach (var child in list.Children)
+            {
+                if (child is Grid grid && grid.Children[0] is Label indexLabel)
+                {
+                    indexLabel.Content = index.ToString();
+                    index++;
+                }
+            }
+        }
+
         private void AddAircraftThreat_Click(object sender, RoutedEventArgs e)
         {
             // Eğer daha önce satır eklenmediyse, üst kısma label'lar ekleyelim.
@@ -379,23 +405,6 @@ namespace AirDefenseOptimizer.Views
             UpdateIndices(ThreatList); // Ekledikten sonra tüm indeksleri güncelle
         }
 
-        // İndeksleri güncelleyen metot
-        private void UpdateIndices(Panel list)
-        {
-            int index = 1;
-            foreach (var child in list.Children)
-            {
-                if (child is Grid grid && grid.Children[0] is Label indexLabel)
-                {
-                    indexLabel.Content = index.ToString();
-                    index++;
-                }
-            }
-        }
-
-        // Hava Savunma Sistemi Ekleme Butonuna Tıklanınca Çalışacak
-        private int defenseIndex = 1; // Sayaç ekleyelim
-
         private void AddAirDefenseSystem_Click(object sender, RoutedEventArgs e)
         {
             // Eğer daha önce satır eklenmediyse, üst kısma label'lar ekleyelim.
@@ -533,19 +542,6 @@ namespace AirDefenseOptimizer.Views
             UpdateIndices(DefenseList); // Ekledikten sonra tüm indeksleri güncelle
         }
 
-        private Position? ParsePosition(string location)
-        {
-            var locationParts = location.Split(',');
-            if (locationParts.Length == 3 &&
-                double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double latitude) &&
-                double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double longitude) &&
-                double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double altitude))
-            {
-                return new Position(latitude, longitude, altitude);
-            }
-            return null;
-        }
-
         private Aircraft CreateAircraft(Dictionary<string, object> aircraftData, string selectedAircraft)
         {
             var aircraft = new Aircraft
@@ -681,7 +677,7 @@ namespace AirDefenseOptimizer.Views
 
         private void ShowThreatLevelButton_Click(object sender, RoutedEventArgs e)
         {
-            AircraftRules aircraftRules = new AircraftRules();
+            //AircraftRules aircraftRules = new AircraftRules();
 
             // Örnek konum tanımla
             Position sourcePosition = new Position(
@@ -689,8 +685,9 @@ namespace AirDefenseOptimizer.Views
                 double.Parse(LongitudeTextBox.Text, CultureInfo.InvariantCulture),
                 double.Parse(AltitudeTextBox.Text, CultureInfo.InvariantCulture));
 
+            // Önceki verileri temizleyelim
+            _aircraftThreats.Clear();
             // Aircraft verilerini listeye ekleyelim
-            _aircraftThreats.Clear(); // Önceki verileri temizleyelim
             foreach (Grid threatGrid in ThreatList.Children.OfType<Grid>())
             {
                 // Grid içindeki ComboBox'ları ve TextBox'ı bulalım
@@ -714,9 +711,7 @@ namespace AirDefenseOptimizer.Views
                     string location = locationTextBox.Text;
                     string speed = speedTextBox.Text;
 
-                    if (!string.IsNullOrEmpty(selectedAircraft) &&
-                        !string.IsNullOrEmpty(location) &&
-                        !string.IsNullOrEmpty(speed))
+                    if (!string.IsNullOrEmpty(selectedAircraft) && !string.IsNullOrEmpty(location) && !string.IsNullOrEmpty(speed))
                     {
                         // Aircraft bilgilerini veritabanından çek
                         var aircraftData = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
@@ -726,11 +721,11 @@ namespace AirDefenseOptimizer.Views
                             // Aircraft nesnesini oluştur
                             var aircraft = CreateAircraft(aircraftData, selectedAircraft);
 
-                            Position? userPosition = ParsePosition(location);
-                            if (userPosition != null)
+                            Position? aircraftPosition = ParsePosition(location);
+                            if (aircraftPosition != null)
                             {
                                 // Mesafeyi hesapla
-                                double distance = Position.CalculateDistance(sourcePosition, userPosition);
+                                double distance = Position.CalculateDistance(sourcePosition, aircraftPosition);
 
                                 // Tehdit seviyesini hesapla
                                 var threatCalculator = new AircraftThreatCalculator();
@@ -739,13 +734,13 @@ namespace AirDefenseOptimizer.Views
 
                                 // Mesaj göster
                                 MessageBox.Show($"Tehdit: {aircraft.Name}\n" +
-                                                $"Latitude: {userPosition.Latitude}, Longitude: {userPosition.Longitude}, Altitude: {userPosition.Altitude}\n" +
-                                                $"Hedefe olan mesafe: {distance:F2} km\n" +
+                                                $"Latitude: {aircraftPosition.Latitude}, Longitude: {aircraftPosition.Longitude}, Altitude: {aircraftPosition.Altitude}\n" +
+                                                $"Kaynağa olan mesafe: {distance:F2} km\n" +
                                                 $"IFF mod: {selectedIFF}\n" +
                                                 $"Tehdit Seviyesi: {threatLevel}");
 
                                 // AircraftInput nesnesini oluştur ve listeye ekle
-                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance));
+                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel));
 
                                 // Tehdit detaylarını güncelle
                                 threatDetails.Add(new ThreatDetail
@@ -816,26 +811,9 @@ namespace AirDefenseOptimizer.Views
                 }
             }
 
-            threatDetails.Clear();
 
-            // Listeye eklenen Aircraft ve Air Defense System'ler üzerinden işlem yapalım
-            foreach (var aircraftInput in _aircraftThreats)
-            {
-                // Tehdit skorunu hesapla
-                var (threatLevel, totalScore) = aircraftRules.CalculateThreatScore(aircraftInput.Aircraft);
-
-                threatDetails.Add(new ThreatDetail
-                {
-                    Aircraft = aircraftInput.Aircraft,
-                    IFFMode = aircraftInput.IFFMode,
-                    Speed = aircraftInput.Speed,
-                    Location = aircraftInput.Location,
-                    Distance = aircraftInput.Distance,
-                    ThreatScore = totalScore,
-                    ThreatLevel = threatLevel
-                });
-
-            }
+            // uçakları tespit eden radarların listesi
+            List<Radar> detectedRadarList = new List<Radar>();
 
             foreach (var airDefenseInput in _airDefenseSystems)
             {
@@ -851,12 +829,21 @@ namespace AirDefenseOptimizer.Views
                             // Mesafeyi hesapla
                             double distance = Position.CalculateDistance(defensePosition, aircraftPosition);
 
+                            foreach (var radar in airDefenseInput.AirDefense.Radars)
+                            {
+                                if (radar.Radar.MaxDetectionRange > distance)
+                                {
+                                    detectedRadarList.Add(radar.Radar);
+                                }
+                            }
+
                             // Mesaj göster
                             MessageBox.Show(
                                 $"Air Defense System: {airDefenseInput.AirDefense.Name}\n" +
                                 $"Location: {defensePosition.Latitude}, {defensePosition.Longitude}, {defensePosition.Altitude}\n" +
                                 $"Target Aircraft: {aircraftInput.Aircraft.Name}\n" +
-                                $"Distance to Aircraft: {distance:F2} km");
+                                $"Distance to Aircraft: {distance:F2} km\n" +
+                                $"detectedRadarList: {detectedRadarList.Count}");
                         }
                         else
                         {
@@ -868,6 +855,24 @@ namespace AirDefenseOptimizer.Views
                 {
                     MessageBox.Show($"Invalid location format for air defense system: {airDefenseInput.AirDefense.Name}");
                 }
+            }
+
+            threatDetails.Clear();
+
+            foreach (var aircraftInput in _aircraftThreats)
+            {
+
+                threatDetails.Add(new ThreatDetail
+                {
+                    Aircraft = aircraftInput.Aircraft,
+                    IFFMode = aircraftInput.IFFMode,
+                    Speed = aircraftInput.Speed,
+                    Location = aircraftInput.Location,
+                    Distance = aircraftInput.Distance,
+                    ThreatScore = 0,
+                    ThreatLevel = aircraftInput.ThreatLevel.ToString()
+                });
+
             }
 
             ThreatDetailsWindow threatDetailsWindow = new ThreatDetailsWindow(threatDetails.Select((detail, index) =>
