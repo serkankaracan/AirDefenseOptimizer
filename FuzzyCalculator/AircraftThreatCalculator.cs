@@ -9,7 +9,7 @@ namespace AirDefenseOptimizer.FuzzyCalculator
         private readonly FuzzyAircraftThreatCalculator _fuzzyCalculator = new FuzzyAircraftThreatCalculator();
         private readonly FuzzyMunitionThreatCalculator _munitionCalculator = new FuzzyMunitionThreatCalculator();
 
-        public double CalculateThreatLevel(Aircraft aircraft, IFF iffStatus, double distanceToTarget, double speed)
+        public double CalculateThreatLevel(Aircraft aircraft, IFF iffStatus, double distanceToTarget, double speed, Maneuverability maneuverability, double altitude, double cost)
         {
             if (iffStatus == IFF.Friend || iffStatus == IFF.Neutral)
                 return 0;
@@ -18,21 +18,27 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double ecmCapabilityFuzzy = _fuzzyCalculator.FuzzifyECM(aircraft.ECMCapability);
             double distanceFuzzy = _fuzzyCalculator.FuzzifyDistance(distanceToTarget);
             double speedFuzzy = _fuzzyCalculator.FuzzifySpeed(speed);
+            double maneuverabilityFuzzy = _fuzzyCalculator.FuzzyfyManeuverability(maneuverability);
+            double altitudeFuzzy = _fuzzyCalculator.FuzzyfyAltitude(altitude);
+            double costFuzzy = _fuzzyCalculator.FuzzyfyCost(cost);
 
             double munitionThreatContribution = CalculateMunitionThreatContribution(aircraft.Munitions);
 
             //MessageBox.Show("munitionThreatContribution: " + munitionThreatContribution + "\n" +
             //"Munitions: " + string.Join(", ", aircraft.Munitions.Select(m => m.Munition.Name.ToString())));
 
-            //MessageBox.Show("radarCrossSectionFuzzy: " + radarCrossSectionFuzzy + "\n" +
-            //    "ecmCapabilityFuzzy: " + ecmCapabilityFuzzy + "\n" +
-            //    "distanceFuzzy: " + distanceFuzzy + "\n" +
-            //    "speedFuzzy: " + speedFuzzy);
+            MessageBox.Show("radarCrossSectionFuzzy: " + radarCrossSectionFuzzy + "\n" +
+                "ecmCapabilityFuzzy: " + ecmCapabilityFuzzy + "\n" +
+                "distanceFuzzy: " + distanceFuzzy + "\n" +
+                "speedFuzzy: " + speedFuzzy + "\n" +
+                "maneuverabilityFuzzy: " + maneuverabilityFuzzy + "\n" +
+                "altitudeFuzzy: " + altitudeFuzzy + "\n" +
+                "costFuzzy: " + costFuzzy);
 
-            double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy);
+            double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy, maneuverabilityFuzzy, altitudeFuzzy, costFuzzy);
 
             // Normalize edilmiş toplam tehdit seviyesini hesapla
-            double totalThreatLevel = (0.6 * aircraftThreatLevel) + (0.4 * munitionThreatContribution);
+            double totalThreatLevel = (0.75 * aircraftThreatLevel) + (0.25 * munitionThreatContribution);
 
             return _fuzzyCalculator.Defuzzify(totalThreatLevel);
         }

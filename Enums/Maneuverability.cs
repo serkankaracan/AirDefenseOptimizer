@@ -41,16 +41,16 @@
             return maneuverability switch
             {
                 Maneuverability.Limited => 1,
-                Maneuverability.VeryLow => 1,
-                Maneuverability.Low => 1,
-                Maneuverability.BelowAverage => 2,
-                Maneuverability.Medium => 2,
-                Maneuverability.AboveAverage => 2,
-                Maneuverability.High => 3,
-                Maneuverability.VeryHigh => 3,
-                Maneuverability.Agile => 4,
-                Maneuverability.Extreme => 4,
-                Maneuverability.Supreme => 4,
+                Maneuverability.VeryLow => 2,
+                Maneuverability.Low => 3,
+                Maneuverability.BelowAverage => 4,
+                Maneuverability.Medium => 5,
+                Maneuverability.AboveAverage => 6,
+                Maneuverability.High => 7,
+                Maneuverability.VeryHigh => 8,
+                Maneuverability.Agile => 9,
+                Maneuverability.Extreme => 10,
+                Maneuverability.Supreme => 11,
                 _ => -1 // Belirsiz bir değer için varsayılan
             };
         }

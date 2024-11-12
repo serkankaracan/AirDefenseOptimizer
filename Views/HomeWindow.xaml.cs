@@ -730,7 +730,7 @@ namespace AirDefenseOptimizer.Views
                                 // Tehdit seviyesini hesapla
                                 var threatCalculator = new AircraftThreatCalculator();
                                 double speedValue = double.TryParse(speed, out var parsedSpeed) ? parsedSpeed : 0;
-                                double threatLevel = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue);
+                                double threatLevel = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue, aircraft.Maneuverability, aircraftPosition.Altitude, aircraft.Cost);
 
                                 // Mesaj göster
                                 MessageBox.Show($"Tehdit: {aircraft.Name}\n" +

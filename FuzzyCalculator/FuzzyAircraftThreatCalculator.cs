@@ -41,17 +41,46 @@ namespace AirDefenseOptimizer.FuzzyCalculator
         // Mesafe için üçgen bulanık kümeler (Çok Yakın, Yakın, Orta, Uzak, Çok Uzak mesafe kategorileri)
         public double FuzzifyDistance(double distance)
         {
-            double veryClose = FuzzyLogicHelper.TriangularMembership(distance, 0, 25, 50);
-            double close = FuzzyLogicHelper.TriangularMembership(distance, 30, 100, 200);
-            double medium = FuzzyLogicHelper.TriangularMembership(distance, 150, 300, 500);
-            double far = FuzzyLogicHelper.TriangularMembership(distance, 400, 600, 800);
-            double veryFar = FuzzyLogicHelper.TriangularMembership(distance, 700, 1000, 1500);
+            double veryClose = FuzzyLogicHelper.TriangularMembership(distance, 0, 5, 10);
+            double close = FuzzyLogicHelper.TriangularMembership(distance, 8, 20, 40);
+            double medium = FuzzyLogicHelper.TriangularMembership(distance, 30, 60, 100);
+            double far = FuzzyLogicHelper.TriangularMembership(distance, 80, 150, 250);
+            double veryFar = FuzzyLogicHelper.TriangularMembership(distance, 200, 300, 400);
 
             return Math.Max(Math.Max(Math.Max(Math.Max(veryClose, close), medium), far), veryFar);
         }
 
+        public double FuzzyfyManeuverability(Maneuverability maneuverability)
+        {
+            double low = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 0, 3, 5);
+            double medium = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 4, 7, 9);
+            double high = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 6, 8, 11);
+
+            return Math.Max(Math.Max(low, medium), high);
+        }
+
+        public double FuzzyfyAltitude(double altitude)
+        {
+            double low = FuzzyLogicHelper.TriangularMembership(altitude, 0, 5000, 7500);
+            double medium = FuzzyLogicHelper.TriangularMembership(altitude, 6000, 10000, 15000);
+            double high = FuzzyLogicHelper.TriangularMembership(altitude, 12000, 20000, 25000);
+
+            return Math.Max(Math.Max(low, medium), high);
+        }
+
+        public double FuzzyfyCost(double cost)
+        {
+            double veryCheap = FuzzyLogicHelper.TriangularMembership(cost, 500000, 1000000, 2000000);
+            double cheap = FuzzyLogicHelper.TriangularMembership(cost, 1000000, 3000000, 5000000);
+            double normal = FuzzyLogicHelper.TriangularMembership(cost, 4000000, 10000000, 15000000);
+            double expensive = FuzzyLogicHelper.TriangularMembership(cost, 10000000, 20000000, 30000000);
+            double veryExpensive = FuzzyLogicHelper.TriangularMembership(cost, 25000000, 40000000, 50000000);
+
+            return Math.Max(Math.Max(Math.Max(Math.Max(veryCheap, cheap), normal), expensive), veryExpensive);
+        }
+
         // Hava aracı için bulanık kurallar
-        public double ApplyFuzzyRules(double speed, double radarCrossSection, double ecmCapability, double distance)
+        public double ApplyFuzzyRules(double speed, double radarCrossSection, double ecmCapability, double distance, double maneuverability, double altitude, double cost)
         {
             double threatLevel = 0;
 

@@ -11,12 +11,15 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="15"/>
                 <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft.Name}" Width="*"/>
-                <DataGridTextColumn Header="IFF Mode" Binding="{Binding IFFMode}" Width="*"/>
+                <DataGridTextColumn Header="IFF Mode" Binding="{Binding IFFMode}" Width="75"/>
                 <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="*"/>
                 <!--DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*"/-->
                 <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="*"/>
+                <DataGridTextColumn Header="Altitude" Binding="{Binding Altitude}" Width="*"/>
                 <DataGridTextColumn Header="Threat Level" Binding="{Binding ThreatLevel}" Width="*"/>
                 <DataGridTextColumn Header="Threat Score" Binding="{Binding ThreatScore}" Width="*"/>
+                <DataGridTextColumn Header="Detected Radar" Binding="{Binding DetectedRadar}" Width="*"/>
+                <DataGridTextColumn Header="Assigned ADS" Binding="{Binding AssignedADS}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
