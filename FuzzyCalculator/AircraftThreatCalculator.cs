@@ -55,38 +55,60 @@ namespace AirDefenseOptimizer.FuzzyCalculator
                 double speedFuzzy = _munitionCalculator.FuzzifySpeed(aircraftMunition.Munition.Speed);
                 double maneuverabilityFuzzy = _munitionCalculator.FuzzifyManeuverability(aircraftMunition.Munition.Maneuverability);
 
-                //MessageBox.Show("explosivePowerFuzzy: " + explosivePowerFuzzy + "\n" +
-                //                "rangeFuzzy: " + rangeFuzzy + "\n" +
-                //                "speedFuzzy: " + speedFuzzy + "\n" +
-                //                "maneuverabilityFuzzy: " + maneuverabilityFuzzy);
-
                 double munitionThreat = 0;
                 string appliedRule = string.Empty;
 
-                // Tehdit katkısını belirle
-                if (explosivePowerFuzzy > 0.7 && rangeFuzzy > 0.7)
+                // Yüksek tehdit durumları
+                if (explosivePowerFuzzy > 0.8 && rangeFuzzy > 0.8 && speedFuzzy > 0.7)
                 {
-                    munitionThreat = 0.8;
-                    appliedRule = "High explosive power and long range";
+                    munitionThreat = Math.Max(munitionThreat, 0.9);
+                    appliedRule = "Very high explosive power, long range, and high speed";
                 }
-                else if (speedFuzzy > 0.5 && rangeFuzzy > 0.5)
+                else if (explosivePowerFuzzy > 0.7 && rangeFuzzy > 0.7 && maneuverabilityFuzzy > 0.6)
                 {
-                    munitionThreat = Math.Max(munitionThreat, 0.6);
-                    appliedRule = "High speed and medium range";
+                    munitionThreat = Math.Max(munitionThreat, 0.85);
+                    appliedRule = "High explosive power, long range, and good maneuverability";
+                }
+
+                // Orta-yüksek tehdit durumları
+                else if ((explosivePowerFuzzy > 0.6 && rangeFuzzy > 0.6) || (speedFuzzy > 0.5 && maneuverabilityFuzzy > 0.5))
+                {
+                    munitionThreat = Math.Max(munitionThreat, 0.7);
+                    appliedRule = "Moderate explosive power and range, or moderate speed and maneuverability";
+                }
+                else if (explosivePowerFuzzy > 0.5 && rangeFuzzy > 0.5 && speedFuzzy > 0.4)
+                {
+                    munitionThreat = Math.Max(munitionThreat, 0.65);
+                    appliedRule = "Moderate explosive power, range, and speed";
+                }
+
+                // Orta tehdit durumları
+                else if ((explosivePowerFuzzy > 0.4 && rangeFuzzy > 0.4) || (speedFuzzy > 0.4 && maneuverabilityFuzzy > 0.4))
+                {
+                    munitionThreat = Math.Max(munitionThreat, 0.5);
+                    appliedRule = "Moderate threat due to balanced explosive power and maneuverability";
+                }
+
+                // Düşük tehdit durumları
+                else if (explosivePowerFuzzy < 0.3 && rangeFuzzy < 0.3 && speedFuzzy < 0.3)
+                {
+                    munitionThreat = Math.Max(munitionThreat, 0.3);
+                    appliedRule = "Low explosive power, range, and speed";
                 }
                 else
                 {
-                    // Fuzzified değerlerin ortalaması ile düşük tehdit
+                    // Ortalama değerler için düşük tehdit
                     munitionThreat = (explosivePowerFuzzy + rangeFuzzy + speedFuzzy + maneuverabilityFuzzy) / 4 * 0.5;
-                    appliedRule = "Low average fuzzy values - Threat Level: " + munitionThreat;
+                    appliedRule = "Low-average fuzzy values - Threat Level: " + munitionThreat;
                 }
 
-                //MessageBox.Show("Applied rule for " + aircraftMunition.Munition.Name + ": " + appliedRule);
+                // Mesaj gösterme seçeneği: Her mühimmat için uygulanan kural
+                MessageBox.Show("Applied rule for " + aircraftMunition.Munition.Name + ": \n" + appliedRule);
 
                 // Her mühimmatın tehdit düzeyine göre toplam katkısını hesapla
                 totalMunitionThreat += munitionThreat * aircraftMunition.Quantity;
             }
-
+            //MessageBox.Show("totalMunitionThreat: " + totalMunitionThreat);
             return totalMunitionThreat;
         }
     }
