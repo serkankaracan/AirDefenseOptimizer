@@ -7,9 +7,11 @@
         /// </summary>
         public enum Speed
         {
-            Slow,    // Yavaş uçak
-            Medium,  // Orta hızlı uçak
-            Fast     // Hızlı uçak
+            VerySlow,   // Çok yavaş uçak
+            Slow,       // Yavaş uçak
+            Medium,     // Orta hızlı uçak
+            Fast,       // Hızlı uçak
+            VeryFast    // Çok hızlı uçak
         }
 
         /// <summary>
@@ -17,9 +19,11 @@
         /// </summary>
         public enum Range
         {
-            Short,  // Kısa menzil
-            Medium, // Orta menzil
-            Long    // Uzun menzil
+            VeryShort,  // Çok kısa menzil
+            Short,      // Kısa menzil
+            Medium,     // Orta menzil
+            Long,       // Uzun menzil
+            VeryLong    // Çok uzun menzil
         }
 
         /// <summary>
@@ -27,9 +31,11 @@
         /// </summary>
         public enum MaxAltitude
         {
-            Low,    // Düşük irtifa
-            Medium, // Orta irtifa
-            High    // Yüksek irtifa
+            VeryLow,    // Çok düşük irtifa
+            Low,        // Düşük irtifa
+            Medium,     // Orta irtifa
+            High,       // Yüksek irtifa
+            VeryHigh    // Çok yüksek irtifa
         }
 
         /// <summary>
@@ -37,16 +43,23 @@
         /// </summary>
         public enum Maneuverability
         {
-            Low,    // Düşük manevra kabiliyeti
-            Medium, // Orta manevra kabiliyeti
-            High    // Yüksek manevra kabiliyeti
+            VeryLow,    // Çok düşük manevra kabiliyeti
+            Low,        // Düşük manevra kabiliyeti
+            Medium,     // Orta manevra kabiliyeti
+            High,       // Yüksek manevra kabiliyeti
+            VeryHigh    // Çok yüksek manevra kabiliyeti
         }
 
+        /// <summary>
+        /// Uçağın ECM yeteneği için kullanılacak bulanık kümeler
+        /// </summary>
         public enum EcmCapability
         {
-            Low,    // Düşük manevra kabiliyeti
-            Medium, // Orta manevra kabiliyeti
-            High    // Yüksek manevra kabiliyeti
+            VeryLow,    // Çok düşük ECM yeteneği
+            Low,        // Düşük ECM yeteneği
+            Medium,     // Orta ECM yeteneği
+            High,       // Yüksek ECM yeteneği
+            VeryHigh    // Çok yüksek ECM yeteneği
         }
 
         /// <summary>
@@ -54,16 +67,23 @@
         /// </summary>
         public enum PayloadCapacity
         {
-            Small,  // Küçük yük kapasitesi
-            Medium, // Orta yük kapasitesi
-            Large   // Büyük yük kapasitesi
+            VerySmall,  // Çok küçük yük kapasitesi
+            Small,      // Küçük yük kapasitesi
+            Medium,     // Orta yük kapasitesi
+            Large,      // Büyük yük kapasitesi
+            VeryLarge   // Çok büyük yük kapasitesi
         }
 
+        /// <summary>
+        /// Uçağın radar kesit alanı için kullanılacak bulanık kümeler
+        /// </summary>
         public enum RadarCrossSection
         {
-            Low,
-            Medium,
-            High
+            VeryLow,    // Çok düşük RKA
+            Low,        // Düşük RKA
+            Medium,     // Orta RKA
+            High,       // Yüksek RKA
+            VeryHigh    // Çok yüksek RKA
         }
 
         /// <summary>
@@ -71,9 +91,11 @@
         /// </summary>
         public enum IFFMode
         {
-            Foe,
-            Unknown,
-            Friend
+            Hostile,    // Düşman
+            Suspect,    // Şüpheli
+            Unknown,    // Bilinmeyen
+            Neutral,    // Tarafsız
+            Friendly    // Dost
         }
 
         /// <summary>
@@ -81,9 +103,11 @@
         /// </summary>
         public enum Cost
         {
-            Cheap,      // Ucuz uçak
-            Moderate,   // Orta maliyetli uçak
-            Expensive   // Pahalı uçak
+            VeryCheap,      // Çok ucuz uçak
+            Cheap,          // Ucuz uçak
+            Moderate,       // Orta maliyetli uçak
+            Expensive,      // Pahalı uçak
+            VeryExpensive   // Çok pahalı uçak
         }
     }
 }

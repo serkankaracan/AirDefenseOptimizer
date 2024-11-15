@@ -102,11 +102,11 @@ namespace AirDefenseOptimizer.FuzzyCalculator
                     appliedRule = "Low-average fuzzy values - Threat Level: " + munitionThreat;
                 }
 
-                // Mesaj gösterme seçeneği: Her mühimmat için uygulanan kural
-                MessageBox.Show("Applied rule for " + aircraftMunition.Munition.Name + ": \n" + appliedRule);
-
                 // Her mühimmatın tehdit düzeyine göre toplam katkısını hesapla
                 totalMunitionThreat += munitionThreat * aircraftMunition.Quantity;
+
+                // Mesaj gösterme seçeneği: Her mühimmat için uygulanan kural
+                //MessageBox.Show("Applied rule for " + aircraftMunition.Munition.Name + ": \n" + appliedRule + "\n" + "munitionThreat: " + munitionThreat);
             }
             //MessageBox.Show("totalMunitionThreat: " + totalMunitionThreat);
             return totalMunitionThreat;

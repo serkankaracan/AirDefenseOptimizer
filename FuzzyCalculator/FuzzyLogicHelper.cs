@@ -17,15 +17,20 @@
 
         public static double TrapezoidalMembership(double x, double a, double b, double c, double d)
         {
-            if (x <= a) return 0.0;
-            if (x >= d) return 1.0;
-            if (x >= c) return 1.0;
-            if (x >= b)
-                return (d - x) / (d - c);
-            if (x > a && x < b)
+            if (x <= a)
+                return 0.0;
+            else if (x >= d)
+                return 0.0;
+            else if (x >= b && x <= c)
+                return 1.0;
+            else if (x > a && x < b)
                 return (x - a) / (b - a);
-            return 0.0;
+            else if (x > c && x < d)
+                return (d - x) / (d - c);
+            else
+                return 0.0;
         }
+
     }
 
 }

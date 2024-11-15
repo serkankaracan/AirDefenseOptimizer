@@ -1,5 +1,6 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Services;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -265,10 +266,10 @@ namespace AirDefenseOptimizer.Views
                 {
                     airDefenseId = _airDefenseService.AddAirDefense(
                         txtAirDefenseName.Text,
-                        double.Parse(txtAerodynamicRangeMax.Text),
-                        double.Parse(txtAerodynamicRangeMin.Text),
-                        double.Parse(txtBallisticRangeMax.Text),
-                        double.Parse(txtBallisticRangeMin.Text),
+                        double.TryParse(txtAerodynamicRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMax) ? aerodynamicRangeMax : 0,
+                        double.TryParse(txtAerodynamicRangeMin.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMin) ? aerodynamicRangeMin : 0,
+                        double.TryParse(txtBallisticRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double ballisticRangeMax) ? ballisticRangeMax : 0,
+                        double.TryParse(txtBallisticRangeMin.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double ballisticRangeMin) ? ballisticRangeMin : 0,
                         int.Parse(txtMaxEngagements.Text),
                         int.Parse(txtMaxMissilesFired.Text),
                         ((ECMCapability)cbECMCapability.SelectedValue).ToString(),
@@ -280,10 +281,10 @@ namespace AirDefenseOptimizer.Views
                     _airDefenseService.UpdateAirDefense(
                         airDefenseId,
                         txtAirDefenseName.Text,
-                        double.Parse(txtAerodynamicRangeMax.Text),
-                        double.Parse(txtAerodynamicRangeMin.Text),
-                        double.Parse(txtBallisticRangeMax.Text),
-                        double.Parse(txtBallisticRangeMin.Text),
+                        double.TryParse(txtAerodynamicRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMax) ? aerodynamicRangeMax : 0,
+                        double.TryParse(txtAerodynamicRangeMin.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMin) ? aerodynamicRangeMin : 0,
+                        double.TryParse(txtBallisticRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double ballisticRangeMax) ? ballisticRangeMax : 0,
+                        double.TryParse(txtBallisticRangeMin.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double ballisticRangeMin) ? ballisticRangeMin : 0,
                         int.Parse(txtMaxEngagements.Text),
                         int.Parse(txtMaxMissilesFired.Text),
                         ((ECMCapability)cbECMCapability.SelectedValue).ToString(),

@@ -1,5 +1,6 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Services;
+using System.Globalization;
 using System.Windows;
 
 namespace AirDefenseOptimizer.Views
@@ -55,7 +56,7 @@ namespace AirDefenseOptimizer.Views
                         txtMaxTargetSpeed.IsEnabled = false;
                         txtMaxTargetVelocity.IsEnabled = false;
                         txtRedeploymentTime.IsEnabled = false;
-                        btnSave.IsEnabled = false; 
+                        btnSave.IsEnabled = false;
                     }
                 }
             }
@@ -77,12 +78,12 @@ namespace AirDefenseOptimizer.Views
                         ((RadarType)cbRadarType.SelectedValue).ToString(),
                         int.Parse(txtMaxDetectionTargets.Text),
                         int.Parse(txtMaxTrackingTargets.Text),
-                        double.Parse(txtMinDetectionRange.Text),
-                        double.Parse(txtMaxDetectionRange.Text),
-                        double.Parse(txtMaxAltitude.Text),
-                        double.Parse(txtMinAltitude.Text),
-                        double.Parse(txtMaxTargetSpeed.Text),
-                        double.Parse(txtMaxTargetVelocity.Text),
+                        double.TryParse(txtMinDetectionRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double minDetectionRange) ? minDetectionRange : 0,
+                        double.TryParse(txtMaxDetectionRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxDetectionRange) ? maxDetectionRange : 0,
+                        double.TryParse(txtMaxAltitude.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxAltitude) ? maxAltitude : 0,
+                        double.TryParse(txtMinAltitude.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double minAltitude) ? minAltitude : 0,
+                        double.TryParse(txtMaxTargetSpeed.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxTargetSpeed) ? maxTargetSpeed : 0,
+                        double.TryParse(txtMaxTargetVelocity.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxTargetVelocity) ? maxTargetVelocity : 0,
                         int.Parse(txtRedeploymentTime.Text)
                     );
                 }
@@ -95,12 +96,12 @@ namespace AirDefenseOptimizer.Views
                         ((RadarType)cbRadarType.SelectedValue).ToString(),
                         int.Parse(txtMaxDetectionTargets.Text),
                         int.Parse(txtMaxTrackingTargets.Text),
-                        double.Parse(txtMinDetectionRange.Text),
-                        double.Parse(txtMaxDetectionRange.Text),
-                        double.Parse(txtMaxAltitude.Text),
-                        double.Parse(txtMinAltitude.Text),
-                        double.Parse(txtMaxTargetSpeed.Text),
-                        double.Parse(txtMaxTargetVelocity.Text),
+                        double.TryParse(txtMinDetectionRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double minDetectionRange) ? minDetectionRange : 0,
+                        double.TryParse(txtMaxDetectionRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxDetectionRange) ? maxDetectionRange : 0,
+                        double.TryParse(txtMaxAltitude.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxAltitude) ? maxAltitude : 0,
+                        double.TryParse(txtMinAltitude.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double minAltitude) ? minAltitude : 0,
+                        double.TryParse(txtMaxTargetSpeed.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxTargetSpeed) ? maxTargetSpeed : 0,
+                        double.TryParse(txtMaxTargetVelocity.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxTargetVelocity) ? maxTargetVelocity : 0,
                         int.Parse(txtRedeploymentTime.Text)
                     );
                 }

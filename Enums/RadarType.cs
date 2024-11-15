@@ -1,87 +1,55 @@
 ﻿namespace AirDefenseOptimizer.Enums
 {
+    /// <summary>
+    /// Hava savunma sistemlerinde kullanılan genel radar işlevlerini tanımlar.
+    /// </summary>
     public enum RadarType
     {
-        // Range Detection Radars
-        LongRangeDetection,
-        MediumRangeDetection,
-        ShortRangeDetection,
-
-        // Altitude Detection Radars
-        HighAltitudeDetection,
-        MediumAltitudeDetection,
-        LowAltitudeDetection,
-
-        // Special Function Radars
-        EarlyWarning,
-        TargetAcquisition,           // Hedef Arama/Tespit Radarı
-        MissileGuidance,             // Füzelerin güdüm işlemleri
-        TargetTracking,              // Hedef takip işlemleri
-        Airborne,                    // Havadaki hedeflerin izlenmesi için
-
-        // Multi-function and Control Radars
-        MultiFunction,
-        FireControl,
-        SamRadar
+        Detection,      // Tespit
+        Search,         // Arama
+        Identification, // Teşhis
+        Tracking,       // İzleme
+        Engagement,     // Angajman
+        FireControl,    // Atış Kontrol
+        Airborne        // Uçak radarı
     }
 
+    /// <summary>
+    /// Radar türü için açıklamalar ve işlevsel yetenekler.
+    /// </summary>
     public static class RadarTypeExtensions
     {
+        /// <summary>
+        /// Radar türünün açıklamasını alır.
+        /// </summary>
         public static string GetRadarTypeName(this RadarType radarType)
         {
             return radarType switch
             {
-                // Range Detection Radars
-                RadarType.LongRangeDetection => "Long Range Detection",
-                RadarType.MediumRangeDetection => "Medium Range Detection",
-                RadarType.ShortRangeDetection => "Short Range Detection",
-
-                // Altitude Detection Radars
-                RadarType.HighAltitudeDetection => "High Altitude Detection",
-                RadarType.MediumAltitudeDetection => "Medium Altitude Detection",
-                RadarType.LowAltitudeDetection => "Low Altitude Detection",
-
-                // Special Function Radars
-                RadarType.EarlyWarning => "Early Warning",
-                RadarType.TargetAcquisition => "Target Acquisition Radar",
-                RadarType.MissileGuidance => "Missile Guidance",
-                RadarType.TargetTracking => "Target Tracking",
-                RadarType.Airborne => "Airborne Radar",
-
-                // Multi-function and Control Radars
-                RadarType.MultiFunction => "Multi-Function",
+                RadarType.Detection => "Detection",
+                RadarType.Search => "Search",
+                RadarType.Identification => "Identification",
+                RadarType.Tracking => "Tracking",
+                RadarType.Engagement => "Engagement",
                 RadarType.FireControl => "Fire Control",
-                RadarType.SamRadar => "Surface-to-Air Missile (SAM) Radar",
-                _ => "Unknown"
+                RadarType.Airborne => "Airborne",
+                _ => "Unknown Radar Type"
             };
         }
 
-        // Radar tipi için işlevler
+        /// <summary>
+        /// Radar türünün yeteneklerini döndürür.
+        /// </summary>
         public static (bool CanDetect, bool CanClassify, bool CanTrack, bool CanEngage) GetRadarCapabilities(this RadarType radarType)
         {
             return radarType switch
             {
-                // Range Detection Radars
-                RadarType.LongRangeDetection => (true, false, false, false),
-                RadarType.MediumRangeDetection => (true, false, false, false),
-                RadarType.ShortRangeDetection => (true, false, false, false),
-
-                // Altitude Detection Radars
-                RadarType.HighAltitudeDetection => (true, false, false, false),
-                RadarType.MediumAltitudeDetection => (true, false, false, false),
-                RadarType.LowAltitudeDetection => (true, false, false, false),
-
-                // Special Function Radars
-                RadarType.EarlyWarning => (true, false, false, false),
-                RadarType.TargetAcquisition => (true, true, true, false),
-                RadarType.MissileGuidance => (false, true, true, true),
-                RadarType.TargetTracking => (true, true, true, true),
-                RadarType.Airborne => (true, true, true, true),
-
-                // Multi-function and Control Radars
-                RadarType.MultiFunction => (true, true, true, true),
-                RadarType.FireControl => (true, true, true, true),
-                RadarType.SamRadar => (true, true, true, true),
+                RadarType.Detection => (true, false, false, false),          // Yalnızca tespit
+                RadarType.Search => (true, false, false, false),             // Yalnızca arama
+                RadarType.Identification => (true, true, false, false),      // Tespit ve teşhis
+                RadarType.Tracking => (true, true, true, false),             // Tespit, teşhis ve izleme
+                RadarType.Engagement => (false, true, true, true),           // Teşhis, izleme ve angajman
+                RadarType.FireControl => (false, true, true, true),          // Teşhis, izleme ve angajman
                 _ => (false, false, false, false)
             };
         }

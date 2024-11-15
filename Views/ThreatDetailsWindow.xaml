@@ -18,7 +18,13 @@
                 <DataGridTextColumn Header="Altitude" Binding="{Binding Altitude}" Width="*"/>
                 <DataGridTextColumn Header="Threat Level" Binding="{Binding ThreatLevel}" Width="*"/>
                 <DataGridTextColumn Header="Threat Score" Binding="{Binding ThreatScore}" Width="*"/>
-                <DataGridTextColumn Header="Detected Radar" Binding="{Binding DetectedRadar}" Width="*"/>
+                <DataGridTemplateColumn Header="Detected by Radar" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DetectedByRadarNames}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Assigned ADS" Binding="{Binding AssignedADS}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>

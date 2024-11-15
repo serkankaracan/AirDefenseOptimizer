@@ -16,7 +16,6 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             // Tehdit seviyesini üyelik derecelerinin ağırlıklı toplamı olarak hesaplayın
             double numerator = veryLow * 0.1 + low * 0.3 + medium * 0.5 + high * 0.7 + veryHigh * 0.9;
             double denominator = veryLow + low + medium + high + veryHigh;
-
             double result = denominator != 0 ? numerator / denominator : 0;
 
             // Hız 1500 veya daha büyükse, sonucu 1'e ayarlayın
@@ -35,12 +34,11 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double high = FuzzyLogicHelper.TriangularMembership(rcs, 5, 8, 10);
             double veryHigh = FuzzyLogicHelper.TriangularMembership(rcs, 8, 10, 12);
 
-            double numerator = veryLow * 0.1 + low * 0.3 + medium * 0.5 + high * 0.7 + veryHigh * 0.9;
+            double numerator = veryLow * 0.9 + low * 0.7 + medium * 0.5 + high * 0.3 + veryHigh * 0.1;
             double denominator = veryLow + low + medium + high + veryHigh;
-
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            // Hız 1500 veya daha büyükse, sonucu 1'e ayarlayın
+            // RCS 12 veya daha büyükse, sonucu 1'e ayarlayın
             if (rcs >= 12)
                 result = 1;
 
@@ -50,15 +48,17 @@ namespace AirDefenseOptimizer.FuzzyCalculator
         // ECM yeteneği için üçgen bulanık kümeler (Düşük, Orta, Yüksek ECM kategorileri)
         public double FuzzifyECM(ECMCapability ecmCapability)
         {
-            double low = FuzzyLogicHelper.TriangularMembership(ecmCapability.GetECMCapabilityNumber(), 0, 1, 2);
-            double medium = FuzzyLogicHelper.TriangularMembership(ecmCapability.GetECMCapabilityNumber(), 1, 2, 3);
-            double high = FuzzyLogicHelper.TriangularMembership(ecmCapability.GetECMCapabilityNumber(), 2, 3, 4);
+            double veryLow = FuzzyLogicHelper.TriangularMembership(ecmCapability.GetECMCapabilityNumber(), 0, 1, 2);
+            double low = FuzzyLogicHelper.TriangularMembership(ecmCapability.GetECMCapabilityNumber(), 1, 2, 3);
+            double medium = FuzzyLogicHelper.TriangularMembership(ecmCapability.GetECMCapabilityNumber(), 2, 3, 4);
+            double high = FuzzyLogicHelper.TriangularMembership(ecmCapability.GetECMCapabilityNumber(), 3, 4, 5);
+            double veryHigh = FuzzyLogicHelper.TrapezoidalMembership(ecmCapability.GetECMCapabilityNumber(), 4, 5, 6, double.MaxValue);
 
-            double numerator = low * 0.1 + medium * 0.3 + high * 0.5;
-            double denominator = low + medium + high;
-
+            double numerator = veryLow * 0.1 + low * 0.3 + medium * 0.5 + high * 0.7 + veryHigh * 0.9;
+            double denominator = veryLow + low + medium + high + veryHigh;
             double result = denominator != 0 ? numerator / denominator : 0;
-            if (ecmCapability.GetECMCapabilityNumber() >= 4)
+
+            if (ecmCapability.GetECMCapabilityNumber() >= 6)
                 result = 1;
 
             return result;
@@ -73,9 +73,10 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double far = FuzzyLogicHelper.TriangularMembership(distance, 80, 150, 250);
             double veryFar = FuzzyLogicHelper.TriangularMembership(distance, 200, 300, 400);
 
-            double numerator = veryClose * 0.1 + close * 0.3 + medium * 0.5 + far * 0.7 + veryFar * 0.9;
+            double numerator = veryClose * 0.9 + close * 0.7 + medium * 0.5 + far * 0.3 + veryFar * 0.1;
             double denominator = veryClose + close + medium + far + veryFar;
             double result = denominator != 0 ? numerator / denominator : 0;
+
             if (distance >= 400)
                 result = 1;
 
@@ -84,14 +85,17 @@ namespace AirDefenseOptimizer.FuzzyCalculator
 
         public double FuzzyfyManeuverability(Maneuverability maneuverability)
         {
-            double low = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 0, 3, 5);
-            double medium = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 4, 7, 9);
-            double high = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 6, 8, 11);
-            
-            double numerator = low * 0.1 + medium * 0.3 + high * 0.5;
-            double denominator = low + medium + high;
+            double veryLow = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 0, 2, 4);
+            double low = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 1, 3, 5);
+            double medium = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 2, 4, 6);
+            double high = FuzzyLogicHelper.TriangularMembership(maneuverability.GetManeuverabilityNumber(), 3, 5, 7);
+            double veryHigh = FuzzyLogicHelper.TrapezoidalMembership(maneuverability.GetManeuverabilityNumber(), 4, 6, 8, double.MaxValue);
+
+            double numerator = veryLow * 0.1 + low * 0.3 + medium * 0.5 + high * 0.7 + veryHigh * 0.9;
+            double denominator = veryLow + low + medium + high + veryHigh;
             double result = denominator != 0 ? numerator / denominator : 0;
-            if (maneuverability.GetManeuverabilityNumber() >= 11)
+
+            if (maneuverability.GetManeuverabilityNumber() >= 8)
                 result = 1;
 
             return result;
@@ -99,14 +103,17 @@ namespace AirDefenseOptimizer.FuzzyCalculator
 
         public double FuzzyfyAltitude(double altitude)
         {
-            double low = FuzzyLogicHelper.TriangularMembership(altitude, 0, 5000, 7500);
-            double medium = FuzzyLogicHelper.TriangularMembership(altitude, 6000, 10000, 15000);
-            double high = FuzzyLogicHelper.TriangularMembership(altitude, 12000, 20000, 25000);
-            
-            double numerator = low * 0.1 + medium * 0.3 + high * 0.5;
-            double denominator = low + medium + high;
+            double veryLow = FuzzyLogicHelper.TriangularMembership(altitude, 0, 500, 1000);
+            double low = FuzzyLogicHelper.TriangularMembership(altitude, 500, 2000, 4000);
+            double medium = FuzzyLogicHelper.TriangularMembership(altitude, 3000, 7000, 10000);
+            double high = FuzzyLogicHelper.TriangularMembership(altitude, 8000, 15000, 20000);
+            double veryHigh = FuzzyLogicHelper.TrapezoidalMembership(altitude, 18000, 25000, 30000, double.MaxValue);
+
+            double numerator = veryLow * 0.9 + low * 0.7 + medium * 0.5 + high * 0.3 + veryHigh * 0.1;
+            double denominator = veryLow + low + medium + high + veryHigh;
             double result = denominator != 0 ? numerator / denominator : 0;
-            if (altitude >= 25000)
+
+            if (altitude >= 30000)
                 result = 1;
 
             return result;
@@ -118,11 +125,12 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double cheap = FuzzyLogicHelper.TriangularMembership(cost, 1000000, 3000000, 5000000);
             double normal = FuzzyLogicHelper.TriangularMembership(cost, 4000000, 10000000, 15000000);
             double expensive = FuzzyLogicHelper.TriangularMembership(cost, 10000000, 20000000, 30000000);
-            double veryExpensive = FuzzyLogicHelper.TriangularMembership(cost, 25000000, 40000000, 50000000);
+            double veryExpensive = FuzzyLogicHelper.TrapezoidalMembership(cost, 25000000, 40000000, 50000000, double.MaxValue);
 
             double numerator = veryCheap * 0.1 + cheap * 0.3 + normal * 0.5 + expensive * 0.7 + veryExpensive * 0.9;
             double denominator = veryCheap + cheap + normal + expensive + veryExpensive;
             double result = denominator != 0 ? numerator / denominator : 0;
+
             if (cost >= 50000000)
                 result = 1;
 

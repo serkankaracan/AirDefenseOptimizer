@@ -212,6 +212,8 @@ namespace AirDefenseOptimizer.Views
             }
         }
 
+        private static readonly Random rand = new Random();
+
         private void AddAircraftThreat_Click(object sender, RoutedEventArgs e)
         {
             // Eğer daha önce satır eklenmediyse, üst kısma label'lar ekleyelim.
@@ -346,8 +348,12 @@ namespace AirDefenseOptimizer.Views
                 Width = 160,
                 Margin = new Thickness(0),
                 Padding = new Thickness(5),
-                MaxLength = 25
+                MaxLength = 50
             };
+
+            // Rastgele konum değerleri oluştur ve TextBox'a ata
+            string randomLocation = GenerateRandomLocation();
+            locationTextBox.Text = randomLocation;
 
             // Speed TextBox'ı
             TextBox speedTextBox = new TextBox
@@ -403,6 +409,22 @@ namespace AirDefenseOptimizer.Views
             ThreatList.Children.Add(threatGrid);
 
             UpdateIndices(ThreatList); // Ekledikten sonra tüm indeksleri güncelle
+        }
+
+        // Rastgele konum oluşturan yardımcı metot
+        private string GenerateRandomLocation()
+        {
+            // Enlem (Latitude): 36° ile 42° arasında
+            double latitude = 36 + rand.NextDouble() * 6; // 36 ile 42 arasında
+
+            // Boylam (Longitude): 26° ile 45° arasında
+            double longitude = 26 + rand.NextDouble() * 19; // 26 ile 45 arasında
+
+            // İrtifa (Altitude): 0 ile 3,000 metre arasında
+            double altitude = rand.NextDouble() * 3000;
+
+            // Değerleri formatlayarak string olarak döndür
+            return $"{latitude.ToString("F4", CultureInfo.InvariantCulture)}, {longitude.ToString("F4", CultureInfo.InvariantCulture)}, {altitude.ToString("F0", CultureInfo.InvariantCulture)}";
         }
 
         private void AddAirDefenseSystem_Click(object sender, RoutedEventArgs e)
@@ -501,6 +523,9 @@ namespace AirDefenseOptimizer.Views
                 Padding = new Thickness(5),
                 MaxLength = 25
             };
+
+            string randomLocation = GenerateRandomLocation();
+            locationTextBox.Text = randomLocation;
 
             // Kaldır Butonu
             Button removeButton = new Button
@@ -679,12 +704,6 @@ namespace AirDefenseOptimizer.Views
         {
             //AircraftRules aircraftRules = new AircraftRules();
 
-            // Örnek konum tanımla
-            Position sourcePosition = new Position(
-                double.Parse(LatitudeTextBox.Text, CultureInfo.InvariantCulture),
-                double.Parse(LongitudeTextBox.Text, CultureInfo.InvariantCulture),
-                double.Parse(AltitudeTextBox.Text, CultureInfo.InvariantCulture));
-
             // Önceki verileri temizleyelim
             _aircraftThreats.Clear();
             // Aircraft verilerini listeye ekleyelim
@@ -725,22 +744,23 @@ namespace AirDefenseOptimizer.Views
                             if (aircraftPosition != null)
                             {
                                 // Mesafeyi hesapla
-                                double distance = Position.CalculateDistance(sourcePosition, aircraftPosition);
+                                double distance = Position.CalculateDistance(GetSourcePosition(), aircraftPosition);
 
                                 // Tehdit seviyesini hesapla
                                 var threatCalculator = new AircraftThreatCalculator();
                                 double speedValue = double.TryParse(speed, out var parsedSpeed) ? parsedSpeed : 0;
-                                double threatLevel = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue, aircraft.Maneuverability, aircraftPosition.Altitude, aircraft.Cost);
+                                double threatScore = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue, aircraft.Maneuverability, aircraftPosition.Altitude, aircraft.Cost);
+                                double threatLevel = threatScore;
 
                                 // Mesaj göster
-                                MessageBox.Show($"Tehdit: {aircraft.Name}\n" +
-                                                $"Latitude: {aircraftPosition.Latitude}, Longitude: {aircraftPosition.Longitude}, Altitude: {aircraftPosition.Altitude}\n" +
-                                                $"Kaynağa olan mesafe: {distance:F2} km\n" +
-                                                $"IFF mod: {selectedIFF}\n" +
-                                                $"Tehdit Seviyesi: {threatLevel}");
+                                //MessageBox.Show($"Tehdit: {aircraft.Name}\n" +
+                                //                $"Latitude: {aircraftPosition.Latitude}, Longitude: {aircraftPosition.Longitude}, Altitude: {aircraftPosition.Altitude}\n" +
+                                //                $"Kaynağa olan mesafe: {distance:F2} km\n" +
+                                //                $"IFF mod: {selectedIFF}\n" +
+                                //                $"Tehdit Seviyesi: {threatLevel}");
 
                                 // AircraftInput nesnesini oluştur ve listeye ekle
-                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel));
+                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel, threatScore));
 
                                 // Tehdit detaylarını güncelle
                                 threatDetails.Add(new ThreatDetail
@@ -750,7 +770,9 @@ namespace AirDefenseOptimizer.Views
                                     Speed = speedValue,
                                     Location = location,
                                     Distance = distance,
-                                    ThreatLevel = threatLevel.ToString()
+                                    Altitude = aircraftPosition.Altitude,
+                                    ThreatLevel = threatLevel.ToString(),
+                                    ThreatScore = threatScore
                                 });
                             }
                             else
@@ -834,16 +856,17 @@ namespace AirDefenseOptimizer.Views
                                 if (radar.Radar.MaxDetectionRange > distance)
                                 {
                                     detectedRadarList.Add(radar.Radar);
+                                    MessageBox.Show("detected by radar: " + radar.Radar.Name);
                                 }
                             }
 
                             // Mesaj göster
-                            MessageBox.Show(
-                                $"Air Defense System: {airDefenseInput.AirDefense.Name}\n" +
-                                $"Location: {defensePosition.Latitude}, {defensePosition.Longitude}, {defensePosition.Altitude}\n" +
-                                $"Target Aircraft: {aircraftInput.Aircraft.Name}\n" +
-                                $"Distance to Aircraft: {distance:F2} km\n" +
-                                $"detectedRadarList: {detectedRadarList.Count}");
+                            //MessageBox.Show(
+                            //                $"Air Defense System: {airDefenseInput.AirDefense.Name}\n" +
+                            //                $"Location: {defensePosition.Latitude}, {defensePosition.Longitude}, {defensePosition.Altitude}\n" +
+                            //                $"Target Aircraft: {aircraftInput.Aircraft.Name}\n" +
+                            //                $"Distance to Aircraft: {distance:F2} km\n" +
+                            //                $"Detected Radars: {string.Join(", ", detectedRadarList.Select(radar => radar.Name))}");
                         }
                         else
                         {
@@ -869,10 +892,15 @@ namespace AirDefenseOptimizer.Views
                     Speed = aircraftInput.Speed,
                     Location = aircraftInput.Location,
                     Distance = aircraftInput.Distance,
-                    ThreatScore = 0,
-                    ThreatLevel = aircraftInput.ThreatLevel.ToString()
+                    Altitude = Convert.ToDouble(aircraftInput.Location.Split(',')[2].Trim()),
+                    ThreatLevel = aircraftInput.ThreatLevel >= 0.90 ? "Very High" :
+                                  aircraftInput.ThreatLevel >= 0.75 ? "High" :
+                                  aircraftInput.ThreatLevel >= 0.50 ? "Normal" :
+                                  aircraftInput.ThreatLevel >= 0.25 ? "Low" : "Very Low",
+                    ThreatScore = aircraftInput.ThreatScore,
+                    DetectedByRadar = detectedRadarList.ToArray(),
+                    //AssignedADS = airDefenseInput.AirDefense
                 });
-
             }
 
             ThreatDetailsWindow threatDetailsWindow = new ThreatDetailsWindow(threatDetails.Select((detail, index) =>
@@ -881,6 +909,16 @@ namespace AirDefenseOptimizer.Views
                 return detail;
             }).ToList());
             threatDetailsWindow.Show();
+        }
+
+        private Position GetSourcePosition()
+        {
+            Position sourcePosition = new Position(
+              double.Parse(LatitudeTextBox.Text, CultureInfo.InvariantCulture),
+              double.Parse(LongitudeTextBox.Text, CultureInfo.InvariantCulture),
+              double.Parse(AltitudeTextBox.Text, CultureInfo.InvariantCulture));
+
+            return sourcePosition;
         }
     }
 }

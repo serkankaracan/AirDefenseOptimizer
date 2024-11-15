@@ -46,7 +46,7 @@ namespace AirDefenseOptimizer.Services
                     { "@maneuverability", maneuverability ?? string.Empty },
                     { "@payloadCapacity", payloadCapacity },
                     { "@radarCrossSection", radarCrossSection },
-                    { "@ecmCapability", ecmCapability ?? string.Empty }, // ECM Capability ekleniyor
+                    { "@ecmCapability", ecmCapability ?? string.Empty },
                     { "@cost", cost },
                     { "@radarId", radarId ?? (object)DBNull.Value }
                 };

@@ -197,15 +197,15 @@ namespace AirDefenseOptimizer.Views
                     aircraftId = _aircraftService.AddAircraft(
                         txtAircraftName.Text,
                         cbAircraftType.SelectedValue != null ? ((AircraftType)cbAircraftType.SelectedValue).ToString() : string.Empty,
-                        double.TryParse(txtSpeed.Text, out double speed) ? speed : 0,
-                        double.TryParse(txtRange.Text, out double range) ? range : 0,
-                        double.TryParse(txtMaxAltitude.Text, out double maxAltitude) ? maxAltitude : 0,
+                        double.TryParse(txtSpeed.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double speed) ? speed : 0,
+                        double.TryParse(txtRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double range) ? range : 0,
+                        double.TryParse(txtMaxAltitude.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxAltitude) ? maxAltitude : 0,
                         cbManeuverability.SelectedValue != null ? ((Maneuverability)cbManeuverability.SelectedValue).ToString() : string.Empty,
-                        double.TryParse(txtPayloadCapacity.Text, out double payloadCapacity) ? payloadCapacity : 0,
+                        double.TryParse(txtPayloadCapacity.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double payloadCapacity) ? payloadCapacity : 0,
                         double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double radarCrossSection) ? radarCrossSection : 0,
                         //double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out double radarCrossSection) ? radarCrossSection : 0,
                         cbECMCapability.SelectedValue != null ? ((ECMCapability)cbECMCapability.SelectedValue).ToString() : string.Empty,
-                        double.TryParse(txtCost.Text, out double cost) ? cost : 0,
+                        double.TryParse(txtCost.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double cost) ? cost : 0,
                         radarIdAsInt);
                 }
                 else
@@ -214,11 +214,11 @@ namespace AirDefenseOptimizer.Views
                     _aircraftService.UpdateAircraft(
                         aircraftId, txtAircraftName.Text,
                         cbAircraftType.SelectedValue != null ? ((AircraftType)cbAircraftType.SelectedValue).ToString() : string.Empty,
-                        double.TryParse(txtSpeed.Text, out double speed) ? speed : 0,
-                        double.TryParse(txtRange.Text, out double range) ? range : 0,
-                        double.TryParse(txtMaxAltitude.Text, out double maxAltitude) ? maxAltitude : 0,
+                        double.TryParse(txtSpeed.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double speed) ? speed : 0,
+                        double.TryParse(txtRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double range) ? range : 0,
+                        double.TryParse(txtMaxAltitude.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double maxAltitude) ? maxAltitude : 0,
                         cbManeuverability.SelectedValue != null ? ((Maneuverability)cbManeuverability.SelectedValue).ToString() : string.Empty,
-                        double.TryParse(txtPayloadCapacity.Text, out double payloadCapacity) ? payloadCapacity : 0,
+                        double.TryParse(txtPayloadCapacity.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double payloadCapacity) ? payloadCapacity : 0,
                         double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double radarCrossSection) ? radarCrossSection : 0,
                         //double.TryParse(txtRadarCrossSection.Text, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out double radarCrossSection) ? radarCrossSection : 0,
                         cbECMCapability.SelectedValue != null ? ((ECMCapability)cbECMCapability.SelectedValue).ToString() : string.Empty,

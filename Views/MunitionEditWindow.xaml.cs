@@ -1,5 +1,6 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Services;
+using System.Globalization;
 using System.Windows;
 
 namespace AirDefenseOptimizer.Views
@@ -87,11 +88,11 @@ namespace AirDefenseOptimizer.Views
                     _munitionService.AddMunition(
                         txtMunitionName.Text,
                         ((MunitionType)cbMunitionType.SelectedValue).ToString(),
-                        double.Parse(txtWeight.Text),
-                        double.Parse(txtSpeed.Text),
-                        double.Parse(txtRange.Text),
+                        double.TryParse(txtWeight.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double weight) ? weight : 0,
+                        double.TryParse(txtSpeed.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double speed) ? speed : 0,
+                        double.TryParse(txtRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double range) ? range : 0,
                         ((Maneuverability)cbManeuverability.SelectedValue).ToString(),
-                        double.Parse(txtExplosivePower.Text),
+                        double.TryParse(txtExplosivePower.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double explosivePower) ? explosivePower : 0,
                         double.Parse(txtCost.Text));
                 }
                 else
@@ -100,9 +101,9 @@ namespace AirDefenseOptimizer.Views
                     _munitionService.UpdateMunition(
                         (int)_munitionData.Id, txtMunitionName.Text,
                         ((MunitionType)cbMunitionType.SelectedValue).ToString(),
-                        double.Parse(txtWeight.Text),
-                        double.Parse(txtSpeed.Text),
-                        double.Parse(txtRange.Text),
+                        double.TryParse(txtWeight.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double weight) ? weight : 0,
+                        double.TryParse(txtSpeed.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double speed) ? speed : 0,
+                        double.TryParse(txtRange.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double range) ? range : 0,
                         ((Maneuverability)cbManeuverability.SelectedValue).ToString(),
                         double.Parse(txtExplosivePower.Text),
                         double.Parse(txtCost.Text));
@@ -135,7 +136,7 @@ namespace AirDefenseOptimizer.Views
                 string.IsNullOrWhiteSpace(txtExplosivePower.Text) ||
                 string.IsNullOrWhiteSpace(txtCost.Text))
             {
-                throw new NullReferenceException("All fields must be filled.");
+                MessageBox.Show($"All fields must be filled.");
             }
 
             // Sayısal alanlar için ek doğrulama
@@ -145,7 +146,7 @@ namespace AirDefenseOptimizer.Views
                 !double.TryParse(txtExplosivePower.Text, out _) ||
                 !double.TryParse(txtCost.Text, out _))
             {
-                throw new FormatException("Numeric fields must contain valid numbers.");
+                MessageBox.Show($"Numeric fields must contain valid numbers.");
             }
         }
     }
