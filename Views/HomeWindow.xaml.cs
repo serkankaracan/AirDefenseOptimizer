@@ -1,13 +1,13 @@
-﻿using AirDefenseOptimizer.Enums;
+﻿using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Fuzzification;
 using AirDefenseOptimizer.FuzzyCalculator;
 using AirDefenseOptimizer.Helpers;
 using AirDefenseOptimizer.Models;
 using AirDefenseOptimizer.Services;
-using System.Globalization;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace AirDefenseOptimizer.Views
 {
@@ -18,11 +18,11 @@ namespace AirDefenseOptimizer.Views
 
         private List<AircraftInput> _aircraftThreats = new List<AircraftInput>();
         private List<AirDefenseInput> _airDefenseSystems = new List<AirDefenseInput>();
+        private List<ThreatDetail> threatDetails = new List<ThreatDetail>();
 
-        List<ThreatDetail> threatDetails = new List<ThreatDetail>();
-
-        // Hava Savunma Sistemi Ekleme Butonuna Tıklanınca Çalışacak
         private int defenseIndex = 1;
+
+        private static readonly Random rand = new Random();
 
         public HomeWindow()
         {
@@ -107,7 +107,6 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
-
         private void LoadAirDefenseSystems()
         {
             var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems();
@@ -185,388 +184,172 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
-
-        private Position? ParsePosition(string location)
+        private void AddLabelsToPanel(StackPanel panel, string[] labels, int[] widths)
         {
-            var locationParts = location.Split(',');
-            if (locationParts.Length == 3 &&
-                double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double latitude) &&
-                double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double longitude) &&
-                double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double altitude))
+            for (int i = 0; i < labels.Length; i++)
             {
-                return new Position(latitude, longitude, altitude);
-            }
-            return null;
-        }
-
-        private void UpdateIndices(Panel list)
-        {
-            int index = 1;
-            foreach (var child in list.Children)
-            {
-                if (child is Grid grid && grid.Children[0] is Label indexLabel)
+                panel.Children.Add(new Label
                 {
-                    indexLabel.Content = index.ToString();
-                    index++;
-                }
+                    Content = labels[i],
+                    Width = widths[i],
+                    Margin = new Thickness(0),
+                    Padding = new Thickness(5)
+                });
             }
         }
+        private Grid CreateGridWithColumns(int[] columnWidths)
+        {
+            var grid = new Grid { Margin = new Thickness(0, 10, 0, 10) };
+            foreach (var width in columnWidths)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(width) });
+            }
+            return grid;
+        }
+        private void PopulateComboBox(ComboBox comboBox, IEnumerable<string> items, string placeholder)
+        {
+            comboBox.Items.Add(new ComboBoxItem
+            {
+                Content = placeholder,
+                IsEnabled = false,
+                IsSelected = true
+            });
 
-        private static readonly Random rand = new Random();
-
+            foreach (var item in items)
+            {
+                comboBox.Items.Add(item);
+            }
+        }
         private void AddAircraftThreat_Click(object sender, RoutedEventArgs e)
         {
-            // Eğer daha önce satır eklenmediyse, üst kısma label'lar ekleyelim.
             if (ThreatList.Children.Count == 0)
             {
-                StackPanel labelsPanel = new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    Margin = new Thickness(0, 5, 0, 5)
-                };
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "",
-                    Width = 50,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "Aircraft:",
-                    Width = 180,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "IFF Mode:",
-                    Width = 100,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "Location (Latitude, Longitude, Altitude)",
-                    Width = 160,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "Speed",
-                    Width = 80,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
+                var labelsPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 5) };
+                AddLabelsToPanel(labelsPanel,
+                    new[] { "", "Aircraft:", "IFF Mode:", "Location (Latitude, Longitude, Altitude)", "Speed" },
+                    new[] { 50, 180, 100, 160, 80 });
                 ThreatList.Children.Add(labelsPanel);
             }
 
-            // Grid oluşturuyoruz
-            Grid threatGrid = new Grid
-            {
-                Margin = new Thickness(0, 10, 0, 10)
-            };
-
-            // Grid sütunlarını düzenliyoruz, genişlikleri sabitliyoruz
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(50) });  // Index için sütun
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(100) });
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
-            threatGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            var threatGrid = CreateGridWithColumns(new[] { 50, 180, 100, 160, 80, 80 });
 
             // Index Label
-            Label indexLabel = new Label
+            var indexLabel = new Label
             {
                 Width = 50,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center
             };
 
-            // Uçak Seçimi
-            ComboBox aircraftComboBox = new ComboBox
-            {
-                Name = "AircraftComboBox",
-                Width = 180,
-                Height = 30,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5)
-            };
-            aircraftComboBox.Items.Add(new ComboBoxItem
-            {
-                Content = "Select Aircraft",
-                IsEnabled = false,
-                IsSelected = true
-            });
+            // Aircraft ComboBox
+            var aircraftComboBox = new ComboBox { Name = "AircraftComboBox", Width = 180, Height = 30 };
+            var aircrafts = _aircraftService.GetAllAircrafts().Select(a => a["Name"].ToString());
+            PopulateComboBox(aircraftComboBox, aircrafts, "Select Aircraft");
 
-            var aircrafts = _aircraftService.GetAllAircrafts();
-            if (aircrafts != null && aircrafts.Any())
-            {
-                foreach (var aircraft in aircrafts)
-                {
-                    aircraftComboBox.Items.Add(aircraft["Name"].ToString());
-                }
-            }
-            else
-            {
-                MessageBox.Show("Aircraft list is empty.");
-            }
+            // IFF ComboBox
+            var iffComboBox = new ComboBox { Name = "IFFComboBox", Width = 100, Height = 30 };
+            var iffValues = Enum.GetValues(typeof(IFF)).Cast<IFF>().Select(i => i.ToString());
+            PopulateComboBox(iffComboBox, iffValues, "Select IFF");
 
-            // IFF Seçimi
-            ComboBox iffComboBox = new ComboBox
-            {
-                Name = "IFFComboBox",
-                Width = 100,
-                Height = 30,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5)
-            };
-            iffComboBox.Items.Add(new ComboBoxItem
-            {
-                Content = "Select IFF",
-                IsEnabled = false,
-                IsSelected = true
-            });
-
-            var iffValues = Enum.GetValues(typeof(IFF));
-            foreach (var iff in iffValues)
-            {
-                iffComboBox.Items.Add(iff);
-            }
-
-            // Konum Girdisi (Latitude, Longitude, Altitude)
-            TextBox locationTextBox = new TextBox
+            // Location TextBox
+            var locationTextBox = new TextBox
             {
                 Name = "LocationTextBox",
                 Width = 160,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5),
+                Text = GenerateRandomLocation(),
                 MaxLength = 50
             };
 
-            // Rastgele konum değerleri oluştur ve TextBox'a ata
-            string randomLocation = GenerateRandomLocation();
-            locationTextBox.Text = randomLocation;
-
-            // Speed TextBox'ı
-            TextBox speedTextBox = new TextBox
+            // Speed TextBox
+            var speedTextBox = new TextBox
             {
                 Name = "SpeedTextBox",
                 Width = 80,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5),
                 MaxLength = 10
             };
 
-            // Kaldır Butonu
-            Button removeButton = new Button
-            {
-                Content = "Remove",
-                Width = 80,
-                Height = 30,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5),
-                Background = new SolidColorBrush(System.Windows.Media.Colors.IndianRed),
-                Foreground = new SolidColorBrush(System.Windows.Media.Colors.White)
-            };
-            removeButton.Click += (s, ev) =>
-            {
-                ThreatList.Children.Remove(threatGrid);
-                if (ThreatList.Children.Count == 1)
-                {
-                    ThreatList.Children.Clear();
-                }
-                UpdateIndices(ThreatList); // Kaldırma işleminden sonra indeksleri güncelle
-            };
+            // Remove Button
+            var removeButton = CreateRemoveButton(threatGrid, ThreatList);
 
-            // Grid'e elemanları ekliyoruz
-            threatGrid.Children.Add(indexLabel);
-            Grid.SetColumn(indexLabel, 0);
+            // Add elements to grid
+            AddElementsToGrid(threatGrid, new UIElement[] { indexLabel, aircraftComboBox, iffComboBox, locationTextBox, speedTextBox, removeButton });
 
-            threatGrid.Children.Add(aircraftComboBox);
-            Grid.SetColumn(aircraftComboBox, 1);
-
-            threatGrid.Children.Add(iffComboBox);
-            Grid.SetColumn(iffComboBox, 2);
-
-            threatGrid.Children.Add(locationTextBox);
-            Grid.SetColumn(locationTextBox, 3);
-
-            threatGrid.Children.Add(speedTextBox);
-            Grid.SetColumn(speedTextBox, 4);
-
-            threatGrid.Children.Add(removeButton);
-            Grid.SetColumn(removeButton, 5);
-
-            // Tehdit Listesine ekliyoruz
+            // Add grid to list
             ThreatList.Children.Add(threatGrid);
-
-            UpdateIndices(ThreatList); // Ekledikten sonra tüm indeksleri güncelle
+            UpdateIndices(ThreatList);
         }
-
-        // Rastgele konum oluşturan yardımcı metot
-        private string GenerateRandomLocation()
-        {
-            // Enlem (Latitude): 36° ile 42° arasında
-            double latitude = 36 + rand.NextDouble() * 6; // 36 ile 42 arasında
-
-            // Boylam (Longitude): 26° ile 45° arasında
-            double longitude = 26 + rand.NextDouble() * 19; // 26 ile 45 arasında
-
-            // İrtifa (Altitude): 0 ile 3,000 metre arasında
-            double altitude = rand.NextDouble() * 3000;
-
-            // Değerleri formatlayarak string olarak döndür
-            return $"{latitude.ToString("F4", CultureInfo.InvariantCulture)}, {longitude.ToString("F4", CultureInfo.InvariantCulture)}, {altitude.ToString("F0", CultureInfo.InvariantCulture)}";
-        }
-
         private void AddAirDefenseSystem_Click(object sender, RoutedEventArgs e)
         {
-            // Eğer daha önce satır eklenmediyse, üst kısma label'lar ekleyelim.
             if (DefenseList.Children.Count == 0)
             {
-                // Savunma Sistemi ve Konum için label'lar ekleyelim
-                StackPanel labelsPanel = new StackPanel
-                {
-                    Orientation = Orientation.Horizontal,
-                    Margin = new Thickness(0, 5, 0, 5)
-                };
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "Index",
-                    Width = 50,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "Air Defense System",
-                    Width = 180,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
-                labelsPanel.Children.Add(new Label
-                {
-                    Content = "Location (Latitude, Longitude, Altitude)",
-                    Width = 240,
-                    Margin = new Thickness(0),
-                    Padding = new Thickness(5)
-                });
-
+                var labelsPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 5, 0, 5) };
+                AddLabelsToPanel(labelsPanel,
+                    new[] { "Index", "Air Defense System", "Location (Latitude, Longitude, Altitude)" },
+                    new[] { 50, 180, 240 });
                 DefenseList.Children.Add(labelsPanel);
             }
 
-            // Grid tasarımı tehditlerde olduğu gibi daha düzenli bir yapıda yapıldı
-            Grid defenseGrid = new Grid
-            {
-                Margin = new Thickness(0, 10, 0, 10)
-            };
-
-            // Grid sütunları: Index, Air Defense System, Location, Remove
-            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(50) });
-            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
-            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
-            defenseGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
+            var defenseGrid = CreateGridWithColumns(new[] { 50, 180, 160, 80 });
 
             // Index Label
-            Label indexLabel = new Label
+            var indexLabel = new Label
             {
-                Content = defenseIndex.ToString(), // Sayacı Label içeriğine ekle
+                Content = (DefenseList.Children.Count).ToString(),
                 Width = 50,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center
             };
 
-            // Hava Savunma Seçimi
-            ComboBox defenseComboBox = new ComboBox
-            {
-                Width = 180,
-                Height = 30,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5)
-            };
-            defenseComboBox.Items.Add(new ComboBoxItem
-            {
-                Content = "Air Defense System",
-                IsEnabled = false, // Bu öğe seçilemez
-                IsSelected = true  // Varsayılan olarak seçili
-            });
+            // Defense ComboBox
+            var defenseComboBox = new ComboBox { Width = 180, Height = 30 };
+            var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems().Select(d => d["Name"].ToString());
+            PopulateComboBox(defenseComboBox, airDefenseSystems, "Air Defense System");
 
-            var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems();
-            if (airDefenseSystems != null && airDefenseSystems.Any())
-            {
-                foreach (var system in airDefenseSystems)
-                {
-                    defenseComboBox.Items.Add(system["Name"].ToString());
-                }
-            }
-            else
-            {
-                MessageBox.Show("Air Defense list is empty.");
-            }
-
-            // Konum Girdisi
-            TextBox locationTextBox = new TextBox
+            // Location TextBox
+            var locationTextBox = new TextBox
             {
                 Width = 160,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5),
+                Text = GenerateRandomLocation(),
                 MaxLength = 25
             };
 
-            string randomLocation = GenerateRandomLocation();
-            locationTextBox.Text = randomLocation;
+            // Remove Button
+            var removeButton = CreateRemoveButton(defenseGrid, DefenseList);
 
-            // Kaldır Butonu
-            Button removeButton = new Button
+            // Add elements to grid
+            AddElementsToGrid(defenseGrid, new UIElement[] { indexLabel, defenseComboBox, locationTextBox, removeButton });
+
+            // Add grid to list
+            DefenseList.Children.Add(defenseGrid);
+            UpdateIndices(DefenseList);
+        }
+        private Button CreateRemoveButton(Grid grid, StackPanel list)
+        {
+            var removeButton = new Button
             {
                 Content = "Remove",
                 Width = 80,
                 Height = 30,
-                Margin = new Thickness(0),
-                Padding = new Thickness(5),
                 Background = new SolidColorBrush(System.Windows.Media.Colors.IndianRed),
                 Foreground = new SolidColorBrush(System.Windows.Media.Colors.White)
             };
-            removeButton.Click += (s, ev) =>
+            removeButton.Click += (s, e) =>
             {
-                DefenseList.Children.Remove(defenseGrid);
-                if (DefenseList.Children.Count == 1) // Yalnızca label'lar kaldıysa onları da kaldıralım
-                {
-                    DefenseList.Children.Clear();
-                }
-                UpdateIndices(DefenseList); // Kaldırma işleminden sonra indeksleri güncelle
+                list.Children.Remove(grid);
+                if (list.Children.Count == 1)
+                    list.Children.Clear();
+                UpdateIndices(list);
             };
-
-            // Grid'e elemanları ekliyoruz
-            defenseGrid.Children.Add(indexLabel);
-            Grid.SetColumn(indexLabel, 0);
-
-            defenseGrid.Children.Add(defenseComboBox);
-            Grid.SetColumn(defenseComboBox, 1);
-
-            defenseGrid.Children.Add(locationTextBox);
-            Grid.SetColumn(locationTextBox, 2);
-
-            defenseGrid.Children.Add(removeButton);
-            Grid.SetColumn(removeButton, 3);
-
-            // Savunma Listesine ekliyoruz
-            DefenseList.Children.Add(defenseGrid);
-
-            UpdateIndices(DefenseList); // Ekledikten sonra tüm indeksleri güncelle
+            return removeButton;
         }
-
+        private void AddElementsToGrid(Grid grid, UIElement[] elements)
+        {
+            for (int i = 0; i < elements.Length; i++)
+            {
+                grid.Children.Add(elements[i]);
+                Grid.SetColumn(elements[i], i);
+            }
+        }
         private Aircraft CreateAircraft(Dictionary<string, object> aircraftData, string selectedAircraft)
         {
             var aircraft = new Aircraft
@@ -623,7 +406,6 @@ namespace AirDefenseOptimizer.Views
 
             return aircraft;
         }
-
         private AirDefense CreateAirDefense(Dictionary<string, object> airDefenseData, string selectedAirDefenseSystem)
         {
             return new AirDefense
@@ -675,7 +457,6 @@ namespace AirDefenseOptimizer.Views
                 }).ToList()
             };
         }
-
         private void CalculateButton_Click(object sender, RoutedEventArgs e)
         {
             var aircraft = new Aircraft
@@ -699,192 +480,162 @@ namespace AirDefenseOptimizer.Views
             // 4. Sonucu gösterin
             MessageBox.Show($"Calculated Threat Level: {threatLevel}");
         }
-
         private void ShowThreatLevelButton_Click(object sender, RoutedEventArgs e)
         {
-            //AircraftRules aircraftRules = new AircraftRules();
-
-            // Önceki verileri temizleyelim
+            ClearPreviousData();
+            ProcessAircraftThreats();
+            ProcessAirDefenseSystems();
+            List<Radar> detectedRadarList = DetectAircraftByRadars();
+            UpdateThreatDetails(detectedRadarList);
+            ShowThreatDetailsWindow();
+        }
+        private void ClearPreviousData()
+        {
             _aircraftThreats.Clear();
-            // Aircraft verilerini listeye ekleyelim
+            _airDefenseSystems.Clear();
+            threatDetails.Clear();
+        }
+        private void ProcessAircraftThreats()
+        {
             foreach (Grid threatGrid in ThreatList.Children.OfType<Grid>())
             {
-                // Grid içindeki ComboBox'ları ve TextBox'ı bulalım
                 var aircraftComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Name == "AircraftComboBox");
                 var iffComboBox = threatGrid.Children.OfType<ComboBox>().FirstOrDefault(c => c.Name == "IFFComboBox");
                 var locationTextBox = threatGrid.Children.OfType<TextBox>().FirstOrDefault(c => c.Name == "LocationTextBox");
                 var speedTextBox = threatGrid.Children.OfType<TextBox>().FirstOrDefault(c => c.Name == "SpeedTextBox");
 
-                IFF selectedIFF = IFF.Unknown;
+                if (aircraftComboBox == null || iffComboBox == null || locationTextBox == null || speedTextBox == null)
+                    continue;
 
-                if (aircraftComboBox != null && iffComboBox != null && locationTextBox != null && speedTextBox != null)
-                {
-                    // Seçilen Aircraft ve IFF modunu al
-                    string? selectedAircraft = aircraftComboBox.SelectedItem?.ToString();
-                    string? stringIFF = iffComboBox.SelectedItem?.ToString();
-                    string stringSpeed = speedTextBox.Text;
+                ProcessAircraftInput(aircraftComboBox, iffComboBox, locationTextBox, speedTextBox);
+            }
+        }
+        private void ProcessAircraftInput(ComboBox aircraftComboBox, ComboBox iffComboBox, TextBox locationTextBox, TextBox speedTextBox)
+        {
+            string? selectedAircraft = aircraftComboBox.SelectedItem?.ToString();
+            string location = locationTextBox.Text;
+            string stringSpeed = speedTextBox.Text;
+            string? stringIFF = iffComboBox.SelectedItem?.ToString();
 
-                    if (stringIFF != null && Enum.TryParse<IFF>(stringIFF, out var parsedIFF))
-                        selectedIFF = parsedIFF;
-
-                    string location = locationTextBox.Text;
-                    string speed = speedTextBox.Text;
-
-                    if (!string.IsNullOrEmpty(selectedAircraft) && !string.IsNullOrEmpty(location) && !string.IsNullOrEmpty(speed))
-                    {
-                        // Aircraft bilgilerini veritabanından çek
-                        var aircraftData = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
-
-                        if (aircraftData != null)
-                        {
-                            // Aircraft nesnesini oluştur
-                            var aircraft = CreateAircraft(aircraftData, selectedAircraft);
-
-                            Position? aircraftPosition = ParsePosition(location);
-                            if (aircraftPosition != null)
-                            {
-                                // Mesafeyi hesapla
-                                double distance = Position.CalculateDistance(GetSourcePosition(), aircraftPosition);
-
-                                // Tehdit seviyesini hesapla
-                                var threatCalculator = new AircraftThreatCalculator();
-                                double speedValue = double.TryParse(speed, out var parsedSpeed) ? parsedSpeed : 0;
-                                double threatScore = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue, aircraft.Maneuverability, aircraftPosition.Altitude, aircraft.Cost);
-                                double threatLevel = threatScore;
-
-                                // Mesaj göster
-                                //MessageBox.Show($"Tehdit: {aircraft.Name}\n" +
-                                //                $"Latitude: {aircraftPosition.Latitude}, Longitude: {aircraftPosition.Longitude}, Altitude: {aircraftPosition.Altitude}\n" +
-                                //                $"Kaynağa olan mesafe: {distance:F2} km\n" +
-                                //                $"IFF mod: {selectedIFF}\n" +
-                                //                $"Tehdit Seviyesi: {threatLevel}");
-
-                                // AircraftInput nesnesini oluştur ve listeye ekle
-                                _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel, threatScore));
-
-                                // Tehdit detaylarını güncelle
-                                threatDetails.Add(new ThreatDetail
-                                {
-                                    Aircraft = aircraft,
-                                    IFFMode = selectedIFF,
-                                    Speed = speedValue,
-                                    Location = location,
-                                    Distance = distance,
-                                    Altitude = aircraftPosition.Altitude,
-                                    ThreatLevel = threatLevel.ToString(),
-                                    ThreatScore = threatScore
-                                });
-                            }
-                            else
-                            {
-                                MessageBox.Show("Geçersiz konum formatı.");
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Aircraft details not found for: {selectedAircraft}");
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Tüm alanları doldurun.");
-                        return;
-                    }
-                }
+            if (string.IsNullOrEmpty(selectedAircraft) || string.IsNullOrEmpty(location) || string.IsNullOrEmpty(stringSpeed))
+            {
+                MessageBox.Show("Tüm alanları doldurun.");
+                return;
             }
 
-            // Air Defense verilerini listeye ekleyelim
-            _airDefenseSystems.Clear(); // Önceki verileri temizleyelim
+            if (!Enum.TryParse<IFF>(stringIFF, out var selectedIFF))
+                selectedIFF = IFF.Unknown;
+
+            var aircraftData = _aircraftService.GetAllAircrafts().FirstOrDefault(a => a["Name"].ToString() == selectedAircraft);
+
+            if (aircraftData == null)
+            {
+                MessageBox.Show($"Aircraft details not found for: {selectedAircraft}");
+                return;
+            }
+
+            AddAircraftToThreatList(aircraftData, selectedAircraft, location, stringSpeed, selectedIFF);
+        }
+        private void AddAircraftToThreatList(dynamic aircraftData, string selectedAircraft, string location, string stringSpeed, IFF selectedIFF)
+        {
+            var aircraft = CreateAircraft(aircraftData, selectedAircraft);
+            Position? aircraftPosition = ParsePosition(location);
+
+            if (aircraftPosition == null)
+            {
+                MessageBox.Show("Geçersiz konum formatı.");
+                return;
+            }
+
+            double distance = Position.CalculateDistance(GetSourcePosition(), aircraftPosition);
+            double speedValue = double.TryParse(stringSpeed, out var parsedSpeed) ? parsedSpeed : 0;
+
+            var threatCalculator = new AircraftThreatCalculator();
+            double threatScore = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue, aircraft.Maneuverability, aircraftPosition.Altitude, aircraft.Cost);
+            double threatLevel = threatScore;
+
+            _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel, threatScore));
+        }
+        private void ProcessAirDefenseSystems()
+        {
             foreach (Grid defenseGrid in DefenseList.Children.OfType<Grid>())
             {
-                // Grid içindeki ComboBox ve TextBox'ı bulalım
                 var defenseComboBox = defenseGrid.Children.OfType<ComboBox>().FirstOrDefault();
                 var locationTextBox = defenseGrid.Children.OfType<TextBox>().FirstOrDefault();
 
-                if (defenseComboBox != null && locationTextBox != null)
-                {
-                    // Seçilen Air Defense System'i al
-                    string? selectedAirDefenseSystem = defenseComboBox.SelectedItem?.ToString();
-                    string location = locationTextBox.Text;
+                if (defenseComboBox == null || locationTextBox == null)
+                    continue;
 
-                    if (!string.IsNullOrEmpty(selectedAirDefenseSystem) && !string.IsNullOrEmpty(location))
-                    {
-                        // Air Defense bilgilerini veritabanından çek
-                        var airDefenseData = _airDefenseService.GetAllAirDefenseSystems().FirstOrDefault(a => a["Name"].ToString() == selectedAirDefenseSystem);
+                ProcessAirDefenseInput(defenseComboBox, locationTextBox);
+            }
+        }
+        private void ProcessAirDefenseInput(ComboBox defenseComboBox, TextBox locationTextBox)
+        {
+            string? selectedAirDefenseSystem = defenseComboBox.SelectedItem?.ToString();
+            string location = locationTextBox.Text;
 
-                        if (airDefenseData != null)
-                        {
-                            // AirDefense nesnesini oluştur
-                            var airDefense = CreateAirDefense(airDefenseData, selectedAirDefenseSystem);
-
-                            // AirDefenseInput nesnesini oluştur ve listeye ekle
-                            _airDefenseSystems.Add(new AirDefenseInput(airDefense, location));
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Air Defense System details not found for: {selectedAirDefenseSystem}");
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Tüm alanları doldurun.");
-                        return;
-                    }
-                }
+            if (string.IsNullOrEmpty(selectedAirDefenseSystem) || string.IsNullOrEmpty(location))
+            {
+                MessageBox.Show("Tüm alanları doldurun.");
+                return;
             }
 
+            var airDefenseData = _airDefenseService.GetAllAirDefenseSystems().FirstOrDefault(a => a["Name"].ToString() == selectedAirDefenseSystem);
 
-            // uçakları tespit eden radarların listesi
-            List<Radar> detectedRadarList = new List<Radar>();
+            if (airDefenseData == null)
+            {
+                MessageBox.Show($"Detay bulunamadı: {selectedAirDefenseSystem}");
+                return;
+            }
+
+            var airDefense = CreateAirDefense(airDefenseData, selectedAirDefenseSystem);
+            _airDefenseSystems.Add(new AirDefenseInput(airDefense, location));
+        }
+        private List<Radar> DetectAircraftByRadars()
+        {
+            var detectedRadarList = new List<Radar>();
 
             foreach (var airDefenseInput in _airDefenseSystems)
             {
-                // Hava Savunma Sistemi Konum Bilgisi
                 Position? defensePosition = ParsePosition(airDefenseInput.Location);
-                if (defensePosition != null)
+                if (defensePosition == null)
                 {
-                    foreach (var aircraftInput in _aircraftThreats)
-                    {
-                        Position? aircraftPosition = ParsePosition(aircraftInput.Location);
-                        if (aircraftPosition != null)
-                        {
-                            // Mesafeyi hesapla
-                            double distance = Position.CalculateDistance(defensePosition, aircraftPosition);
-
-                            foreach (var radar in airDefenseInput.AirDefense.Radars)
-                            {
-                                if (radar.Radar.MaxDetectionRange > distance)
-                                {
-                                    detectedRadarList.Add(radar.Radar);
-                                    MessageBox.Show("detected by radar: " + radar.Radar.Name);
-                                }
-                            }
-
-                            // Mesaj göster
-                            //MessageBox.Show(
-                            //                $"Air Defense System: {airDefenseInput.AirDefense.Name}\n" +
-                            //                $"Location: {defensePosition.Latitude}, {defensePosition.Longitude}, {defensePosition.Altitude}\n" +
-                            //                $"Target Aircraft: {aircraftInput.Aircraft.Name}\n" +
-                            //                $"Distance to Aircraft: {distance:F2} km\n" +
-                            //                $"Detected Radars: {string.Join(", ", detectedRadarList.Select(radar => radar.Name))}");
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Invalid location format for aircraft: {aircraftInput.Aircraft.Name}");
-                        }
-                    }
+                    MessageBox.Show($"Geçersiz konum formatı: {airDefenseInput.AirDefense.Name}");
+                    continue;
                 }
-                else
+
+                foreach (var aircraftInput in _aircraftThreats)
                 {
-                    MessageBox.Show($"Invalid location format for air defense system: {airDefenseInput.AirDefense.Name}");
+                    Position? aircraftPosition = ParsePosition(aircraftInput.Location);
+                    if (aircraftPosition == null)
+                    {
+                        MessageBox.Show($"Geçersiz konum formatı: {aircraftInput.Aircraft.Name}");
+                        continue;
+                    }
+
+                    CheckRadarDetection(airDefenseInput, aircraftInput, defensePosition, aircraftPosition, detectedRadarList);
                 }
             }
 
-            threatDetails.Clear();
+            return detectedRadarList;
+        }
+        private void CheckRadarDetection(AirDefenseInput airDefenseInput, AircraftInput aircraftInput, Position defensePosition, Position aircraftPosition, List<Radar> detectedRadarList)
+        {
+            double distance = Position.CalculateDistance(defensePosition, aircraftPosition);
 
+            foreach (var radar in airDefenseInput.AirDefense.Radars)
+            {
+                if (radar.Radar.MaxDetectionRange > distance)
+                {
+                    detectedRadarList.Add(radar.Radar);
+                    //MessageBox.Show("detected by radar: " + radar.Radar.Name);
+                }
+            }
+        }
+        private void UpdateThreatDetails(List<Radar> detectedRadarList)
+        {
             foreach (var aircraftInput in _aircraftThreats)
             {
-
                 threatDetails.Add(new ThreatDetail
                 {
                     Aircraft = aircraftInput.Aircraft,
@@ -893,16 +644,21 @@ namespace AirDefenseOptimizer.Views
                     Location = aircraftInput.Location,
                     Distance = aircraftInput.Distance,
                     Altitude = Convert.ToDouble(aircraftInput.Location.Split(',')[2].Trim()),
-                    ThreatLevel = aircraftInput.ThreatLevel >= 0.90 ? "Very High" :
-                                  aircraftInput.ThreatLevel >= 0.75 ? "High" :
-                                  aircraftInput.ThreatLevel >= 0.50 ? "Normal" :
-                                  aircraftInput.ThreatLevel >= 0.25 ? "Low" : "Very Low",
+                    ThreatLevel = GetThreatLevel(aircraftInput.ThreatLevel),
                     ThreatScore = aircraftInput.ThreatScore,
                     DetectedByRadar = detectedRadarList.ToArray(),
-                    //AssignedADS = airDefenseInput.AirDefense
                 });
             }
-
+        }
+        private string GetThreatLevel(double threatLevel)
+        {
+            return threatLevel >= 0.90 ? "Very High" :
+                   threatLevel >= 0.75 ? "High" :
+                   threatLevel >= 0.50 ? "Normal" :
+                   threatLevel >= 0.25 ? "Low" : "Very Low";
+        }
+        private void ShowThreatDetailsWindow()
+        {
             ThreatDetailsWindow threatDetailsWindow = new ThreatDetailsWindow(threatDetails.Select((detail, index) =>
             {
                 detail.Index = index + 1;
@@ -910,7 +666,12 @@ namespace AirDefenseOptimizer.Views
             }).ToList());
             threatDetailsWindow.Show();
         }
-
+        private static bool AdsIsWithinRange(double distance, double altitude, AirDefense airDefense)
+        {
+            return distance >= airDefense.AerodynamicTargetRangeMin &&
+                   distance <= airDefense.AerodynamicTargetRangeMax &&
+                   altitude <= airDefense.BallisticTargetRangeMax;
+        }
         private Position GetSourcePosition()
         {
             Position sourcePosition = new Position(
@@ -919,6 +680,44 @@ namespace AirDefenseOptimizer.Views
               double.Parse(AltitudeTextBox.Text, CultureInfo.InvariantCulture));
 
             return sourcePosition;
+        }
+        private Position? ParsePosition(string location)
+        {
+            var locationParts = location.Split(',');
+            if (locationParts.Length == 3 &&
+                double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double latitude) &&
+                double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double longitude) &&
+                double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double altitude))
+            {
+                return new Position(latitude, longitude, altitude);
+            }
+            return null;
+        }
+        private void UpdateIndices(Panel list)
+        {
+            int index = 1;
+            foreach (var child in list.Children)
+            {
+                if (child is Grid grid && grid.Children[0] is Label indexLabel)
+                {
+                    indexLabel.Content = index.ToString();
+                    index++;
+                }
+            }
+        }
+        private string GenerateRandomLocation()
+        {
+            // Enlem (Latitude): 36° ile 42° arasında
+            double latitude = 36 + rand.NextDouble() * 6; // 36 ile 42 arasında
+
+            // Boylam (Longitude): 26° ile 45° arasında
+            double longitude = 26 + rand.NextDouble() * 19; // 26 ile 45 arasında
+
+            // İrtifa (Altitude): 0 ile 3,000 metre arasında
+            double altitude = rand.NextDouble() * 3000;
+
+            // Değerleri formatlayarak string olarak döndür
+            return $"{latitude.ToString("F4", CultureInfo.InvariantCulture)}, {longitude.ToString("F4", CultureInfo.InvariantCulture)}, {altitude.ToString("F0", CultureInfo.InvariantCulture)}";
         }
     }
 }

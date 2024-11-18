@@ -1,5 +1,5 @@
 ﻿using AirDefenseOptimizer.Database;
-using System.Data.SQLite;  // ConnectionManager ve DatabaseHelper sınıflarını kullanmak için
+using Microsoft.Data.Sqlite;
 
 namespace AirDefenseOptimizer.Services
 {
@@ -47,7 +47,7 @@ namespace AirDefenseOptimizer.Services
                 { "@cost", cost }
             };
 
-            using var command = new SQLiteCommand(insertQuery, connection);
+            using var command = new SqliteCommand(insertQuery, connection);
             foreach (var param in parameters)
             {
                 command.Parameters.AddWithValue(param.Key, param.Value);

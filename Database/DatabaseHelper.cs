@@ -1,6 +1,6 @@
 ﻿using System.Data.SqlClient;
-using System.Data.SQLite;
 using System.Windows;
+using Microsoft.Data.Sqlite;
 
 namespace AirDefenseOptimizer.Database
 {
@@ -38,11 +38,11 @@ namespace AirDefenseOptimizer.Database
         }
 
         // SQL sorgularını çalıştıran yardımcı fonksiyon (INSERT, UPDATE, DELETE için)
-        public void ExecuteNonQuery(string query, SQLiteConnection connection, Dictionary<string, object>? parameters = null)
+        public void ExecuteNonQuery(string query, SqliteConnection connection, Dictionary<string, object>? parameters = null)
         {
             try
             {
-                using var command = new SQLiteCommand(query, connection);
+                using var command = new SqliteCommand(query, connection);
 
                 if (parameters != null)
                 {
@@ -54,7 +54,7 @@ namespace AirDefenseOptimizer.Database
 
                 command.ExecuteNonQuery();
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 MessageBox.Show($"SQLite Hatası: {ex.Message}");
                 // Hata yönetimi ve loglama burada yapılabilir
@@ -67,13 +67,13 @@ namespace AirDefenseOptimizer.Database
         }
 
         // SQL sorgularını çalıştıran ve veri okuyan fonksiyon (SELECT için)
-        public List<Dictionary<string, object>> ExecuteReader(string query, SQLiteConnection connection, Dictionary<string, object>? parameters = null)
+        public List<Dictionary<string, object>> ExecuteReader(string query, SqliteConnection connection, Dictionary<string, object>? parameters = null)
         {
             var resultList = new List<Dictionary<string, object>>();
 
             try
             {
-                using var command = new SQLiteCommand(query, connection);
+                using var command = new SqliteCommand(query, connection);
 
                 if (parameters != null)
                 {
@@ -94,7 +94,7 @@ namespace AirDefenseOptimizer.Database
                     resultList.Add(row);
                 }
             }
-            catch (SQLiteException ex)
+            catch (SqliteException ex)
             {
                 MessageBox.Show($"SQLite Hatası: {ex.Message}");
                 // Hata yönetimi ve loglama burada yapılabilir
@@ -134,7 +134,7 @@ namespace AirDefenseOptimizer.Database
         }
 
         // Bağlantıyı kapatma işlemi
-        public void CloseConnection(SQLiteConnection connection)
+        public void CloseConnection(SqliteConnection connection)
         {
             try
             {

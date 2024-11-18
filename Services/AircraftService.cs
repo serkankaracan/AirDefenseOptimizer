@@ -1,5 +1,5 @@
-﻿using AirDefenseOptimizer.Database;
-using System.Windows;
+﻿using System.Windows;
+using AirDefenseOptimizer.Database;
 
 namespace AirDefenseOptimizer.Services
 {
@@ -53,7 +53,7 @@ namespace AirDefenseOptimizer.Services
 
                 _databaseHelper.ExecuteNonQuery(insertQuery, connection, parameters);
 
-                return (int)connection.LastInsertRowId;
+                return (int)_connectionManager.GetLastInsertRowId(connection);
             }
             catch (Exception ex)
             {

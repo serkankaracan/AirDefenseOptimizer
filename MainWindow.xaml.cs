@@ -1,6 +1,6 @@
-﻿using AirDefenseOptimizer.Views;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using AirDefenseOptimizer.Views;
 
 namespace AirDefenseOptimizer
 {
