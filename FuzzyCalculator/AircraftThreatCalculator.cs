@@ -1,6 +1,5 @@
 ﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Models;
-using System.Windows;
 
 namespace AirDefenseOptimizer.FuzzyCalculator
 {
@@ -27,13 +26,13 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             //MessageBox.Show("munitionThreatContribution: " + munitionThreatContribution + "\n" +
             //"Munitions: " + string.Join(", ", aircraft.Munitions.Select(m => m.Munition.Name.ToString())));
 
-            MessageBox.Show("radarCrossSectionFuzzy: " + radarCrossSectionFuzzy + "\n" +
-                "ecmCapabilityFuzzy: " + ecmCapabilityFuzzy + "\n" +
-                "distanceFuzzy: " + distanceFuzzy + "\n" +
-                "speedFuzzy: " + speedFuzzy + "\n" +
-                "maneuverabilityFuzzy: " + maneuverabilityFuzzy + "\n" +
-                "altitudeFuzzy: " + altitudeFuzzy + "\n" +
-                "costFuzzy: " + costFuzzy);
+            //MessageBox.Show("radarCrossSectionFuzzy: " + radarCrossSectionFuzzy + "\n" +
+            //    "ecmCapabilityFuzzy: " + ecmCapabilityFuzzy + "\n" +
+            //    "distanceFuzzy: " + distanceFuzzy + "\n" +
+            //    "speedFuzzy: " + speedFuzzy + "\n" +
+            //    "maneuverabilityFuzzy: " + maneuverabilityFuzzy + "\n" +
+            //    "altitudeFuzzy: " + altitudeFuzzy + "\n" +
+            //    "costFuzzy: " + costFuzzy);
 
             double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy, maneuverabilityFuzzy, altitudeFuzzy, costFuzzy);
 
@@ -54,10 +53,14 @@ namespace AirDefenseOptimizer.FuzzyCalculator
                 double rangeFuzzy = _munitionCalculator.FuzzifyRange(aircraftMunition.Munition.Range);
                 double speedFuzzy = _munitionCalculator.FuzzifySpeed(aircraftMunition.Munition.Speed);
                 double maneuverabilityFuzzy = _munitionCalculator.FuzzifyManeuverability(aircraftMunition.Munition.Maneuverability);
-
+                //double ecmFuzzy=_munitionCalculator.FuzzifyECM(aircraftMunition.Munition.ECMCapability)
+                double quantityFuzzy = _munitionCalculator.FuzzifyQuantity(aircraftMunition.Quantity);
                 double munitionThreat = 0;
                 string appliedRule = string.Empty;
 
+                double fatihkombinasyonu_munition = (explosivePowerFuzzy + rangeFuzzy + speedFuzzy + maneuverabilityFuzzy) / 4;
+
+                /*
                 // Yüksek tehdit durumları
                 if (explosivePowerFuzzy > 0.8 && rangeFuzzy > 0.8 && speedFuzzy > 0.7)
                 {
@@ -101,9 +104,10 @@ namespace AirDefenseOptimizer.FuzzyCalculator
                     munitionThreat = (explosivePowerFuzzy + rangeFuzzy + speedFuzzy + maneuverabilityFuzzy) / 4 * 0.5;
                     appliedRule = "Low-average fuzzy values - Threat Level: " + munitionThreat;
                 }
+                */
 
                 // Her mühimmatın tehdit düzeyine göre toplam katkısını hesapla
-                totalMunitionThreat += munitionThreat * aircraftMunition.Quantity;
+                totalMunitionThreat += munitionThreat;// * aircraftMunition.Quantity;
 
                 // Mesaj gösterme seçeneği: Her mühimmat için uygulanan kural
                 //MessageBox.Show("Applied rule for " + aircraftMunition.Munition.Name + ": \n" + appliedRule + "\n" + "munitionThreat: " + munitionThreat);

@@ -1,4 +1,5 @@
-﻿using AirDefenseOptimizer.Enums;
+﻿using System.Windows;
+using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.FuzzyEnums;
 
 namespace AirDefenseOptimizer.FuzzyCalculator
@@ -19,7 +20,6 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = veryLow + low + medium + high + veryHigh;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            // Hız 1500 veya daha büyükse, sonucu 1'e ayarlayın
             if (speed >= 1500)
                 result = 1;
 
@@ -39,8 +39,9 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = veryLow + low + medium + high + veryHigh;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            // RCS 12 veya daha büyükse, sonucu 1'e ayarlayın
             if (rcs >= 12)
+                result = 0;
+            if (rcs <= 0.1f)
                 result = 1;
 
             return result;
@@ -79,6 +80,8 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double result = denominator != 0 ? numerator / denominator : 0;
 
             if (distance >= 400)
+                result = 0;
+            if (distance <= 5)
                 result = 1;
 
             return result;
@@ -115,6 +118,8 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double result = denominator != 0 ? numerator / denominator : 0;
 
             if (altitude >= 30000)
+                result = 0;
+            if (altitude <= 500)
                 result = 1;
 
             return result;
@@ -183,6 +188,7 @@ namespace AirDefenseOptimizer.FuzzyCalculator
         //}
 
         // Hava aracı için bulanık kurallar
+
         public double ApplyFuzzyRules(double speed, double radarCrossSection, double ecmCapability, double distance, double maneuverability, double altitude, double cost)
         {
             double threatLevel = 0;
@@ -195,27 +201,23 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             EnumAircraft.MaxAltitude altitudeLevel = GetFuzzyLevel<EnumAircraft.MaxAltitude>(altitude);
             EnumAircraft.Cost costLevel = GetFuzzyLevel<EnumAircraft.Cost>(cost);
 
-            //var matchingCombination = FindMatchingCombination(
-            //                                                    speed: speed,
-            //                                                    radarCrossSection: radarCrossSection,
-            //                                                    ecmCapability: ecmCapability,
-            //                                                    distance: distance,
-            //                                                    maneuverability: maneuverability,
-            //                                                    altitude: altitude,
-            //                                                    cost: cost);
+            double fatihkombinasyonu_aircraft = (speed + radarCrossSection + ecmCapability + distance + maneuverability + altitude + cost) / 7;
+            //double fatihkombinasyonu_mauniiton= 
 
-            //MessageBox.Show(
-            //    $"Speed Level: {matchingCombination.Item1}\n" +
-            //    $"radarCrossSection: {matchingCombination.Item2}\n" +
-            //    $"ecmCapability: {matchingCombination.Item3}\n" +
-            //    $"distance: {matchingCombination.Item4}\n" +
-            //    $"maneuverability: {matchingCombination.Item5}\n" +
-            //    $"altitude: {matchingCombination.Item6}\n" +
-            //    $"cost: {matchingCombination.Item7}\n" +
-            //    $"Threat Level: {matchingCombination.Item8}");
+            MessageBox.Show("fatihkombinasyonu_aircraft: " + fatihkombinasyonu_aircraft);
+
+            MessageBox.Show(
+                $"Speed Level: {speedLevel} = {speed}\n" +
+                $"radarCrossSection: {radarCrossSectionLevel} = {radarCrossSection}\n" +
+                $"ecmCapability: {ecmCapabilityLevel} = {ecmCapability}\n" +
+                $"distance: {distanceLevel} = {distance}\n" +
+                $"maneuverability: {maneuverabilityLevel} = {maneuverability}\n" +
+                $"altitude: {altitudeLevel} = {altitude}\n" +
+                $"cost: {costLevel} = {cost}\n" +
+                $"Threat Level: {threatLevel} = {threatLevel}");
 
 
-
+            /*
             // Çok Yüksek Tehdit Durumları
             if (speedLevel == EnumAircraft.Speed.VeryFast &&
                 ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryHigh &&
@@ -473,9 +475,11 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             {
                 threatLevel = Math.Max(threatLevel, 0.18);
             }
+            */
 
             // Varsayılan düşük tehdit seviyesi
-            threatLevel = Math.Max(threatLevel, 0.05);
+            threatLevel = Math.Max(fatihkombinasyonu_aircraft, 0.05);
+            //threatLevel = Math.Max(threatLevel, 0.05);
 
             return threatLevel;
         }

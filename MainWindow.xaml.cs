@@ -56,10 +56,10 @@ namespace AirDefenseOptimizer
                 {
                     MainContent.Content = new RadarWindow();
                 }
-                else if (clickedButton == btnAboutPage)
-                {
-                    MainContent.Content = new AboutWindow();
-                }
+                //else if (clickedButton == btnAboutPage)
+                //{
+                //    MainContent.Content = new AboutWindow();
+                //}
                 else if (clickedButton == btnExit)
                 {
                     MessageBoxResult result = MessageBox.Show("Uygulamadan çıkmak istediğinizden emin misiniz?",

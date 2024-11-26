@@ -26,6 +26,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Assigned ADS" Binding="{Binding AssignedADS}" Width="*"/>
+                <DataGridTextColumn Header="Assigned ADS" Binding="{Binding AssignedADS.Name}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

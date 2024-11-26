@@ -487,6 +487,7 @@ namespace AirDefenseOptimizer.Views
             ProcessAirDefenseSystems();
             List<Radar> detectedRadarList = DetectAircraftByRadars();
             UpdateThreatDetails(detectedRadarList);
+            AssignAirDefenseSystemsToThreats();
             ShowThreatDetailsWindow();
         }
         private void ClearPreviousData()
@@ -636,7 +637,7 @@ namespace AirDefenseOptimizer.Views
         {
             foreach (var aircraftInput in _aircraftThreats)
             {
-                threatDetails.Add(new ThreatDetail
+                var threatDetail = new ThreatDetail
                 {
                     Aircraft = aircraftInput.Aircraft,
                     IFFMode = aircraftInput.IFFMode,
@@ -645,10 +646,142 @@ namespace AirDefenseOptimizer.Views
                     Distance = aircraftInput.Distance,
                     Altitude = Convert.ToDouble(aircraftInput.Location.Split(',')[2].Trim()),
                     ThreatLevel = GetThreatLevel(aircraftInput.ThreatLevel),
-                    ThreatScore = aircraftInput.ThreatScore,
-                    DetectedByRadar = detectedRadarList.ToArray(),
-                });
+                    ThreatScore = aircraftInput.ThreatScore
+                };
+
+                var detectingRadars = GetRadarsDetectingThreat(threatDetail, _airDefenseSystems);
+                threatDetail.DetectedByRadar = detectingRadars.ToArray();
+
+                if (detectingRadars == null || !detectingRadars.Any())
+                {
+                    // Tespit edilmediği durumda ThreatScore'u sıfırla
+                    threatDetail.ThreatScore = 0;
+                }
+
+                //MessageBox.Show($"Threat: {threatDetail.Aircraft?.Name}, ThreatLevel: {threatDetail.ThreatLevel}, Score: {threatDetail.ThreatScore}");
+
+                threatDetail.AssignedADS = GetOptimalAirDefenseSystem(threatDetail, _airDefenseSystems);
+                if (threatDetail.AssignedADS == null)
+                {
+                    MessageBox.Show($"No suitable ADS found for Threat: {threatDetail.Aircraft?.Name}");
+                }
+
+                threatDetails.Add(threatDetail);
             }
+        }
+        private AirDefense? GetOptimalAirDefenseSystem(ThreatDetail threat, List<AirDefenseInput> airDefenseSystems)
+        {
+            AirDefense? optimalADS = null;
+            double bestScore = double.MaxValue;
+
+            foreach (var adsInput in airDefenseSystems)
+            {
+                var airDefense = adsInput.AirDefense;
+                var adsPosition = ParsePosition(adsInput.Location);
+                var threatPosition = ParsePosition(threat.Location);
+
+                if (adsPosition == null || threatPosition == null)
+                    continue;
+
+                double distance = Position.CalculateDistance(threatPosition, adsPosition);
+
+                if (AdsIsWithinRange(distance, threat.Altitude, airDefense))
+                {
+                    // Özel bir skor hesaplama (örnek: tehdit seviyesi * maliyet * mesafe)
+                    double score = Convert.ToDouble(distance * airDefense.Cost / threat.ThreatScore);
+
+                    if (score < bestScore)
+                    {
+                        bestScore = score;
+                        optimalADS = airDefense;
+                    }
+                }
+            }
+
+            return optimalADS;
+        }
+        private void AssignAirDefenseSystemsToThreats()
+        {
+            foreach (var threat in threatDetails)
+            {
+                var optimalADS = GetOptimalAirDefenseSystem(threat, _airDefenseSystems);
+                if (optimalADS != null)
+                {
+                    threat.AssignedADS = optimalADS;
+                }
+                else
+                {
+                    MessageBox.Show($"No suitable Air Defense System found for threat: {threat.Aircraft?.Name}");
+                }
+            }
+        }
+        public Dictionary<Aircraft, AirDefense?> AssignAirDefenseSystemsToThreats(
+        List<Aircraft> threats,
+        List<AirDefense> airDefenses,
+        Dictionary<AirDefense, Position> airDefensePositions,
+        Dictionary<Aircraft, Position> threatPositions)
+        {
+            var assignment = new Dictionary<Aircraft, AirDefense?>();
+
+            foreach (var threat in threats)
+            {
+                AirDefense? bestAirDefense = null;
+                double bestScore = double.MaxValue;
+
+                foreach (var airDefense in airDefenses)
+                {
+                    var airDefensePosition = airDefensePositions[airDefense];
+                    var threatPosition = threatPositions[threat];
+
+                    if (CanEngageThreat(airDefense, threat, airDefensePosition, threatPosition))
+                    {
+                        double distance = Position.CalculateDistance(airDefensePosition, threatPosition);
+                        double costFactor = airDefense.Cost / 1000000; // Maliyet normalize edilir.
+
+                        double score = distance * costFactor; // Basit bir maliyet-temelli skor.
+
+                        if (score < bestScore)
+                        {
+                            bestScore = score;
+                            bestAirDefense = airDefense;
+                        }
+                    }
+                }
+
+                assignment[threat] = bestAirDefense;
+            }
+
+            return assignment;
+        }
+        private double Normalize(double value, double min, double max)
+        {
+            return (value - min) / (max - min);
+        }
+        private List<Radar> GetRadarsDetectingThreat(ThreatDetail threat, List<AirDefenseInput> airDefenseSystems)
+        {
+            var detectingRadars = new List<Radar>();
+
+            foreach (var adsInput in airDefenseSystems)
+            {
+                var adsPosition = ParsePosition(adsInput.Location);
+                var threatPosition = ParsePosition(threat.Location);
+
+                if (adsPosition == null || threatPosition == null)
+                    continue;
+
+                double distance = Position.CalculateDistance(threatPosition, adsPosition);
+
+                foreach (var radar in adsInput.AirDefense.Radars)
+                {
+                    if (distance <= radar.Radar.MaxDetectionRange)
+                    {
+                        detectingRadars.Add(radar.Radar);
+                        MessageBox.Show($"Radar {radar.Radar.Name} detected threat: {threat.Aircraft?.Name}");
+                    }
+                }
+            }
+
+            return detectingRadars;
         }
         private string GetThreatLevel(double threatLevel)
         {
@@ -670,7 +803,24 @@ namespace AirDefenseOptimizer.Views
         {
             return distance >= airDefense.AerodynamicTargetRangeMin &&
                    distance <= airDefense.AerodynamicTargetRangeMax &&
-                   altitude <= airDefense.BallisticTargetRangeMax;
+                   altitude <= airDefense.BallisticTargetRangeMax &&
+                   //airDefense.CurrentEngagements < airDefense.MaxEngagements &&
+                   airDefense.Munitions.Any(m => m.Quantity > 0);
+        }
+        public bool CanEngageThreat(AirDefense airDefense, Aircraft threat, Position airDefensePosition, Position threatPosition)
+        {
+            double distance = Position.CalculateDistance(airDefensePosition, threatPosition);
+
+            // Radar yeteneklerini kontrol et
+            bool withinRadarRange = airDefense.Radars.Any(radar =>
+                radar.Radar.MaxDetectionRange >= distance &&
+                threat.Speed <= radar.Radar.MaxTargetSpeed);
+
+            // Mühimmat ve angajman durumu
+            bool hasAvailableMunitions = airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance);
+
+            // Angajman kriterleri
+            return withinRadarRange && hasAvailableMunitions && airDefense.MaxEngagements > 0;
         }
         private Position GetSourcePosition()
         {

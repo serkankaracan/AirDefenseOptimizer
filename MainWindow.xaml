@@ -109,12 +109,12 @@
                     </Button>
 
                     <!-- Hakkında Butonu -->
-                    <Button x:Name="btnAboutPage" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
+                    <!--Button x:Name="btnAboutPage" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/Icons/info.png" Width="24" Height="24" Margin="0,0,10,0"/>
                             <TextBlock Text="Hakkında" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </Button>
+                    </Button-->
 
                     <!-- Çıkış Butonu -->
                     <Button x:Name="btnExit" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
