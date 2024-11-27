@@ -1,13 +1,13 @@
-﻿using System.Globalization;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using AirDefenseOptimizer.Enums;
+﻿using AirDefenseOptimizer.Enums;
 using AirDefenseOptimizer.Fuzzification;
 using AirDefenseOptimizer.FuzzyCalculator;
 using AirDefenseOptimizer.Helpers;
 using AirDefenseOptimizer.Models;
 using AirDefenseOptimizer.Services;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace AirDefenseOptimizer.Views
 {
@@ -646,7 +646,8 @@ namespace AirDefenseOptimizer.Views
                     Distance = aircraftInput.Distance,
                     Altitude = Convert.ToDouble(aircraftInput.Location.Split(',')[2].Trim()),
                     ThreatLevel = GetThreatLevel(aircraftInput.ThreatLevel),
-                    ThreatScore = aircraftInput.ThreatScore
+                    ThreatScore = aircraftInput.ThreatScore,
+                    AircraftMunitions = aircraftInput.Aircraft?.Munitions.ToArray() ?? Array.Empty<AircraftMunition>()
                 };
 
                 var detectingRadars = GetRadarsDetectingThreat(threatDetail, _airDefenseSystems);
@@ -685,20 +686,77 @@ namespace AirDefenseOptimizer.Views
 
                 double distance = Position.CalculateDistance(threatPosition, adsPosition);
 
-                if (AdsIsWithinRange(distance, threat.Altitude, airDefense))
-                {
-                    // Özel bir skor hesaplama (örnek: tehdit seviyesi * maliyet * mesafe)
-                    double score = Convert.ToDouble(distance * airDefense.Cost / threat.ThreatScore);
+                // Uygunluk kontrolü
+                if (!IsWithinEngagementRange(distance, threat.Altitude, airDefense))
+                    continue;
 
-                    if (score < bestScore)
-                    {
-                        bestScore = score;
-                        optimalADS = airDefense;
-                    }
+                // Skor hesaplama
+                double score = CalculateAirDefenseScore(airDefense, threat, distance);
+
+                // En iyi skoru bul
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    optimalADS = airDefense;
                 }
             }
 
             return optimalADS;
+        }
+
+        private bool IsWithinEngagementRange(double distance, double altitude, AirDefense airDefense)
+        {
+            return distance >= airDefense.AerodynamicTargetRangeMin &&
+                   distance <= airDefense.AerodynamicTargetRangeMax &&
+                   altitude <= airDefense.BallisticTargetRangeMax &&
+                   airDefense.Radars.Any(r => distance <= r.Radar.MaxDetectionRange && altitude <= r.Radar.MaxAltitude) &&
+                   airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance);
+        }
+
+        private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)
+        {
+            // Ağırlıklar
+            const double distanceWeight = 0.25;
+            const double radarCapabilityWeight = 0.1;
+            const double ecmCapabilityWeight = 0.15;
+            const double munitionCostWeight = 0.2;
+            const double threatLevelWeight = 0.3;
+
+            // Radar yetenek skorları
+            double radarScore = airDefense.Radars
+                .Select(r => r.Radar.MaxDetectionRange / distance + r.Radar.MaxAltitude / threat.Altitude)
+                .Sum();
+
+            // ECM kabiliyet skoru
+            double ecmScore = airDefense.ECMCapability == ECMCapability.Advanced ? 1 :
+                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.5 : 0;
+
+            // Mühimmat maliyet skoru
+            double munitionCostScore = airDefense.Munitions
+                .Where(m => m.Quantity > 0)
+                .Select(m => m.Munition.Cost)
+                .Average();
+
+            // Tehdit seviyesi skoru
+            double normalizedThreatLevel = Normalize(threat.ThreatScore ?? 0, 0, 1);
+
+            // Normalizasyon
+            double normalizedDistance = Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
+            double normalizedMunitionCost = Normalize(munitionCostScore, 1_000, 50_000); // Tahmini maliyet aralığı
+
+            // Genel skor hesaplama
+            double score = (normalizedDistance * distanceWeight) +
+                           (radarScore * radarCapabilityWeight) +
+                           (ecmScore * ecmCapabilityWeight) +
+                           (normalizedMunitionCost * munitionCostWeight) +
+                           ((1 - normalizedThreatLevel) * threatLevelWeight);
+
+            return score;
+        }
+
+        private double Normalize(double value, double min, double max)
+        {
+            return (value - min) / (max - min);
         }
         private void AssignAirDefenseSystemsToThreats()
         {
@@ -708,6 +766,7 @@ namespace AirDefenseOptimizer.Views
                 if (optimalADS != null)
                 {
                     threat.AssignedADS = optimalADS;
+                    optimalADS.MaxEngagements--; // Angajman kapasitesini azalt
                 }
                 else
                 {
@@ -753,10 +812,11 @@ namespace AirDefenseOptimizer.Views
 
             return assignment;
         }
-        private double Normalize(double value, double min, double max)
+        private bool CanRadarEngage(AirDefenseRadar radar, double distance, double altitude)
         {
-            return (value - min) / (max - min);
+            return distance <= radar.Radar.MaxDetectionRange && altitude <= radar.Radar.MaxAltitude;
         }
+
         private List<Radar> GetRadarsDetectingThreat(ThreatDetail threat, List<AirDefenseInput> airDefenseSystems)
         {
             var detectingRadars = new List<Radar>();
@@ -773,10 +833,9 @@ namespace AirDefenseOptimizer.Views
 
                 foreach (var radar in adsInput.AirDefense.Radars)
                 {
-                    if (distance <= radar.Radar.MaxDetectionRange)
+                    if (CanRadarEngage(radar, distance, threat.Altitude))
                     {
                         detectingRadars.Add(radar.Radar);
-                        MessageBox.Show($"Radar {radar.Radar.Name} detected threat: {threat.Aircraft?.Name}");
                     }
                 }
             }
@@ -785,9 +844,9 @@ namespace AirDefenseOptimizer.Views
         }
         private string GetThreatLevel(double threatLevel)
         {
-            return threatLevel >= 0.90 ? "Very High" :
-                   threatLevel >= 0.75 ? "High" :
-                   threatLevel >= 0.50 ? "Normal" :
+            return threatLevel >= 0.85 ? "Very High" :
+                   threatLevel >= 0.70 ? "High" :
+                   threatLevel >= 0.45 ? "Normal" :
                    threatLevel >= 0.25 ? "Low" : "Very Low";
         }
         private void ShowThreatDetailsWindow()
@@ -833,13 +892,20 @@ namespace AirDefenseOptimizer.Views
         }
         private Position? ParsePosition(string location)
         {
-            var locationParts = location.Split(',');
-            if (locationParts.Length == 3 &&
-                double.TryParse(locationParts[0], NumberStyles.Any, CultureInfo.InvariantCulture, out double latitude) &&
-                double.TryParse(locationParts[1], NumberStyles.Any, CultureInfo.InvariantCulture, out double longitude) &&
-                double.TryParse(locationParts[2], NumberStyles.Any, CultureInfo.InvariantCulture, out double altitude))
+            try
             {
-                return new Position(latitude, longitude, altitude);
+                var parts = location.Split(',');
+                if (parts.Length == 3)
+                {
+                    double latitude = double.Parse(parts[0], CultureInfo.InvariantCulture);
+                    double longitude = double.Parse(parts[1], CultureInfo.InvariantCulture);
+                    double altitude = double.Parse(parts[2], CultureInfo.InvariantCulture);
+                    return new Position(latitude, longitude, altitude);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Invalid location format: {location}. Error: {ex.Message}");
             }
             return null;
         }

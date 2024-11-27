@@ -25,6 +25,8 @@ namespace AirDefenseOptimizer.Views
         public string? Location { get; set; }
         public double Distance { get; set; }
         public double Altitude { get; set; }
+        public AircraftMunition[] AircraftMunitions { get; set; }
+        public string AircraftMunitionNames => AircraftMunitions != null && AircraftMunitions.Length > 0 ? string.Join(", \n", AircraftMunitions.Select(munition => $"{munition.Quantity} x {munition.Munition.Name}")) : "None";
         public string? ThreatLevel { get; set; }
         public double? ThreatScore { get; set; }
         public Radar[]? DetectedByRadar { get; set; }

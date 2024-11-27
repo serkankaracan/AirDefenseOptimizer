@@ -16,6 +16,13 @@
                 <!--DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*"/-->
                 <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="*"/>
                 <DataGridTextColumn Header="Altitude" Binding="{Binding Altitude}" Width="*"/>
+                <DataGridTemplateColumn Header="Aircraft Munitions" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding AircraftMunitionNames}" TextWrapping="Wrap"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Threat Level" Binding="{Binding ThreatLevel}" Width="*"/>
                 <DataGridTextColumn Header="Threat Score" Binding="{Binding ThreatScore}" Width="*"/>
                 <DataGridTemplateColumn Header="Detected by Radar" Width="*">
@@ -25,7 +32,6 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Assigned ADS" Binding="{Binding AssignedADS}" Width="*"/>
                 <DataGridTextColumn Header="Assigned ADS" Binding="{Binding AssignedADS.Name}" />
             </DataGrid.Columns>
         </DataGrid>
