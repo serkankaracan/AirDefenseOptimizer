@@ -478,7 +478,7 @@ namespace AirDefenseOptimizer.Views
             double threatLevel = fuzzyAircraft.CalculateThreatLevel(aircraft);
 
             // 4. Sonucu gösterin
-            MessageBox.Show($"Calculated Threat Level: {threatLevel}");
+            //MessageBox.Show($"Calculated Threat Level: {threatLevel}");
         }
         private void ShowThreatLevelButton_Click(object sender, RoutedEventArgs e)
         {
@@ -664,7 +664,7 @@ namespace AirDefenseOptimizer.Views
                 threatDetail.AssignedADS = GetOptimalAirDefenseSystem(threatDetail, _airDefenseSystems);
                 if (threatDetail.AssignedADS == null)
                 {
-                    MessageBox.Show($"No suitable ADS found for Threat: {threatDetail.Aircraft?.Name}");
+                    //MessageBox.Show($"No suitable ADS found for Threat: {threatDetail.Aircraft?.Name}");
                 }
 
                 threatDetails.Add(threatDetail);
@@ -707,8 +707,9 @@ namespace AirDefenseOptimizer.Views
         private bool IsWithinEngagementRange(double distance, double altitude, AirDefense airDefense)
         {
             return distance >= airDefense.AerodynamicTargetRangeMin &&
-                   distance <= airDefense.AerodynamicTargetRangeMax &&
-                   altitude <= airDefense.BallisticTargetRangeMax &&
+                   distance < airDefense.AerodynamicTargetRangeMax &&
+                   airDefense.Radars.All(r => altitude >= r.Radar.MinAltitude) &&
+                   airDefense.Radars.All(r => altitude < r.Radar.MaxAltitude) &&
                    airDefense.Radars.Any(r => distance <= r.Radar.MaxDetectionRange && altitude <= r.Radar.MaxAltitude) &&
                    airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance);
         }
@@ -770,7 +771,7 @@ namespace AirDefenseOptimizer.Views
                 }
                 else
                 {
-                    MessageBox.Show($"No suitable Air Defense System found for threat: {threat.Aircraft?.Name}");
+                    //MessageBox.Show($"No suitable Air Defense System found for threat: {threat.Aircraft?.Name}");
                 }
             }
         }
@@ -858,14 +859,14 @@ namespace AirDefenseOptimizer.Views
             }).ToList());
             threatDetailsWindow.Show();
         }
-        private static bool AdsIsWithinRange(double distance, double altitude, AirDefense airDefense)
-        {
-            return distance >= airDefense.AerodynamicTargetRangeMin &&
-                   distance <= airDefense.AerodynamicTargetRangeMax &&
-                   altitude <= airDefense.BallisticTargetRangeMax &&
-                   //airDefense.CurrentEngagements < airDefense.MaxEngagements &&
-                   airDefense.Munitions.Any(m => m.Quantity > 0);
-        }
+        //private static bool AdsIsWithinRange(double distance, double altitude, AirDefense airDefense)
+        //{
+        //    return distance >= airDefense.AerodynamicTargetRangeMin &&
+        //           distance <= airDefense.AerodynamicTargetRangeMax &&
+        //           altitude <= airDefense.BallisticTargetRangeMax &&
+        //           //airDefense.CurrentEngagements < airDefense.MaxEngagements &&
+        //           airDefense.Munitions.Any(m => m.Quantity > 0);
+        //}
         public bool CanEngageThreat(AirDefense airDefense, Aircraft threat, Position airDefensePosition, Position threatPosition)
         {
             double distance = Position.CalculateDistance(airDefensePosition, threatPosition);

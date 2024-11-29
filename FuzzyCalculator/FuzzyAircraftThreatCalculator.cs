@@ -201,20 +201,19 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             EnumAircraft.MaxAltitude altitudeLevel = GetFuzzyLevel<EnumAircraft.MaxAltitude>(altitude);
             EnumAircraft.Cost costLevel = GetFuzzyLevel<EnumAircraft.Cost>(cost);
 
-            double fatihkombinasyonu_aircraft = (speed + radarCrossSection + ecmCapability + distance + maneuverability + altitude + cost) / 7;
-            //double fatihkombinasyonu_mauniiton= 
+            double totalThreat_aircraft = (speed + radarCrossSection + ecmCapability + distance + maneuverability + altitude + cost) / 7;
 
-            MessageBox.Show("fatihkombinasyonu_aircraft: " + fatihkombinasyonu_aircraft);
+            //MessageBox.Show("totalThreat_aircraft: " + totalThreat_aircraft);
 
-            MessageBox.Show(
-                $"Speed Level: {speedLevel} = {speed}\n" +
-                $"radarCrossSection: {radarCrossSectionLevel} = {radarCrossSection}\n" +
-                $"ecmCapability: {ecmCapabilityLevel} = {ecmCapability}\n" +
-                $"distance: {distanceLevel} = {distance}\n" +
-                $"maneuverability: {maneuverabilityLevel} = {maneuverability}\n" +
-                $"altitude: {altitudeLevel} = {altitude}\n" +
-                $"cost: {costLevel} = {cost}\n" +
-                $"Threat Level: {threatLevel} = {threatLevel}");
+            //MessageBox.Show(
+            //    $"Speed Level: {speedLevel} = {speed}\n" +
+            //    $"radarCrossSection: {radarCrossSectionLevel} = {radarCrossSection}\n" +
+            //    $"ecmCapability: {ecmCapabilityLevel} = {ecmCapability}\n" +
+            //    $"distance: {distanceLevel} = {distance}\n" +
+            //    $"maneuverability: {maneuverabilityLevel} = {maneuverability}\n" +
+            //    $"altitude: {altitudeLevel} = {altitude}\n" +
+            //    $"cost: {costLevel} = {cost}\n" +
+            //    $"Threat Level: {threatLevel} = {threatLevel}");
 
 
             /*
@@ -478,7 +477,7 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             */
 
             // Varsayılan düşük tehdit seviyesi
-            threatLevel = Math.Max(fatihkombinasyonu_aircraft, 0.05);
+            threatLevel = Math.Max(totalThreat_aircraft, 0.05);
             //threatLevel = Math.Max(threatLevel, 0.05);
 
             return threatLevel;
