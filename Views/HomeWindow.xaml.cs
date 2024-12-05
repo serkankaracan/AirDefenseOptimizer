@@ -690,6 +690,8 @@ namespace AirDefenseOptimizer.Views
                 if (!IsWithinEngagementRange(distance, threat.Altitude, airDefense))
                     continue;
 
+                airDefense.CurrentEngagements++;
+
                 // Skor hesaplama
                 double score = CalculateAirDefenseScore(airDefense, threat, distance);
 
@@ -709,9 +711,8 @@ namespace AirDefenseOptimizer.Views
             return distance >= airDefense.AerodynamicTargetRangeMin &&
                    distance < airDefense.AerodynamicTargetRangeMax &&
                    airDefense.Radars.All(r => altitude >= r.Radar.MinAltitude) &&
-                   airDefense.Radars.All(r => altitude < r.Radar.MaxAltitude) &&
-                   airDefense.Radars.Any(r => distance <= r.Radar.MaxDetectionRange && altitude <= r.Radar.MaxAltitude) &&
-                   airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance);
+                   airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance) &&
+                   airDefense.CurrentEngagements < airDefense.MaxEngagements;
         }
 
         private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)

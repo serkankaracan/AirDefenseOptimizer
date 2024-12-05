@@ -10,6 +10,7 @@ namespace AirDefenseOptimizer.Models
         public double AerodynamicTargetRangeMax { get; set; }
         public double BallisticTargetRangeMin { get; set; }
         public double BallisticTargetRangeMax { get; set; }
+        public int CurrentEngagements { get; set; }
         public int MaxEngagements { get; set; }
         public int MaxMissilesFired { get; set; }
         public ECMCapability ECMCapability { get; set; }
