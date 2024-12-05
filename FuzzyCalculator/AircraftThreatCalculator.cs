@@ -58,7 +58,7 @@ namespace AirDefenseOptimizer.FuzzyCalculator
                 double munitionThreat = 0;
                 string appliedRule = string.Empty;
 
-                double fatihkombinasyonu_munition = (explosivePowerFuzzy + rangeFuzzy + speedFuzzy + maneuverabilityFuzzy) / 4;
+                totalMunitionThreat = (explosivePowerFuzzy + rangeFuzzy + speedFuzzy + maneuverabilityFuzzy) / 4;
 
                 /*
                 // Yüksek tehdit durumları
