@@ -38,15 +38,15 @@ namespace AirDefenseOptimizer.FuzzyCalculator
 
         public double FuzzifySpeed(double speed)
         {
-            double low = FuzzyLogicHelper.TriangularMembership(speed, 0, 200, 400);
-            double medium = FuzzyLogicHelper.TriangularMembership(speed, 300, 600, 900);
-            double high = FuzzyLogicHelper.TriangularMembership(speed, 800, 1000, 1200);
+            double low = FuzzyLogicHelper.TriangularMembership(speed, 0, 1000, 2000);
+            double medium = FuzzyLogicHelper.TriangularMembership(speed, 1500, 2500, 3500);
+            double high = FuzzyLogicHelper.TriangularMembership(speed, 2500, 3500, 4500);
 
             double numerator = low * 0.1 + medium * 0.5 + high * 0.9;
             double denominator = low + medium + high;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (result >= 1200)
+            if (result >= 4500)
                 result = 1;
 
             return result;

@@ -127,17 +127,17 @@ namespace AirDefenseOptimizer.FuzzyCalculator
 
         public double FuzzyfyCost(double cost)
         {
-            double veryCheap = FuzzyLogicHelper.TriangularMembership(cost, 500000, 1000000, 2000000);
-            double cheap = FuzzyLogicHelper.TriangularMembership(cost, 1000000, 3000000, 5000000);
-            double normal = FuzzyLogicHelper.TriangularMembership(cost, 4000000, 10000000, 15000000);
-            double expensive = FuzzyLogicHelper.TriangularMembership(cost, 10000000, 20000000, 30000000);
-            double veryExpensive = FuzzyLogicHelper.TrapezoidalMembership(cost, 25000000, 40000000, 50000000, double.MaxValue);
+            double veryCheap = FuzzyLogicHelper.TriangularMembership(cost, 0, 20000000, 40000000);
+            double cheap = FuzzyLogicHelper.TriangularMembership(cost, 20000000, 40000000, 60000000);
+            double normal = FuzzyLogicHelper.TriangularMembership(cost, 40000000, 60000000, 80000000);
+            double expensive = FuzzyLogicHelper.TriangularMembership(cost, 60000000, 80000000, 100000000);
+            double veryExpensive = FuzzyLogicHelper.TrapezoidalMembership(cost, 80000000, 100000000, 120000000, double.MaxValue);
 
             double numerator = veryCheap * 0.1 + cheap * 0.3 + normal * 0.5 + expensive * 0.7 + veryExpensive * 0.9;
             double denominator = veryCheap + cheap + normal + expensive + veryExpensive;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (cost >= 50000000)
+            if (cost >= 120000000)
                 result = 1;
 
             return result;
