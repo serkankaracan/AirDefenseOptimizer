@@ -1,4 +1,5 @@
-﻿using AirDefenseOptimizer.Services;
+﻿using AirDefenseOptimizer.Enums;
+using AirDefenseOptimizer.Services;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -49,6 +50,7 @@ namespace AirDefenseOptimizer.Views
                     {
                         Id = airDefense["Id"],
                         Name = airDefense["Name"],
+                        AirDefenseType = airDefense["AirDefenseType"],
                         AerodynamicTargetRangeMax = airDefense.ContainsKey("AerodynamicTargetRangeMax") ? airDefense["AerodynamicTargetRangeMax"] : null,
                         AerodynamicTargetRangeMin = airDefense.ContainsKey("AerodynamicTargetRangeMin") ? airDefense["AerodynamicTargetRangeMin"] : null,
                         BallisticTargetRangeMax = airDefense.ContainsKey("BallisticTargetRangeMax") ? airDefense["BallisticTargetRangeMax"] : null,
@@ -153,6 +155,7 @@ namespace AirDefenseOptimizer.Views
                         {
                             Id = airDefense["Id"],
                             Name = airDefense["Name"],
+                            AirDefenseType = airDefense["AirDefenseType"],
                             AerodynamicTargetRangeMax = airDefense.ContainsKey("AerodynamicTargetRangeMax") ? airDefense["AerodynamicTargetRangeMax"] : null,
                             AerodynamicTargetRangeMin = airDefense.ContainsKey("AerodynamicTargetRangeMin") ? airDefense["AerodynamicTargetRangeMin"] : null,
                             BallisticTargetRangeMax = airDefense.ContainsKey("BallisticTargetRangeMax") ? airDefense["BallisticTargetRangeMax"] : null,

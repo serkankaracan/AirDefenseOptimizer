@@ -6,6 +6,7 @@ namespace AirDefenseOptimizer.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public AirDefenseType AirDefenseType { get; set; }
         public double AerodynamicTargetRangeMin { get; set; }
         public double AerodynamicTargetRangeMax { get; set; }
         public double BallisticTargetRangeMin { get; set; }

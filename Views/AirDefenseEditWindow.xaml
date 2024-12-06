@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Air Defense Edit" Height="650" Width="400" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
 
-    <!-- ScrollViewer, içeriğin kaydırılmasını sağlar -->
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid>
             <StackPanel Margin="20">
@@ -19,6 +18,17 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Name:" VerticalAlignment="Center" Grid.Column="0"/>
                     <TextBox x:Name="txtAirDefenseName" Grid.Column="1" Margin="5,0"/>
+                </Grid>
+
+                <!-- Air Defense Type -->
+
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Air Defense Type:" VerticalAlignment="Center" Grid.Column="0"/>
+                    <ComboBox x:Name="cbAirDefenseType" Grid.Column="1" Margin="5" DisplayMemberPath="Value" SelectedValuePath="Key" />
                 </Grid>
 
                 <!-- Aerodynamic Target Range -->
@@ -91,13 +101,11 @@
                 <TextBlock Text="Radars" FontWeight="Bold" Margin="0,20,0,5"/>
                 <Button x:Name="btnAddRadar" Content="Add Radar" Width="150" HorizontalAlignment="Center" Margin="10,0,0,10" Click="AddRadar_Click"/>
 
-                <!-- Radar Listesi -->
                 <StackPanel x:Name="RadarList" Margin="0,10,0,10" />
 
                 <TextBlock Text="Munitions" FontWeight="Bold" Margin="0,20,0,5"/>
                 <Button x:Name="btnAddMunition" Content="Add Munition" Width="150" HorizontalAlignment="Center" Margin="10,0,0,10" Click="AddMunition_Click"/>
 
-                <!-- Mühimmat Listesi -->
                 <StackPanel x:Name="MunitionList" Margin="0,10,0,10" />
 
                 <!-- Kaydet Butonu -->

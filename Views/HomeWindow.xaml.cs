@@ -120,6 +120,7 @@ namespace AirDefenseOptimizer.Views
                     {
                         Id = Convert.ToInt32(mAirDefense["Id"].ToString()),
                         Name = mAirDefense["Name"].ToString() ?? "",
+                        AirDefenseType = (AirDefenseType)Enum.Parse(typeof(AirDefenseType), mAirDefense["AirDefenseType"].ToString() ?? ""),
                         AerodynamicTargetRangeMax = Convert.ToDouble(mAirDefense["AerodynamicTargetRangeMax"]),
                         BallisticTargetRangeMax = Convert.ToDouble(mAirDefense["BallisticTargetRangeMax"]),
                         MaxEngagements = Convert.ToInt32(mAirDefense["MaxEngagements"]),
@@ -414,6 +415,7 @@ namespace AirDefenseOptimizer.Views
             {
                 Id = Convert.ToInt32(airDefenseData["Id"].ToString()),
                 Name = selectedAirDefenseSystem,
+                AirDefenseType = (AirDefenseType)Enum.Parse(typeof(AirDefenseType), airDefenseData["AirDefenseType"].ToString() ?? ""),
                 AerodynamicTargetRangeMax = Convert.ToDouble(airDefenseData["AerodynamicTargetRangeMax"]),
                 BallisticTargetRangeMax = Convert.ToDouble(airDefenseData["BallisticTargetRangeMax"]),
                 MaxEngagements = Convert.ToInt32(airDefenseData["MaxEngagements"]),
@@ -686,18 +688,30 @@ namespace AirDefenseOptimizer.Views
                 if (adsPosition == null || threatPosition == null)
                     continue;
 
+                // Angajman kapasitesini kontrol edin
+                if (airDefense.CurrentEngagements >= airDefense.MaxEngagements)
+                {
+                    //MessageBox.Show($"Air defense system {airDefense.Name} has reached its maximum engagements.");
+                    continue;
+                }
+
+                // Mesafe hesaplanıyor
                 double distance = Position.CalculateDistance(threatPosition, adsPosition);
 
-                // Uygunluk kontrolü
-                if (!IsWithinEngagementRange(distance, threat.Altitude, airDefense))
+                // Mesafe ve hava savunma tipi eşleşmesi
+                if ((distance < 5 && airDefense.AirDefenseType != AirDefenseType.PointDefense) ||
+                    (distance >= 5 && distance < 15 && airDefense.AirDefenseType != AirDefenseType.ShortRange) ||
+                    (distance >= 15 && distance < 40 && airDefense.AirDefenseType != AirDefenseType.MediumRange) ||
+                    (distance >= 40 && airDefense.AirDefenseType != AirDefenseType.LongRange))
+                {
+                    // Mesafe uygun değilse atla
                     continue;
-
-                airDefense.CurrentEngagements++;
+                }
 
                 // Skor hesaplama
                 double score = CalculateAirDefenseScore(airDefense, threat, distance);
 
-                // En iyi skoru bul
+                // Eğer bu sistem daha iyi bir skor sağlıyorsa kaydet
                 if (score < bestScore)
                 {
                     bestScore = score;
@@ -705,6 +719,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
 
+            // En uygun hava savunma sistemi döndürülür
             return optimalADS;
         }
 
@@ -716,129 +731,26 @@ namespace AirDefenseOptimizer.Views
                    airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance) &&
                    airDefense.CurrentEngagements < airDefense.MaxEngagements;
         }
+
         /*
         private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)
         {
             // Ağırlıklar
-            const double distanceWeight = 0.3;
-            const double ecmCapabilityWeight = 0.2;
+            const double distanceWeight = 0.25;
+            const double ecmCapabilityWeight = 0.25;
             const double munitionCostWeight = 0.2;
             const double threatLevelWeight = 0.3;
 
-            double ecmScore = 0.0;
+            // ECM kabiliyet skoru
+            double ecmScore = CalculateEcmScore(airDefense.ECMCapability, threat.Aircraft.ECMCapability);
 
-            switch (threat.Aircraft.ECMCapability)
-            {
-                case ECMCapability.None:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 1.0 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 0.4 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 0.3 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 0.2 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.1 : 0.0;
-                    break;
-                case ECMCapability.Basic:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 1.0 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 0.4 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 0.3 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 0.2 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.1 : 0.0;
-                    break;
-                case ECMCapability.Intermediate:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 1.0 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 0.3 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.1 : 0.0;
-                    break;
-                case ECMCapability.Jammer:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 0.0 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 1.0 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.1 : 0.0;
-                    break;
-                case ECMCapability.Decoy:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 0.0 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 0.1 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.3 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 1.0 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 0.7 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.5 : 0.3;
-                    break;
-                case ECMCapability.Advanced:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 0.0 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 0.1 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.2 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 0.8 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 1.0 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.8 : 0.9;
-                    break;
-                case ECMCapability.MultiMode:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 0.0 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 0.1 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.2 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 0.8 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 1.0 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.8 : 1.0;
-                    break;
-                case ECMCapability.Stealth:
-                    ecmScore = airDefense.ECMCapability == ECMCapability.None ? 0.0 :
-                              airDefense.ECMCapability == ECMCapability.Basic ? 0.1 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.2 :
-                              airDefense.ECMCapability == ECMCapability.Jammer ? 0.3 :
-                              airDefense.ECMCapability == ECMCapability.Decoy ? 0.4 :
-                              airDefense.ECMCapability == ECMCapability.Advanced ? 0.5 :
-                              airDefense.ECMCapability == ECMCapability.MultiMode ? 0.7 : 1.0;
-                    break;
-                default:
-                    break;
-            }
-
-            // Veritabanından tüm mühimmatların maliyetlerini liste olarak alıyoruz (örneğin bir repository ya da data source üzerinden)
-            var allMunitionCosts = _munitionService.GetAllMunitions().Select(m => Convert.ToDouble(m["Cost"])).ToList();
-
-            // Eğer hiç mühimmat yoksa skor 0
-            double adjustedMunitionCostScore = 0.0;
-            if (airDefense.Munitions.Count > 0 && airDefense.Munitions.Any(m => m.Quantity > 0))
-            {
-                // Eğer mühimmat varsa, en düşük maliyetli mühimmatın maliyetini buluyoruz
-                double minMunitionCost = airDefense.Munitions
-                    .Where(m => m.Quantity > 0)
-                    .Select(m => m.Munition.Cost)
-                    .Min();
-
-                // Tüm mühimmatların maliyet aralığını kullanarak normalizasyon yapıyoruz
-                double globalMinCost = allMunitionCosts.Min();
-                double globalMaxCost = allMunitionCosts.Max();
-
-                // Normalizasyon yaparak en düşük maliyet 1.0, en yüksek maliyet 0.1 olacak şekilde bir değer hesaplıyoruz
-                double normalizedMunitionCost = Normalize(minMunitionCost, globalMinCost, globalMaxCost);
-
-                // Normalizasyonu tersine çevirerek, düşük maliyetli mühimmatların daha yüksek puan almasını sağlıyoruz
-                double munitionCostScore = 1.0 - normalizedMunitionCost;
-
-                // Skor aralığını 0.1 - 1.0 arasında ayarlıyoruz (yani en düşük maliyet 1.0, en yüksek maliyet 0.1)
-                adjustedMunitionCostScore = 0.1 + (munitionCostScore * 0.9);
-            }
+            double adjustedMunitionCostScore = CalculateMunitionCostScore(airDefense);
 
             // Tehdit seviyesi skoru
             double normalizedThreatLevel = Normalize(threat.ThreatScore ?? 0, 0, 1);
 
-            // AerodynamicTargetRangeMax'i kullanarak tersine bir normalizasyon yapıyoruz
-            double normalizedDistance = 1.0 - Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
-
-            MessageBox.Show("normalizedDistance: " + normalizedDistance);
+            // Normalizasyon
+            double normalizedDistance = Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
 
             // Genel skor hesaplama
             double score = (normalizedDistance * distanceWeight) +
@@ -849,48 +761,135 @@ namespace AirDefenseOptimizer.Views
             return score;
         }
         */
-        private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)
-        {
-            // Ağırlıklar
-            const double distanceWeight = 0.25;
-            const double radarCapabilityWeight = 0.1;
-            const double ecmCapabilityWeight = 0.15;
-            const double munitionCostWeight = 0.2;
-            const double threatLevelWeight = 0.3;
-
-            // Radar yetenek skorları
-            double radarScore = airDefense.Radars
-                .Where(r => r.Radar.MaxDetectionRange > distance && r.Radar.MaxAltitude > threat.Altitude)
-                .Select(r => r.Radar.MaxDetectionRange / distance + r.Radar.MaxAltitude / threat.Altitude)
-                .Sum();
-
-            // ECM kabiliyet skoru
-            double ecmScore = airDefense.ECMCapability == ECMCapability.Advanced ? 1 :
-                              airDefense.ECMCapability == ECMCapability.Intermediate ? 0.5 : 0;
-
-            // Mühimmat maliyet skoru
-            double munitionCostScore = airDefense.Munitions
-                .Where(m => m.Quantity > 0)
-                .Select(m => m.Munition.Cost)
-                .Average();
-
-            // Tehdit seviyesi skoru
-            double normalizedThreatLevel = Normalize(threat.ThreatScore ?? 0, 0, 1);
-
-            // Normalizasyon
-            double normalizedDistance = Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
-            double normalizedMunitionCost = Normalize(munitionCostScore, 1000000, 100000000); // Tahmini maliyet aralığı
-
-            // Genel skor hesaplama
-            double score = (normalizedDistance * distanceWeight) +
-                           (radarScore * radarCapabilityWeight) +
-                           (ecmScore * ecmCapabilityWeight) +
-                           (normalizedMunitionCost * munitionCostWeight) +
-                           ((1 - normalizedThreatLevel) * threatLevelWeight);
-
-            return score;
-        }
         /*
+
+        private double CalculateMunitionCostScore(AirDefense airDefense)
+        {
+            // Tüm mühimmatların birim maliyetlerini alıyoruz
+            var allMunitionCosts = _munitionService.GetAllMunitions().Select(m => Convert.ToDouble(m["Cost"])).ToList();
+
+            // Eğer hava savunma sistemi mühimmata sahip değilse veya miktar 0 ise skor 0
+            if (airDefense.Munitions.Count == 0 || !airDefense.Munitions.Any(m => m.Quantity > 0))
+                return 0.0;
+
+            // Toplam maliyet ve toplam miktarı hesaplıyoruz
+            double totalCost = airDefense.Munitions
+                .Where(m => m.Quantity > 0 && m.Munition != null)
+                .Sum(m => m.Munition.Cost * m.Quantity);
+
+            int totalQuantity = airDefense.Munitions
+                .Where(m => m.Quantity > 0 && m.Munition != null)
+                .Sum(m => m.Quantity);
+
+            // Ortalama maliyeti hesaplıyoruz
+            double averageMunitionCost = totalCost / totalQuantity;
+
+            // Global minimum ve maksimum birim maliyetleri alıyoruz (çarpma işlemi yok!)
+            double globalMinCost = allMunitionCosts.Min();
+            double globalMaxCost = allMunitionCosts.Max();
+
+            // Ortalama maliyeti normalize ediyoruz
+            double normalizedMunitionCost = Normalize(averageMunitionCost, globalMinCost, globalMaxCost);
+
+            // Debug mesajı
+            MessageBox.Show($"totalCost: {totalCost}" +
+                $"\ntotalQuantity: {totalQuantity}" +
+                $"\naverageMunitionCost: {averageMunitionCost}" +
+                $"\nglobalMinCost: {globalMinCost}" +
+                $"\nglobalMaxCost: {globalMaxCost}" +
+                $"\nnormalizedMunitionCost: {normalizedMunitionCost}");
+
+            // Normalizasyonu tersine çeviriyoruz (düşük maliyet daha yüksek puan demek)
+            double munitionCostScore = 1.0 - normalizedMunitionCost;
+
+            return munitionCostScore;
+        }
+
+        private double CalculateEcmScore(ECMCapability airDefenseEcm, ECMCapability threatEcm)
+        {
+            // ECM uyumluluk puanlarını bir matris (sözlük) olarak tanımlıyoruz
+            var ecmMatrix = new Dictionary<(ECMCapability, ECMCapability), double>
+            {
+                // Threat: None
+                {(ECMCapability.None, ECMCapability.None), 1.0},
+                {(ECMCapability.None, ECMCapability.Basic), 0.7},
+                {(ECMCapability.None, ECMCapability.Intermediate), 0.5},
+                {(ECMCapability.None, ECMCapability.Jammer), 0.4},
+                {(ECMCapability.None, ECMCapability.Decoy), 0.3},
+                {(ECMCapability.None, ECMCapability.Advanced), 0.2},
+                {(ECMCapability.None, ECMCapability.MultiMode), 0.1},
+
+                // Threat: Basic
+                {(ECMCapability.Basic, ECMCapability.None), 0.7},
+                {(ECMCapability.Basic, ECMCapability.Basic), 1.0},
+                {(ECMCapability.Basic, ECMCapability.Intermediate), 0.5},
+                {(ECMCapability.Basic, ECMCapability.Jammer), 0.4},
+                {(ECMCapability.Basic, ECMCapability.Decoy), 0.3},
+                {(ECMCapability.Basic, ECMCapability.Advanced), 0.2},
+                {(ECMCapability.Basic, ECMCapability.MultiMode), 0.1},
+
+                // Threat: Intermediate
+                {(ECMCapability.Intermediate, ECMCapability.None), 0.5},
+                {(ECMCapability.Intermediate, ECMCapability.Basic), 0.7},
+                {(ECMCapability.Intermediate, ECMCapability.Intermediate), 1.0},
+                {(ECMCapability.Intermediate, ECMCapability.Jammer), 0.7},
+                {(ECMCapability.Intermediate, ECMCapability.Decoy), 0.5},
+                {(ECMCapability.Intermediate, ECMCapability.Advanced), 0.3},
+                {(ECMCapability.Intermediate, ECMCapability.MultiMode), 0.1},
+
+                // Threat: Jammer
+                {(ECMCapability.Jammer, ECMCapability.None), 0.0},
+                {(ECMCapability.Jammer, ECMCapability.Basic), 0.5},
+                {(ECMCapability.Jammer, ECMCapability.Intermediate), 0.7},
+                {(ECMCapability.Jammer, ECMCapability.Jammer), 1.0},
+                {(ECMCapability.Jammer, ECMCapability.Decoy), 0.7},
+                {(ECMCapability.Jammer, ECMCapability.Advanced), 0.5},
+                {(ECMCapability.Jammer, ECMCapability.MultiMode), 0.1},
+
+                // Threat: Decoy
+                {(ECMCapability.Decoy, ECMCapability.None), 0.0},
+                {(ECMCapability.Decoy, ECMCapability.Basic), 0.1},
+                {(ECMCapability.Decoy, ECMCapability.Intermediate), 0.3},
+                {(ECMCapability.Decoy, ECMCapability.Jammer), 0.7},
+                {(ECMCapability.Decoy, ECMCapability.Decoy), 1.0},
+                {(ECMCapability.Decoy, ECMCapability.Advanced), 0.7},
+                {(ECMCapability.Decoy, ECMCapability.MultiMode), 0.5},
+
+                // Threat: Advanced
+                {(ECMCapability.Advanced, ECMCapability.None), 0.0},
+                {(ECMCapability.Advanced, ECMCapability.Basic), 0.1},
+                {(ECMCapability.Advanced, ECMCapability.Intermediate), 0.2},
+                {(ECMCapability.Advanced, ECMCapability.Jammer), 0.5},
+                {(ECMCapability.Advanced, ECMCapability.Decoy), 0.8},
+                {(ECMCapability.Advanced, ECMCapability.Advanced), 1.0},
+                {(ECMCapability.Advanced, ECMCapability.MultiMode), 0.8},
+
+                // Threat: MultiMode
+                {(ECMCapability.MultiMode, ECMCapability.None), 0.0},
+                {(ECMCapability.MultiMode, ECMCapability.Basic), 0.1},
+                {(ECMCapability.MultiMode, ECMCapability.Intermediate), 0.2},
+                {(ECMCapability.MultiMode, ECMCapability.Jammer), 0.5},
+                {(ECMCapability.MultiMode, ECMCapability.Decoy), 0.8},
+                {(ECMCapability.MultiMode, ECMCapability.Advanced), 1.0},
+                {(ECMCapability.MultiMode, ECMCapability.MultiMode), 0.8},
+
+                // Threat: Stealth
+                {(ECMCapability.Stealth, ECMCapability.None), 0.0},
+                {(ECMCapability.Stealth, ECMCapability.Basic), 0.1},
+                {(ECMCapability.Stealth, ECMCapability.Intermediate), 0.2},
+                {(ECMCapability.Stealth, ECMCapability.Jammer), 0.3},
+                {(ECMCapability.Stealth, ECMCapability.Decoy), 0.4},
+                {(ECMCapability.Stealth, ECMCapability.Advanced), 0.5},
+                {(ECMCapability.Stealth, ECMCapability.MultiMode), 0.7}
+            };
+
+            // Sözlükten değeri çekiyoruz
+            return ecmMatrix.TryGetValue((threatEcm, airDefenseEcm), out var score) ? score : 0.0;
+        }
+
+        */
+
+
         private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)
         {
             // Ağırlıklar
@@ -911,20 +910,21 @@ namespace AirDefenseOptimizer.Views
                                         airDefense.ECMCapability == ECMCapability.Intermediate ? 0.5 : 0, 0, 1);
 
             // Mühimmat maliyet skoru (normalize)
-            double munitionCostScore = Normalize(
+            double normalizedMunitionCost = Normalize(
                 airDefense.Munitions
                 .Where(m => m.Quantity > 0)
                 .Select(m => m.Munition.Cost)
                 .DefaultIfEmpty(0)
-                .Average(), 1000000, 100000000);
+                .Average(), 0, 15);
 
             // Tehdit seviyesi skoru (normalize)
             double normalizedThreatLevel = Normalize(threat.ThreatScore ?? 0, 0, 1);
 
             // Mesafe skoru (normalize)
             double normalizedDistance = Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
+            normalizedDistance = 1 - normalizedDistance;
 
-            double normalizedMunitionCost = Normalize(munitionCostScore, 1000000, 100000000); // Tahmini maliyet aralığı
+            //double normalizedMunitionCost = Normalize(munitionCostScore, 1000000, 100000000); // Tahmini maliyet aralığı
 
             // Genel skor hesaplama
             double score = (normalizedDistance * distanceWeight) +
@@ -935,7 +935,7 @@ namespace AirDefenseOptimizer.Views
 
             return score;
         }
-        */
+
 
         private double Normalize(double value, double min, double max)
         {
@@ -1107,13 +1107,16 @@ namespace AirDefenseOptimizer.Views
         private string GenerateRandomLocation()
         {
             // Enlem (Latitude): 36° ile 42° arasında
-            double latitude = 36 + rand.NextDouble() * 6; // 36 ile 42 arasında
+            //double latitude = 36 + rand.NextDouble() * 6; // 36 ile 42 arasında
+            double latitude = 39.9334;
 
             // Boylam (Longitude): 26° ile 45° arasında
-            double longitude = 26 + rand.NextDouble() * 19; // 26 ile 45 arasında
+            //double longitude = 26 + rand.NextDouble() * 19; // 26 ile 45 arasında
+            double longitude = 32.8597;
 
             // İrtifa (Altitude): 0 ile 3,000 metre arasında
-            double altitude = rand.NextDouble() * 3000;
+            //double altitude = rand.NextDouble() * 3000;
+            double altitude = 890;
 
             // Değerleri formatlayarak string olarak döndür
             return $"{latitude.ToString("F4", CultureInfo.InvariantCulture)}, {longitude.ToString("F4", CultureInfo.InvariantCulture)}, {altitude.ToString("F0", CultureInfo.InvariantCulture)}";

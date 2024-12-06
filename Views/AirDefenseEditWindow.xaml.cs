@@ -33,6 +33,11 @@ namespace AirDefenseOptimizer.Views
                .Select(a => new KeyValuePair<ECMCapability, string>(a, a.GetECMCapabilityName()))
                .ToList();
 
+            cbAirDefenseType.ItemsSource = Enum.GetValues(typeof(AirDefenseType))
+               .Cast<AirDefenseType>()
+               .Select(a => new KeyValuePair<AirDefenseType, string>(a, a.GetAirDefenseTypeName()))
+               .ToList();
+
             try
             {
                 LoadRadarList();
@@ -47,6 +52,7 @@ namespace AirDefenseOptimizer.Views
             {
                 // Air Defense bilgilerini doldur
                 txtAirDefenseName.Text = _airDefenseData.Name;
+                cbAirDefenseType.SelectedValue = Enum.Parse<AirDefenseType>(_airDefenseData.AirDefenseType);
                 txtAerodynamicRangeMax.Text = _airDefenseData.AerodynamicTargetRangeMax.ToString();
                 txtAerodynamicRangeMin.Text = _airDefenseData.AerodynamicTargetRangeMin.ToString();
                 txtBallisticRangeMax.Text = _airDefenseData.BallisticTargetRangeMax.ToString();
@@ -82,6 +88,7 @@ namespace AirDefenseOptimizer.Views
             {
                 // Alanları salt okunur yap
                 txtAirDefenseName.IsEnabled = false;
+                cbAirDefenseType.IsEnabled = false;
                 txtAerodynamicRangeMax.IsEnabled = false;
                 txtAerodynamicRangeMin.IsEnabled = false;
                 txtBallisticRangeMax.IsEnabled = false;
@@ -266,6 +273,7 @@ namespace AirDefenseOptimizer.Views
                 {
                     airDefenseId = _airDefenseService.AddAirDefense(
                         txtAirDefenseName.Text,
+                        Enum.Parse<AirDefenseType>(cbAirDefenseType.SelectedValue.ToString()),
                         double.TryParse(txtAerodynamicRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMax) ? aerodynamicRangeMax : 0,
                         double.TryParse(txtAerodynamicRangeMin.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMin) ? aerodynamicRangeMin : 0,
                         double.TryParse(txtBallisticRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double ballisticRangeMax) ? ballisticRangeMax : 0,
@@ -281,6 +289,7 @@ namespace AirDefenseOptimizer.Views
                     _airDefenseService.UpdateAirDefense(
                         airDefenseId,
                         txtAirDefenseName.Text,
+                        Enum.Parse<AirDefenseType>(cbAirDefenseType.SelectedValue.ToString()),
                         double.TryParse(txtAerodynamicRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMax) ? aerodynamicRangeMax : 0,
                         double.TryParse(txtAerodynamicRangeMin.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double aerodynamicRangeMin) ? aerodynamicRangeMin : 0,
                         double.TryParse(txtBallisticRangeMax.Text, NumberStyles.Any, CultureInfo.CurrentCulture, out double ballisticRangeMax) ? ballisticRangeMax : 0,

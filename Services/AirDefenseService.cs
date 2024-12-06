@@ -1,4 +1,5 @@
 ﻿using AirDefenseOptimizer.Database;
+using AirDefenseOptimizer.Enums;
 using Microsoft.Data.Sqlite;
 
 namespace AirDefenseOptimizer.Services
@@ -15,20 +16,19 @@ namespace AirDefenseOptimizer.Services
         }
 
         // Hava savunma sistemi ekle
-        public int AddAirDefense(string name, double aerodynamicTargetRangeMax, double aerodynamicTargetRangeMin,
-                         double ballisticTargetRangeMax, double ballisticTargetRangeMin, int maxEngagements,
-                         int maxMissilesFired, string ecmCapability, double cost)
+        public int AddAirDefense(string name, AirDefenseType airDefenseType, double aerodynamicTargetRangeMax, double aerodynamicTargetRangeMin,
+                                  double ballisticTargetRangeMax, double ballisticTargetRangeMin, int maxEngagements,
+                                  int maxMissilesFired, string ecmCapability, double cost)
         {
-            string insertQuery = @"INSERT INTO AirDefense (Name, AerodynamicTargetRangeMax, AerodynamicTargetRangeMin, 
-                       BallisticTargetRangeMax, BallisticTargetRangeMin, MaxEngagements, MaxMissilesFired, 
-                       ECMCapability, Cost) 
-                       VALUES (@name, @aerodynamicTargetRangeMax, @aerodynamicTargetRangeMin, @ballisticTargetRangeMax, 
-                       @ballisticTargetRangeMin, @maxEngagements, @maxMissilesFired, @ecmCapability, @cost); 
-                       SELECT last_insert_rowid();"; // SQLite'da son eklenen kaydın ID'sini almak için
+            string insertQuery = @"INSERT INTO AirDefense (Name, AirDefenseType, AerodynamicTargetRangeMax, AerodynamicTargetRangeMin, 
+                                        BallisticTargetRangeMax, BallisticTargetRangeMin, MaxEngagements, MaxMissilesFired, 
+                                        ECMCapability, Cost) 
+                                    VALUES (@name, @airDefenseType, @aerodynamicTargetRangeMax, @aerodynamicTargetRangeMin, 
+                                        @ballisticTargetRangeMax, @ballisticTargetRangeMin, @maxEngagements, @maxMissilesFired, 
+                                        @ecmCapability, @cost); 
+                                    SELECT last_insert_rowid();";
 
             using var connection = _connectionManager.GetConnection();
-
-            // Bağlantının kapalı olduğundan emin olun, sonra açın
             if (connection.State == System.Data.ConnectionState.Closed)
             {
                 connection.Open();
@@ -37,6 +37,7 @@ namespace AirDefenseOptimizer.Services
             var parameters = new Dictionary<string, object>
             {
                 { "@name", name },
+                { "@airDefenseType", airDefenseType.ToString() },
                 { "@aerodynamicTargetRangeMax", aerodynamicTargetRangeMax },
                 { "@aerodynamicTargetRangeMin", aerodynamicTargetRangeMin },
                 { "@ballisticTargetRangeMax", ballisticTargetRangeMax },
@@ -53,13 +54,11 @@ namespace AirDefenseOptimizer.Services
                 command.Parameters.AddWithValue(param.Key, param.Value);
             }
 
-            var result = command.ExecuteScalar();  // ExecuteScalar ile son eklenen ID'yi döner
-
-            connection.Close();  // Bağlantıyı kapatın
+            var result = command.ExecuteScalar();
+            connection.Close();
 
             return Convert.ToInt32(result);
         }
-
 
         // Hava savunma sistemine radar ekle (Quantity ile)
         public void AddRadarToAirDefense(int airDefenseId, int radarId, int quantity)
@@ -191,13 +190,15 @@ namespace AirDefenseOptimizer.Services
         }
 
         // Hava savunma sistemini güncelle
-        public void UpdateAirDefense(int airDefenseId, string name, double aerodynamicTargetRangeMax, double aerodynamicTargetRangeMin,
+        public void UpdateAirDefense(int airDefenseId, string name, AirDefenseType airDefenseType, double aerodynamicTargetRangeMax, double aerodynamicTargetRangeMin,
                                      double ballisticTargetRangeMax, double ballisticTargetRangeMin, int maxEngagements,
                                      int maxMissilesFired, string ecmCapability, double cost)
         {
-            string updateQuery = @"UPDATE AirDefense SET Name = @name, AerodynamicTargetRangeMax = @aerodynamicTargetRangeMax, AerodynamicTargetRangeMin = @aerodynamicTargetRangeMin, 
-                                   BallisticTargetRangeMax = @ballisticTargetRangeMax, BallisticTargetRangeMin = @ballisticTargetRangeMin, MaxEngagements = @maxEngagements, 
-                                   MaxMissilesFired = @maxMissilesFired, ECMCapability = @ecmCapability, Cost = @cost 
+            string updateQuery = @"UPDATE AirDefense 
+                                   SET Name = @name, AirDefenseType = @airDefenseType, AerodynamicTargetRangeMax = @aerodynamicTargetRangeMax, 
+                                       AerodynamicTargetRangeMin = @aerodynamicTargetRangeMin, BallisticTargetRangeMax = @ballisticTargetRangeMax, 
+                                       BallisticTargetRangeMin = @ballisticTargetRangeMin, MaxEngagements = @maxEngagements, 
+                                       MaxMissilesFired = @maxMissilesFired, ECMCapability = @ecmCapability, Cost = @cost 
                                    WHERE Id = @airDefenseId;";
 
             using var connection = _connectionManager.GetConnection();
@@ -206,6 +207,7 @@ namespace AirDefenseOptimizer.Services
             {
                 { "@airDefenseId", airDefenseId },
                 { "@name", name },
+                { "@airDefenseType", airDefenseType.ToString() },
                 { "@aerodynamicTargetRangeMax", aerodynamicTargetRangeMax },
                 { "@aerodynamicTargetRangeMin", aerodynamicTargetRangeMin },
                 { "@ballisticTargetRangeMax", ballisticTargetRangeMax },

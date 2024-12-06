@@ -57,6 +57,7 @@
         public const string CreateAirDefenseTable = @"CREATE TABLE IF NOT EXISTS AirDefense (
             Id INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
+            AirDefenseType TEXT NOT NULL, -- Kısa, Orta veya Uzun menzilli
             AerodynamicTargetRangeMax REAL NOT NULL,
             AerodynamicTargetRangeMin REAL NOT NULL,
             BallisticTargetRangeMax REAL NOT NULL,
