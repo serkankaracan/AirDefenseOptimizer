@@ -574,7 +574,7 @@ namespace AirDefenseOptimizer.Views
 
             var threatCalculator = new AircraftThreatCalculator(_munitionService);
             double threatScore = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue, aircraft.Maneuverability, aircraftPosition.Altitude, aircraft.Cost);
-            MessageBox.Show($"threatScore: {threatScore}");
+            //MessageBox.Show($"threatScore: {threatScore}");
             double threatLevel = threatScore;
 
             _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel, threatScore));
@@ -756,6 +756,7 @@ namespace AirDefenseOptimizer.Views
                         // Eğer uygun bir sistem bulunduysa döndür
                         if (bestDefense != null)
                         {
+                            bestDefense.CurrentEngagements++;
                             return bestDefense;
                         }
                     }

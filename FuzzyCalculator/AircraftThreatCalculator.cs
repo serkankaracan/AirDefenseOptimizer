@@ -53,7 +53,7 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             // Normalize edilmiş toplam tehdit seviyesini hesapla
             double totalThreatLevel = (0.8 * aircraftThreatLevel) + (0.2 * munitionThreatContribution);
 
-            MessageBox.Show($"aircraftThreatLevel: {aircraftThreatLevel}\ntotalThreatLevel: {totalThreatLevel}");
+            //MessageBox.Show($"aircraftThreatLevel: {aircraftThreatLevel}\ntotalThreatLevel: {totalThreatLevel}");
 
             //return _fuzzyCalculator.Defuzzify(totalThreatLevel);
             return totalThreatLevel;
