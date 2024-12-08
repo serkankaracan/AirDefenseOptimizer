@@ -25,6 +25,7 @@ namespace AirDefenseOptimizer.Views
 
         private static readonly Random rand = new Random();
 
+
         public HomeWindow()
         {
             InitializeComponent();
@@ -109,6 +110,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
+        
         private void LoadAirDefenseSystems()
         {
             var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems();
@@ -187,6 +189,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
+        
         private void AddLabelsToPanel(StackPanel panel, string[] labels, int[] widths)
         {
             for (int i = 0; i < labels.Length; i++)
@@ -200,6 +203,7 @@ namespace AirDefenseOptimizer.Views
                 });
             }
         }
+        
         private Grid CreateGridWithColumns(int[] columnWidths)
         {
             var grid = new Grid { Margin = new Thickness(0, 10, 0, 10) };
@@ -209,6 +213,7 @@ namespace AirDefenseOptimizer.Views
             }
             return grid;
         }
+        
         private void PopulateComboBox(ComboBox comboBox, IEnumerable<string> items, string placeholder)
         {
             comboBox.Items.Add(new ComboBoxItem
@@ -223,6 +228,7 @@ namespace AirDefenseOptimizer.Views
                 comboBox.Items.Add(item);
             }
         }
+        
         private void AddAircraftThreat_Click(object sender, RoutedEventArgs e)
         {
             if (ThreatList.Children.Count == 0)
@@ -281,6 +287,7 @@ namespace AirDefenseOptimizer.Views
             ThreatList.Children.Add(threatGrid);
             UpdateIndices(ThreatList);
         }
+        
         private void AddAirDefenseSystem_Click(object sender, RoutedEventArgs e)
         {
             if (DefenseList.Children.Count == 0)
@@ -326,6 +333,7 @@ namespace AirDefenseOptimizer.Views
             DefenseList.Children.Add(defenseGrid);
             UpdateIndices(DefenseList);
         }
+        
         private Button CreateRemoveButton(Grid grid, StackPanel list)
         {
             var removeButton = new Button
@@ -345,6 +353,7 @@ namespace AirDefenseOptimizer.Views
             };
             return removeButton;
         }
+       
         private void AddElementsToGrid(Grid grid, UIElement[] elements)
         {
             for (int i = 0; i < elements.Length; i++)
@@ -353,6 +362,7 @@ namespace AirDefenseOptimizer.Views
                 Grid.SetColumn(elements[i], i);
             }
         }
+        
         private Aircraft CreateAircraft(Dictionary<string, object> aircraftData, string selectedAircraft)
         {
             var aircraft = new Aircraft
@@ -409,6 +419,7 @@ namespace AirDefenseOptimizer.Views
 
             return aircraft;
         }
+        
         private AirDefense CreateAirDefense(Dictionary<string, object> airDefenseData, string selectedAirDefenseSystem)
         {
             return new AirDefense
@@ -461,6 +472,7 @@ namespace AirDefenseOptimizer.Views
                 }).ToList()
             };
         }
+        
         private void CalculateButton_Click(object sender, RoutedEventArgs e)
         {
             var aircraft = new Aircraft
@@ -484,6 +496,7 @@ namespace AirDefenseOptimizer.Views
             // 4. Sonucu gösterin
             //MessageBox.Show($"Calculated Threat Level: {threatLevel}");
         }
+        
         private void ShowThreatLevelButton_Click(object sender, RoutedEventArgs e)
         {
             ClearPreviousData();
@@ -494,12 +507,14 @@ namespace AirDefenseOptimizer.Views
             AssignAirDefenseSystemsToThreats();
             ShowThreatDetailsWindow();
         }
+        
         private void ClearPreviousData()
         {
             _aircraftThreats.Clear();
             _airDefenseSystems.Clear();
             threatDetails.Clear();
         }
+        
         private void ProcessAircraftThreats()
         {
             foreach (Grid threatGrid in ThreatList.Children.OfType<Grid>())
@@ -515,6 +530,7 @@ namespace AirDefenseOptimizer.Views
                 ProcessAircraftInput(aircraftComboBox, iffComboBox, locationTextBox, speedTextBox);
             }
         }
+        
         private void ProcessAircraftInput(ComboBox aircraftComboBox, ComboBox iffComboBox, TextBox locationTextBox, TextBox speedTextBox)
         {
             string? selectedAircraft = aircraftComboBox.SelectedItem?.ToString();
@@ -541,6 +557,7 @@ namespace AirDefenseOptimizer.Views
 
             AddAircraftToThreatList(aircraftData, selectedAircraft, location, stringSpeed, selectedIFF);
         }
+        
         private void AddAircraftToThreatList(dynamic aircraftData, string selectedAircraft, string location, string stringSpeed, IFF selectedIFF)
         {
             var aircraft = CreateAircraft(aircraftData, selectedAircraft);
@@ -555,12 +572,14 @@ namespace AirDefenseOptimizer.Views
             double distance = Position.CalculateDistance(GetSourcePosition(), aircraftPosition);
             double speedValue = double.TryParse(stringSpeed, out var parsedSpeed) ? parsedSpeed : 0;
 
-            var threatCalculator = new AircraftThreatCalculator();
+            var threatCalculator = new AircraftThreatCalculator(_munitionService);
             double threatScore = threatCalculator.CalculateThreatLevel(aircraft, selectedIFF, distance, speedValue, aircraft.Maneuverability, aircraftPosition.Altitude, aircraft.Cost);
+            MessageBox.Show($"threatScore: {threatScore}");
             double threatLevel = threatScore;
 
             _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel, threatScore));
         }
+        
         private void ProcessAirDefenseSystems()
         {
             foreach (Grid defenseGrid in DefenseList.Children.OfType<Grid>())
@@ -574,6 +593,7 @@ namespace AirDefenseOptimizer.Views
                 ProcessAirDefenseInput(defenseComboBox, locationTextBox);
             }
         }
+        
         private void ProcessAirDefenseInput(ComboBox defenseComboBox, TextBox locationTextBox)
         {
             string? selectedAirDefenseSystem = defenseComboBox.SelectedItem?.ToString();
@@ -596,6 +616,7 @@ namespace AirDefenseOptimizer.Views
             var airDefense = CreateAirDefense(airDefenseData, selectedAirDefenseSystem);
             _airDefenseSystems.Add(new AirDefenseInput(airDefense, location));
         }
+        
         private List<Radar> DetectAircraftByRadars()
         {
             var detectedRadarList = new List<Radar>();
@@ -624,6 +645,7 @@ namespace AirDefenseOptimizer.Views
 
             return detectedRadarList;
         }
+        
         private void CheckRadarDetection(AirDefenseInput airDefenseInput, AircraftInput aircraftInput, Position defensePosition, Position aircraftPosition, List<Radar> detectedRadarList)
         {
             double distance = Position.CalculateDistance(defensePosition, aircraftPosition);
@@ -637,6 +659,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
+        
         private void UpdateThreatDetails(List<Radar> detectedRadarList)
         {
             foreach (var aircraftInput in _aircraftThreats)
@@ -661,6 +684,7 @@ namespace AirDefenseOptimizer.Views
                 {
                     // Tespit edilmediği durumda ThreatScore'u sıfırla
                     threatDetail.ThreatScore = 0;
+                    threatDetail.ThreatLevel = "Very Low"; // Ek olarak tehdit seviyesi güncellenmeli
                 }
 
                 //MessageBox.Show($"Threat: {threatDetail.Aircraft?.Name}, ThreatLevel: {threatDetail.ThreatLevel}, Score: {threatDetail.ThreatScore}");
@@ -674,10 +698,11 @@ namespace AirDefenseOptimizer.Views
                 threatDetails.Add(threatDetail);
             }
         }
+
         private AirDefense? GetOptimalAirDefenseSystem(ThreatDetail threat, List<AirDefenseInput> airDefenseSystems)
         {
-            AirDefense? optimalADS = null;
-            double bestScore = double.MaxValue;
+            //AirDefense? optimalADS = null;
+            //double bestScore = double.MaxValue;
 
             foreach (var adsInput in airDefenseSystems)
             {
@@ -698,36 +723,90 @@ namespace AirDefenseOptimizer.Views
                 // Mesafe hesaplanıyor
                 double distance = Position.CalculateDistance(threatPosition, adsPosition);
 
-                // Mesafe ve hava savunma tipi eşleşmesi
-                if ((distance < 5 && airDefense.AirDefenseType != AirDefenseType.PointDefense) ||
-                    (distance >= 5 && distance < 15 && airDefense.AirDefenseType != AirDefenseType.ShortRange) ||
-                    (distance >= 15 && distance < 40 && airDefense.AirDefenseType != AirDefenseType.MediumRange) ||
-                    (distance >= 40 && airDefense.AirDefenseType != AirDefenseType.LongRange))
-                {
-                    // Mesafe uygun değilse atla
-                    continue;
-                }
+                // Mesafeye uygun savunma türlerini sırayla al
+                var preferredTypes = GetPreferredAirDefenseTypes(distance);
 
-                // Skor hesaplama
-                double score = CalculateAirDefenseScore(airDefense, threat, distance);
-
-                // Eğer bu sistem daha iyi bir skor sağlıyorsa kaydet
-                if (score < bestScore)
+                // Türlere göre sırayla kontrol
+                foreach (var preferredType in preferredTypes)
                 {
-                    bestScore = score;
-                    optimalADS = airDefense;
+                    // Sadece belirtilen türdeki sistemleri kontrol et
+                    var candidates = airDefenseSystems
+                        .Where(ads => ads.AirDefense.AirDefenseType == preferredType
+                                   && ads.AirDefense.CurrentEngagements < ads.AirDefense.MaxEngagements)
+                        .ToList();
+
+                    // Eğer bu türde sistem varsa en iyi skorlu olanı seç
+                    if (candidates.Any())
+                    {
+                        AirDefense? bestDefense = null;
+                        double bestScore = double.MaxValue;
+
+                        foreach (var candidate in candidates)
+                        {
+                            var candidateAirDefense = candidate.AirDefense;
+                            double score = CalculateAirDefenseScore(candidateAirDefense, threat, distance);
+
+                            if (score < bestScore)
+                            {
+                                bestScore = score;
+                                bestDefense = candidateAirDefense;
+                            }
+                        }
+
+                        // Eğer uygun bir sistem bulunduysa döndür
+                        if (bestDefense != null)
+                        {
+                            return bestDefense;
+                        }
+                    }
+
+                    // Eğer mevcut türde hiçbir sistem yoksa bir üst türe geç
                 }
+                // Hiçbir türde uygun sistem bulunamadıysa null döndür
+                return null;
             }
+            // Hiçbir türde uygun sistem bulunamadıysa null döndür
+            return null;
+        }
 
-            // En uygun hava savunma sistemi döndürülür
-            return optimalADS;
+        private List<AirDefenseType> GetPreferredAirDefenseTypes(double distance)
+        {
+            if (distance < 5)
+            {
+                return new List<AirDefenseType>
+                {
+                    AirDefenseType.PointDefense,
+                    AirDefenseType.ShortRange,
+                    AirDefenseType.MediumRange,
+                    AirDefenseType.LongRange
+                };
+            }
+            if (distance >= 5 && distance < 15)
+            {
+                return new List<AirDefenseType>
+                {
+                    AirDefenseType.ShortRange,
+                    AirDefenseType.MediumRange,
+                    AirDefenseType.LongRange
+                };
+            }
+            if (distance >= 15 && distance < 40)
+            {
+                return new List<AirDefenseType>
+                {
+                    AirDefenseType.MediumRange,
+                    AirDefenseType.LongRange
+                };
+            }
+            // Eğer mesafe 40'tan büyükse sadece LongRange savunma sistemlerini kontrol et
+            return new List<AirDefenseType> { AirDefenseType.LongRange };
         }
 
         private bool IsWithinEngagementRange(double distance, double altitude, AirDefense airDefense)
         {
             return distance >= airDefense.AerodynamicTargetRangeMin &&
                    distance < airDefense.AerodynamicTargetRangeMax &&
-                   airDefense.Radars.All(r => altitude >= r.Radar.MinAltitude) &&
+                   airDefense.Radars.All(r => (altitude >= r.Radar.MinAltitude) && (altitude < r.Radar.MaxAltitude)) &&
                    airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance) &&
                    airDefense.CurrentEngagements < airDefense.MaxEngagements;
         }
@@ -761,7 +840,6 @@ namespace AirDefenseOptimizer.Views
             return score;
         }
         */
-        /*
 
         private double CalculateMunitionCostScore(AirDefense airDefense)
         {
@@ -792,12 +870,12 @@ namespace AirDefenseOptimizer.Views
             double normalizedMunitionCost = Normalize(averageMunitionCost, globalMinCost, globalMaxCost);
 
             // Debug mesajı
-            MessageBox.Show($"totalCost: {totalCost}" +
-                $"\ntotalQuantity: {totalQuantity}" +
-                $"\naverageMunitionCost: {averageMunitionCost}" +
-                $"\nglobalMinCost: {globalMinCost}" +
-                $"\nglobalMaxCost: {globalMaxCost}" +
-                $"\nnormalizedMunitionCost: {normalizedMunitionCost}");
+            //MessageBox.Show($"totalCost: {totalCost}" +
+            //    $"\ntotalQuantity: {totalQuantity}" +
+            //    $"\naverageMunitionCost: {averageMunitionCost}" +
+            //    $"\nglobalMinCost: {globalMinCost}" +
+            //    $"\nglobalMaxCost: {globalMaxCost}" +
+            //    $"\nnormalizedMunitionCost: {normalizedMunitionCost}");
 
             // Normalizasyonu tersine çeviriyoruz (düşük maliyet daha yüksek puan demek)
             double munitionCostScore = 1.0 - normalizedMunitionCost;
@@ -887,9 +965,6 @@ namespace AirDefenseOptimizer.Views
             return ecmMatrix.TryGetValue((threatEcm, airDefenseEcm), out var score) ? score : 0.0;
         }
 
-        */
-
-
         private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)
         {
             // Ağırlıklar
@@ -906,16 +981,17 @@ namespace AirDefenseOptimizer.Views
                 .Sum();
 
             // ECM kabiliyet skoru (normalize)
-            double ecmScore = Normalize(airDefense.ECMCapability == ECMCapability.Advanced ? 1 :
-                                        airDefense.ECMCapability == ECMCapability.Intermediate ? 0.5 : 0, 0, 1);
+            double ecmScore = CalculateEcmScore(airDefense.ECMCapability, threat.Aircraft.ECMCapability);
 
             // Mühimmat maliyet skoru (normalize)
-            double normalizedMunitionCost = Normalize(
-                airDefense.Munitions
-                .Where(m => m.Quantity > 0)
-                .Select(m => m.Munition.Cost)
-                .DefaultIfEmpty(0)
-                .Average(), 0, 15);
+            //double normalizedMunitionCost = Normalize(
+            //    airDefense.Munitions
+            //    .Where(m => m.Quantity > 0)
+            //    .Select(m => m.Munition.Cost)
+            //    .DefaultIfEmpty(0)
+            //    .Average(), 0, 15);
+
+            double normalizedMunitionCost = CalculateMunitionCostScore(airDefense);
 
             // Tehdit seviyesi skoru (normalize)
             double normalizedThreatLevel = Normalize(threat.ThreatScore ?? 0, 0, 1);
@@ -936,11 +1012,11 @@ namespace AirDefenseOptimizer.Views
             return score;
         }
 
-
         private double Normalize(double value, double min, double max)
         {
             return (value - min) / (max - min);
         }
+
         private void AssignAirDefenseSystemsToThreats()
         {
             foreach (var threat in threatDetails)
@@ -957,44 +1033,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
-        public Dictionary<Aircraft, AirDefense?> AssignAirDefenseSystemsToThreats(
-        List<Aircraft> threats,
-        List<AirDefense> airDefenses,
-        Dictionary<AirDefense, Position> airDefensePositions,
-        Dictionary<Aircraft, Position> threatPositions)
-        {
-            var assignment = new Dictionary<Aircraft, AirDefense?>();
 
-            foreach (var threat in threats)
-            {
-                AirDefense? bestAirDefense = null;
-                double bestScore = double.MaxValue;
-
-                foreach (var airDefense in airDefenses)
-                {
-                    var airDefensePosition = airDefensePositions[airDefense];
-                    var threatPosition = threatPositions[threat];
-
-                    if (CanEngageThreat(airDefense, threat, airDefensePosition, threatPosition))
-                    {
-                        double distance = Position.CalculateDistance(airDefensePosition, threatPosition);
-                        double costFactor = airDefense.Cost / 1000000; // Maliyet normalize edilir.
-
-                        double score = distance * costFactor; // Basit bir maliyet-temelli skor.
-
-                        if (score < bestScore)
-                        {
-                            bestScore = score;
-                            bestAirDefense = airDefense;
-                        }
-                    }
-                }
-
-                assignment[threat] = bestAirDefense;
-            }
-
-            return assignment;
-        }
         private bool CanRadarEngage(AirDefenseRadar radar, double distance, double altitude)
         {
             return distance <= radar.Radar.MaxDetectionRange && altitude <= radar.Radar.MaxAltitude;
@@ -1025,13 +1064,16 @@ namespace AirDefenseOptimizer.Views
 
             return detectingRadars;
         }
+
         private string GetThreatLevel(double threatLevel)
         {
-            return threatLevel >= 0.85 ? "Very High" :
-                   threatLevel >= 0.70 ? "High" :
-                   threatLevel >= 0.45 ? "Normal" :
-                   threatLevel >= 0.25 ? "Low" : "Very Low";
+            if (threatLevel >= 0.85) return "Very High";
+            if (threatLevel >= 0.70) return "High";
+            if (threatLevel >= 0.45) return "Normal";
+            if (threatLevel >= 0.25) return "Low";
+            return "Very Low";
         }
+
         private void ShowThreatDetailsWindow()
         {
             ThreatDetailsWindow threatDetailsWindow = new ThreatDetailsWindow(threatDetails.Select((detail, index) =>
@@ -1041,14 +1083,7 @@ namespace AirDefenseOptimizer.Views
             }).ToList());
             threatDetailsWindow.Show();
         }
-        //private static bool AdsIsWithinRange(double distance, double altitude, AirDefense airDefense)
-        //{
-        //    return distance >= airDefense.AerodynamicTargetRangeMin &&
-        //           distance <= airDefense.AerodynamicTargetRangeMax &&
-        //           altitude <= airDefense.BallisticTargetRangeMax &&
-        //           //airDefense.CurrentEngagements < airDefense.MaxEngagements &&
-        //           airDefense.Munitions.Any(m => m.Quantity > 0);
-        //}
+
         public bool CanEngageThreat(AirDefense airDefense, Aircraft threat, Position airDefensePosition, Position threatPosition)
         {
             double distance = Position.CalculateDistance(airDefensePosition, threatPosition);
@@ -1064,6 +1099,7 @@ namespace AirDefenseOptimizer.Views
             // Angajman kriterleri
             return withinRadarRange && hasAvailableMunitions && airDefense.MaxEngagements > 0;
         }
+        
         private Position GetSourcePosition()
         {
             Position sourcePosition = new Position(
@@ -1073,6 +1109,7 @@ namespace AirDefenseOptimizer.Views
 
             return sourcePosition;
         }
+
         private Position? ParsePosition(string location)
         {
             try
@@ -1092,6 +1129,7 @@ namespace AirDefenseOptimizer.Views
             }
             return null;
         }
+
         private void UpdateIndices(Panel list)
         {
             int index = 1;
@@ -1104,6 +1142,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
+        
         private string GenerateRandomLocation()
         {
             // Enlem (Latitude): 36° ile 42° arasında

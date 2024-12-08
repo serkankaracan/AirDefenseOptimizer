@@ -3,9 +3,9 @@
     public enum AirDefenseType
     {
         PointDefense,
-        ShortRange,               // Kısa Menzilli Hava Savunma Sistemleri
-        MediumRange,              // Orta Menzilli Hava Savunma Sistemleri
-        LongRange                 // Uzun Menzilli Hava Savunma Sistemleri
+        ShortRange,
+        MediumRange,
+        LongRange
     }
 
     public static class AirDefenseTypeExtensions

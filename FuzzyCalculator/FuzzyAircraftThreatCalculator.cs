@@ -29,22 +29,15 @@ namespace AirDefenseOptimizer.FuzzyCalculator
         // Radar görünürlüğü için üçgen bulanık kümeler (Düşük, Orta, Yüksek RCS eklendi)
         public double FuzzifyRadarCrossSection(double rcs)
         {
-            double veryLow = FuzzyLogicHelper.TriangularMembership(rcs, 0, 0.5, 1);
+            double veryLow = FuzzyLogicHelper.TriangularMembership(rcs, 0, 0.3, 1);
             double low = FuzzyLogicHelper.TriangularMembership(rcs, 0.5, 2, 3);
-            double medium = FuzzyLogicHelper.TriangularMembership(rcs, 2, 5, 7);
-            double high = FuzzyLogicHelper.TriangularMembership(rcs, 5, 8, 10);
-            double veryHigh = FuzzyLogicHelper.TriangularMembership(rcs, 8, 10, 12);
+            double medium = FuzzyLogicHelper.TriangularMembership(rcs, 2, 5, 8);
+            double high = FuzzyLogicHelper.TriangularMembership(rcs, 6, 8, 10);
+            double veryHigh = FuzzyLogicHelper.TrapezoidalMembership(rcs, 9, 12, 15, 20);
 
             double numerator = veryLow * 0.9 + low * 0.7 + medium * 0.5 + high * 0.3 + veryHigh * 0.1;
             double denominator = veryLow + low + medium + high + veryHigh;
-            double result = denominator != 0 ? numerator / denominator : 0;
-
-            if (rcs >= 12)
-                result = 0;
-            if (rcs <= 0.1f)
-                result = 1;
-
-            return result;
+            return denominator != 0 ? numerator / denominator : 0;
         }
 
         // ECM yeteneği için üçgen bulanık kümeler (Düşük, Orta, Yüksek ECM kategorileri)
@@ -143,379 +136,29 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             return result;
         }
 
-        // Tüm olası kombinasyonları ve tehdit seviyelerini üreten fonksiyon
-        //public List<(EnumAircraft.Speed, EnumAircraft.RadarCrossSection, EnumAircraft.EcmCapability, EnumAircraft.Range, EnumAircraft.Maneuverability, EnumAircraft.MaxAltitude, EnumAircraft.Cost, double)> GenerateThreatCombinations()
-        //{
-        //    var combinations = new List<(EnumAircraft.Speed, EnumAircraft.RadarCrossSection, EnumAircraft.EcmCapability, EnumAircraft.Range, EnumAircraft.Maneuverability, EnumAircraft.MaxAltitude, EnumAircraft.Cost, double)>();
-
-        //    foreach (EnumAircraft.Speed speed in Enum.GetValues(typeof(EnumAircraft.Speed)))
-        //    {
-        //        foreach (EnumAircraft.RadarCrossSection rcs in Enum.GetValues(typeof(EnumAircraft.RadarCrossSection)))
-        //        {
-        //            foreach (EnumAircraft.EcmCapability ecm in Enum.GetValues(typeof(EnumAircraft.EcmCapability)))
-        //            {
-        //                foreach (EnumAircraft.Range distance in Enum.GetValues(typeof(EnumAircraft.Range)))
-        //                {
-        //                    foreach (EnumAircraft.Maneuverability maneuverability in Enum.GetValues(typeof(EnumAircraft.Maneuverability)))
-        //                    {
-        //                        foreach (EnumAircraft.MaxAltitude altitude in Enum.GetValues(typeof(EnumAircraft.MaxAltitude)))
-        //                        {
-        //                            foreach (EnumAircraft.Cost cost in Enum.GetValues(typeof(EnumAircraft.Cost)))
-        //                            {
-        //                                // Tehdit seviyesini hesaplıyoruz
-        //                                //double threatLevel =
-        //                                //    speedWeights[speed] * 0.2 +
-        //                                //    ecmWeights[ecm] * 0.2 +
-        //                                //    rcsWeights[rcs] * 0.15 +
-        //                                //    distanceWeights[distance] * 0.15 +
-        //                                //    maneuverabilityWeights[maneuverability] * 0.1 +
-        //                                //    altitudeWeights[altitude] * 0.1 +
-        //                                //    costWeights[cost] * 0.1;
-
-        //                                //threatLevel = Math.Max(0.0, Math.Min(1.0, threatLevel));
-
-        //                                // Kombinasyonu listeye ekliyoruz
-        //                                combinations.Add((speed, rcs, ecm, distance, maneuverability, altitude, cost, 0));
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return combinations;
-        //}
-
-        // Hava aracı için bulanık kurallar
-
         public double ApplyFuzzyRules(double speed, double radarCrossSection, double ecmCapability, double distance, double maneuverability, double altitude, double cost)
         {
-            double threatLevel = 0;
+            double weightSpeed = 0.15;
+            double weightRadarCrossSection = 0.15;
+            double weightECM = 0.15;
+            double weightDistance = 0.3;
+            double weightManeuverability = 0.1;
+            double weightAltitude = 0.1;
+            double weightCost = 0.05;
 
-            EnumAircraft.Speed speedLevel = GetFuzzyLevel<EnumAircraft.Speed>(speed);
-            EnumAircraft.RadarCrossSection radarCrossSectionLevel = GetFuzzyLevel<EnumAircraft.RadarCrossSection>(radarCrossSection);
-            EnumAircraft.EcmCapability ecmCapabilityLevel = GetFuzzyLevel<EnumAircraft.EcmCapability>(ecmCapability);
-            EnumAircraft.Range distanceLevel = GetFuzzyLevel<EnumAircraft.Range>(distance);
-            EnumAircraft.Maneuverability maneuverabilityLevel = GetFuzzyLevel<EnumAircraft.Maneuverability>(maneuverability);
-            EnumAircraft.MaxAltitude altitudeLevel = GetFuzzyLevel<EnumAircraft.MaxAltitude>(altitude);
-            EnumAircraft.Cost costLevel = GetFuzzyLevel<EnumAircraft.Cost>(cost);
+            // Mesafe yakın oldukça tehdit artmalı, uzak oldukça tehdit azalmalı
+            //double invertedDistance = 1 - distance; // Mesafeyi ters çevir (yakın = 1, uzak = 0)
 
-            double totalThreat_aircraft = (speed + radarCrossSection + ecmCapability + distance + maneuverability + altitude + cost) / 7;
+            double totalThreat = (weightSpeed * speed) +
+                                 (weightRadarCrossSection * radarCrossSection) +
+                                 (weightECM * ecmCapability) +
+                                 (weightDistance * distance) + // İnverse distance kullan
+                                 (weightManeuverability * maneuverability) +
+                                 (weightAltitude * altitude) +
+                                 (weightCost * cost);
 
-            //MessageBox.Show("totalThreat_aircraft: " + totalThreat_aircraft);
-
-            //MessageBox.Show(
-            //    $"Speed Level: {speedLevel} = {speed}\n" +
-            //    $"radarCrossSection: {radarCrossSectionLevel} = {radarCrossSection}\n" +
-            //    $"ecmCapability: {ecmCapabilityLevel} = {ecmCapability}\n" +
-            //    $"distance: {distanceLevel} = {distance}\n" +
-            //    $"maneuverability: {maneuverabilityLevel} = {maneuverability}\n" +
-            //    $"altitude: {altitudeLevel} = {altitude}\n" +
-            //    $"cost: {costLevel} = {cost}\n" +
-            //    $"Threat Level: {threatLevel} = {threatLevel}");
-
-
-            /*
-            // Çok Yüksek Tehdit Durumları
-            if (speedLevel == EnumAircraft.Speed.VeryFast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryHigh &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.VeryLow &&
-                distanceLevel == EnumAircraft.Range.VeryShort &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.VeryHigh &&
-                altitudeLevel == EnumAircraft.MaxAltitude.VeryLow &&
-                costLevel == EnumAircraft.Cost.Expensive)
-            {
-                threatLevel = Math.Max(threatLevel, 1.0);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.VeryFast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.High &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Low &&
-                distanceLevel == EnumAircraft.Range.Short &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.High &&
-                altitudeLevel == EnumAircraft.MaxAltitude.VeryLow &&
-                costLevel == EnumAircraft.Cost.Expensive)
-            {
-                threatLevel = Math.Max(threatLevel, 0.95);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.VeryFast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryHigh &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Low &&
-                distanceLevel == EnumAircraft.Range.VeryShort &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Medium &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Low &&
-                costLevel == EnumAircraft.Cost.Expensive)
-            {
-                threatLevel = Math.Max(threatLevel, 0.92);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.VeryFast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryHigh &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.VeryLow &&
-                distanceLevel == EnumAircraft.Range.Short &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.High &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Low &&
-                costLevel == EnumAircraft.Cost.Moderate)
-            {
-                threatLevel = Math.Max(threatLevel, 0.90);
-            }
-
-            // Yüksek Tehdit Durumları
-            if (speedLevel == EnumAircraft.Speed.Fast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.High &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Medium &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.High &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Low)
-            {
-                threatLevel = Math.Max(threatLevel, 0.9);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Fast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.High &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Low &&
-                distanceLevel == EnumAircraft.Range.Short &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Medium &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Low &&
-                costLevel == EnumAircraft.Cost.Moderate)
-            {
-                threatLevel = Math.Max(threatLevel, 0.85);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Fast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Medium &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Low &&
-                distanceLevel == EnumAircraft.Range.Short &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.High &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium)
-            {
-                threatLevel = Math.Max(threatLevel, 0.82);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Fast &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.High &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Medium &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Medium &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium)
-            {
-                threatLevel = Math.Max(threatLevel, 0.8);
-            }
-
-            // Orta-Yüksek Tehdit Durumları
-            if (speedLevel == EnumAircraft.Speed.Medium &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Medium &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Medium &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Medium &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium)
-            {
-                threatLevel = Math.Max(threatLevel, 0.75);
-            }
-
-            if ((speedLevel == EnumAircraft.Speed.Fast || speedLevel == EnumAircraft.Speed.Medium) &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.High &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Low &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Medium &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium &&
-                costLevel == EnumAircraft.Cost.Expensive)
-            {
-                threatLevel = Math.Max(threatLevel, 0.7);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Medium &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Medium &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.High &&
-                distanceLevel == EnumAircraft.Range.Short &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.High &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium)
-            {
-                threatLevel = Math.Max(threatLevel, 0.68);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Medium &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Medium &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Medium &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.High &&
-                costLevel == EnumAircraft.Cost.Moderate)
-            {
-                threatLevel = Math.Max(threatLevel, 0.65);
-            }
-
-            // Orta Tehdit Durumları
-            if (speedLevel == EnumAircraft.Speed.Medium &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Medium &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.High &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.High)
-            {
-                threatLevel = Math.Max(threatLevel, 0.6);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Slow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Low &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Medium &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium &&
-                costLevel == EnumAircraft.Cost.Moderate)
-            {
-                threatLevel = Math.Max(threatLevel, 0.55);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Medium &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Low &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.High &&
-                distanceLevel == EnumAircraft.Range.Long &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.High)
-            {
-                threatLevel = Math.Max(threatLevel, 0.52);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Slow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Low &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.High &&
-                distanceLevel == EnumAircraft.Range.Short &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium)
-            {
-                threatLevel = Math.Max(threatLevel, 0.5);
-            }
-
-            // Düşük-Orta Tehdit Durumları
-            if (speedLevel == EnumAircraft.Speed.Slow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Low &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.High &&
-                distanceLevel == EnumAircraft.Range.Long &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.High)
-            {
-                threatLevel = Math.Max(threatLevel, 0.4);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.VerySlow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryLow &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.VeryHigh &&
-                distanceLevel == EnumAircraft.Range.VeryLong &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.High &&
-                costLevel == EnumAircraft.Cost.Cheap)
-            {
-                threatLevel = Math.Max(threatLevel, 0.35);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Slow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Low &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Medium &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Low &&
-                costLevel == EnumAircraft.Cost.Moderate)
-            {
-                threatLevel = Math.Max(threatLevel, 0.38);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.VerySlow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryLow &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.VeryHigh &&
-                distanceLevel == EnumAircraft.Range.VeryLong &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Medium &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium &&
-                costLevel == EnumAircraft.Cost.Cheap)
-            {
-                threatLevel = Math.Max(threatLevel, 0.36);
-            }
-
-            // Düşük Tehdit Durumları
-            if (speedLevel == EnumAircraft.Speed.VerySlow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Low &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.High &&
-                distanceLevel == EnumAircraft.Range.Long &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.VeryLow &&
-                altitudeLevel == EnumAircraft.MaxAltitude.High)
-            {
-                threatLevel = Math.Max(threatLevel, 0.2);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.VerySlow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryLow &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.VeryHigh &&
-                distanceLevel == EnumAircraft.Range.VeryLong &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.VeryLow &&
-                altitudeLevel == EnumAircraft.MaxAltitude.High &&
-                costLevel == EnumAircraft.Cost.VeryCheap)
-            {
-                threatLevel = Math.Max(threatLevel, 0.1);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.VerySlow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.Low &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.High &&
-                distanceLevel == EnumAircraft.Range.Medium &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.VeryLow &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Medium)
-            {
-                threatLevel = Math.Max(threatLevel, 0.15);
-            }
-
-            if (speedLevel == EnumAircraft.Speed.Slow &&
-                ecmCapabilityLevel == EnumAircraft.EcmCapability.VeryLow &&
-                radarCrossSectionLevel == EnumAircraft.RadarCrossSection.Medium &&
-                distanceLevel == EnumAircraft.Range.Long &&
-                maneuverabilityLevel == EnumAircraft.Maneuverability.Low &&
-                altitudeLevel == EnumAircraft.MaxAltitude.Low)
-            {
-                threatLevel = Math.Max(threatLevel, 0.18);
-            }
-            */
-
-            // Varsayılan düşük tehdit seviyesi
-            threatLevel = Math.Max(totalThreat_aircraft, 0.05);
-            //threatLevel = Math.Max(threatLevel, 0.05);
-
-            return threatLevel;
+            return totalThreat;
         }
-
-        //    public (EnumAircraft.Speed, EnumAircraft.RadarCrossSection, EnumAircraft.EcmCapability, EnumAircraft.Range, EnumAircraft.Maneuverability, EnumAircraft.MaxAltitude, EnumAircraft.Cost, double) FindMatchingCombination(
-        //double speed, double radarCrossSection, double ecmCapability, double distance, double maneuverability, double altitude, double cost)
-        //    {
-        //        EnumAircraft.Speed speedLevel = GetFuzzyLevel<EnumAircraft.Speed>(speed);
-        //        EnumAircraft.RadarCrossSection rcsLevel = GetFuzzyLevel<EnumAircraft.RadarCrossSection>(radarCrossSection);
-        //        EnumAircraft.EcmCapability ecmLevel = GetFuzzyLevel<EnumAircraft.EcmCapability>(ecmCapability);
-        //        EnumAircraft.Range distanceLevel = GetFuzzyLevel<EnumAircraft.Range>(distance);
-        //        EnumAircraft.Maneuverability maneuverabilityLevel = GetFuzzyLevel<EnumAircraft.Maneuverability>(maneuverability);
-        //        EnumAircraft.MaxAltitude altitudeLevel = GetFuzzyLevel<EnumAircraft.MaxAltitude>(altitude);
-        //        EnumAircraft.Cost costLevel = GetFuzzyLevel<EnumAircraft.Cost>(cost);
-
-        //        // Kombinasyonlar listesini alıyoruz
-        //        var combinations = GenerateThreatCombinations();
-
-        //        // Eşleşen kombinasyonu arıyoruz
-        //        foreach (var combo in combinations)
-        //        {
-        //            if (combo.Item1 == speedLevel &&
-        //                combo.Item2 == rcsLevel &&
-        //                combo.Item3 == ecmLevel &&
-        //                combo.Item4 == distanceLevel &&
-        //                combo.Item5 == maneuverabilityLevel &&
-        //                combo.Item6 == altitudeLevel &&
-        //                combo.Item7 == costLevel)
-        //            {
-        //                // Eşleşen kombinasyonu bulduk
-        //                return combo;
-        //            }
-        //        }
-
-        //        // Eğer eşleşme bulunamazsa, null döndürüyoruz veya uygun bir değer döndürüyoruz
-        //        return (speedLevel, rcsLevel, ecmLevel, distanceLevel, maneuverabilityLevel, altitudeLevel, costLevel, 0.0);
-        //    }
 
         private T GetFuzzyLevel<T>(double value) where T : Enum
         {
@@ -533,7 +176,21 @@ namespace AirDefenseOptimizer.FuzzyCalculator
         // Kesinleştirme işlemi
         public double Defuzzify(double threatLevel)
         {
-            return Math.Min(1, Math.Max(0, threatLevel));
+            // Normalize tehdit seviyesi
+            threatLevel = Math.Min(1.0, Math.Max(0.0, threatLevel));
+
+            // 5 seviyeli tehdit kategorileri
+            if (threatLevel > 0.8)
+                return 1.0; // Çok yüksek tehdit
+            else if (threatLevel > 0.6)
+                return 0.8; // Yüksek tehdit
+            else if (threatLevel > 0.4)
+                return 0.6; // Orta tehdit
+            else if (threatLevel > 0.2)
+                return 0.4; // Düşük tehdit
+            else
+                return 0.2; // Çok düşük tehdit
         }
+
     }
 }

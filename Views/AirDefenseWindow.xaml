@@ -41,6 +41,7 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150"/>
+                <DataGridTextColumn Header="AirDefense Type" Binding="{Binding AirDefenseType}" Width="150"/>
                 <DataGridTextColumn Header="Aerodynamic Range Min" Binding="{Binding AerodynamicTargetRangeMin}" Width="150"/>
                 <DataGridTextColumn Header="Aerodynamic Range Max" Binding="{Binding AerodynamicTargetRangeMax}" Width="150"/>
                 <DataGridTextColumn Header="Ballistic Range Min" Binding="{Binding BallisticTargetRangeMin}" Width="150"/>
