@@ -110,7 +110,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
-        
+
         private void LoadAirDefenseSystems()
         {
             var airDefenseSystems = _airDefenseService.GetAllAirDefenseSystems();
@@ -189,7 +189,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
-        
+
         private void AddLabelsToPanel(StackPanel panel, string[] labels, int[] widths)
         {
             for (int i = 0; i < labels.Length; i++)
@@ -203,7 +203,7 @@ namespace AirDefenseOptimizer.Views
                 });
             }
         }
-        
+
         private Grid CreateGridWithColumns(int[] columnWidths)
         {
             var grid = new Grid { Margin = new Thickness(0, 10, 0, 10) };
@@ -213,7 +213,7 @@ namespace AirDefenseOptimizer.Views
             }
             return grid;
         }
-        
+
         private void PopulateComboBox(ComboBox comboBox, IEnumerable<string> items, string placeholder)
         {
             comboBox.Items.Add(new ComboBoxItem
@@ -228,7 +228,7 @@ namespace AirDefenseOptimizer.Views
                 comboBox.Items.Add(item);
             }
         }
-        
+
         private void AddAircraftThreat_Click(object sender, RoutedEventArgs e)
         {
             if (ThreatList.Children.Count == 0)
@@ -287,7 +287,7 @@ namespace AirDefenseOptimizer.Views
             ThreatList.Children.Add(threatGrid);
             UpdateIndices(ThreatList);
         }
-        
+
         private void AddAirDefenseSystem_Click(object sender, RoutedEventArgs e)
         {
             if (DefenseList.Children.Count == 0)
@@ -333,7 +333,7 @@ namespace AirDefenseOptimizer.Views
             DefenseList.Children.Add(defenseGrid);
             UpdateIndices(DefenseList);
         }
-        
+
         private Button CreateRemoveButton(Grid grid, StackPanel list)
         {
             var removeButton = new Button
@@ -353,7 +353,7 @@ namespace AirDefenseOptimizer.Views
             };
             return removeButton;
         }
-       
+
         private void AddElementsToGrid(Grid grid, UIElement[] elements)
         {
             for (int i = 0; i < elements.Length; i++)
@@ -362,7 +362,7 @@ namespace AirDefenseOptimizer.Views
                 Grid.SetColumn(elements[i], i);
             }
         }
-        
+
         private Aircraft CreateAircraft(Dictionary<string, object> aircraftData, string selectedAircraft)
         {
             var aircraft = new Aircraft
@@ -419,7 +419,7 @@ namespace AirDefenseOptimizer.Views
 
             return aircraft;
         }
-        
+
         private AirDefense CreateAirDefense(Dictionary<string, object> airDefenseData, string selectedAirDefenseSystem)
         {
             return new AirDefense
@@ -472,7 +472,7 @@ namespace AirDefenseOptimizer.Views
                 }).ToList()
             };
         }
-        
+
         private void CalculateButton_Click(object sender, RoutedEventArgs e)
         {
             var aircraft = new Aircraft
@@ -496,7 +496,7 @@ namespace AirDefenseOptimizer.Views
             // 4. Sonucu gösterin
             //MessageBox.Show($"Calculated Threat Level: {threatLevel}");
         }
-        
+
         private void ShowThreatLevelButton_Click(object sender, RoutedEventArgs e)
         {
             ClearPreviousData();
@@ -507,14 +507,14 @@ namespace AirDefenseOptimizer.Views
             AssignAirDefenseSystemsToThreats();
             ShowThreatDetailsWindow();
         }
-        
+
         private void ClearPreviousData()
         {
             _aircraftThreats.Clear();
             _airDefenseSystems.Clear();
             threatDetails.Clear();
         }
-        
+
         private void ProcessAircraftThreats()
         {
             foreach (Grid threatGrid in ThreatList.Children.OfType<Grid>())
@@ -530,7 +530,7 @@ namespace AirDefenseOptimizer.Views
                 ProcessAircraftInput(aircraftComboBox, iffComboBox, locationTextBox, speedTextBox);
             }
         }
-        
+
         private void ProcessAircraftInput(ComboBox aircraftComboBox, ComboBox iffComboBox, TextBox locationTextBox, TextBox speedTextBox)
         {
             string? selectedAircraft = aircraftComboBox.SelectedItem?.ToString();
@@ -557,7 +557,7 @@ namespace AirDefenseOptimizer.Views
 
             AddAircraftToThreatList(aircraftData, selectedAircraft, location, stringSpeed, selectedIFF);
         }
-        
+
         private void AddAircraftToThreatList(dynamic aircraftData, string selectedAircraft, string location, string stringSpeed, IFF selectedIFF)
         {
             var aircraft = CreateAircraft(aircraftData, selectedAircraft);
@@ -579,7 +579,7 @@ namespace AirDefenseOptimizer.Views
 
             _aircraftThreats.Add(new AircraftInput(aircraft, selectedIFF, speedValue, location, distance, threatLevel, threatScore));
         }
-        
+
         private void ProcessAirDefenseSystems()
         {
             foreach (Grid defenseGrid in DefenseList.Children.OfType<Grid>())
@@ -593,7 +593,7 @@ namespace AirDefenseOptimizer.Views
                 ProcessAirDefenseInput(defenseComboBox, locationTextBox);
             }
         }
-        
+
         private void ProcessAirDefenseInput(ComboBox defenseComboBox, TextBox locationTextBox)
         {
             string? selectedAirDefenseSystem = defenseComboBox.SelectedItem?.ToString();
@@ -616,7 +616,7 @@ namespace AirDefenseOptimizer.Views
             var airDefense = CreateAirDefense(airDefenseData, selectedAirDefenseSystem);
             _airDefenseSystems.Add(new AirDefenseInput(airDefense, location));
         }
-        
+
         private List<Radar> DetectAircraftByRadars()
         {
             var detectedRadarList = new List<Radar>();
@@ -645,7 +645,7 @@ namespace AirDefenseOptimizer.Views
 
             return detectedRadarList;
         }
-        
+
         private void CheckRadarDetection(AirDefenseInput airDefenseInput, AircraftInput aircraftInput, Position defensePosition, Position aircraftPosition, List<Radar> detectedRadarList)
         {
             double distance = Position.CalculateDistance(defensePosition, aircraftPosition);
@@ -659,7 +659,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
-        
+
         private void UpdateThreatDetails(List<Radar> detectedRadarList)
         {
             foreach (var aircraftInput in _aircraftThreats)
@@ -713,13 +713,6 @@ namespace AirDefenseOptimizer.Views
                 if (adsPosition == null || threatPosition == null)
                     continue;
 
-                // Angajman kapasitesini kontrol edin
-                if (airDefense.CurrentEngagements >= airDefense.MaxEngagements)
-                {
-                    //MessageBox.Show($"Air defense system {airDefense.Name} has reached its maximum engagements.");
-                    continue;
-                }
-
                 // Mesafe hesaplanıyor
                 double distance = Position.CalculateDistance(threatPosition, adsPosition);
 
@@ -731,8 +724,7 @@ namespace AirDefenseOptimizer.Views
                 {
                     // Sadece belirtilen türdeki sistemleri kontrol et
                     var candidates = airDefenseSystems
-                        .Where(ads => ads.AirDefense.AirDefenseType == preferredType
-                                   && ads.AirDefense.CurrentEngagements < ads.AirDefense.MaxEngagements)
+                        .Where(ads => ads.AirDefense.AirDefenseType == preferredType)
                         .ToList();
 
                     // Eğer bu türde sistem varsa en iyi skorlu olanı seç
@@ -744,6 +736,10 @@ namespace AirDefenseOptimizer.Views
                         foreach (var candidate in candidates)
                         {
                             var candidateAirDefense = candidate.AirDefense;
+
+                            if (!CanEngageThreat(candidate.AirDefense, threat.Aircraft, adsPosition, threatPosition))
+                                continue;
+
                             double score = CalculateAirDefenseScore(candidateAirDefense, threat, distance);
 
                             if (score < bestScore)
@@ -760,11 +756,7 @@ namespace AirDefenseOptimizer.Views
                             return bestDefense;
                         }
                     }
-
-                    // Eğer mevcut türde hiçbir sistem yoksa bir üst türe geç
                 }
-                // Hiçbir türde uygun sistem bulunamadıysa null döndür
-                return null;
             }
             // Hiçbir türde uygun sistem bulunamadıysa null döndür
             return null;
@@ -801,15 +793,6 @@ namespace AirDefenseOptimizer.Views
             }
             // Eğer mesafe 40'tan büyükse sadece LongRange savunma sistemlerini kontrol et
             return new List<AirDefenseType> { AirDefenseType.LongRange };
-        }
-
-        private bool IsWithinEngagementRange(double distance, double altitude, AirDefense airDefense)
-        {
-            return distance >= airDefense.AerodynamicTargetRangeMin &&
-                   distance < airDefense.AerodynamicTargetRangeMax &&
-                   airDefense.Radars.All(r => (altitude >= r.Radar.MinAltitude) && (altitude < r.Radar.MaxAltitude)) &&
-                   airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance) &&
-                   airDefense.CurrentEngagements < airDefense.MaxEngagements;
         }
 
         /*
@@ -1089,18 +1072,19 @@ namespace AirDefenseOptimizer.Views
         {
             double distance = Position.CalculateDistance(airDefensePosition, threatPosition);
 
-            // Radar yeteneklerini kontrol et
-            bool withinRadarRange = airDefense.Radars.Any(radar =>
-                radar.Radar.MaxDetectionRange >= distance &&
-                threat.Speed <= radar.Radar.MaxTargetSpeed);
+            bool canEngage = distance >= airDefense.AerodynamicTargetRangeMin &&
+                             distance < airDefense.AerodynamicTargetRangeMax &&
+                             airDefense.Radars.All(r => (threatPosition.Altitude >= r.Radar.MinAltitude) &&
+                                                        (threatPosition.Altitude < r.Radar.MaxAltitude) &&
+                                                        (r.Radar.MaxDetectionRange >= distance) &&
+                                                        (r.Radar.MinDetectionRange < distance) &&
+                                                        (r.Radar.MaxTargetSpeed > threat.Speed) &&
+                                                        airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance) &&
+                             airDefense.CurrentEngagements < airDefense.MaxEngagements);
 
-            // Mühimmat ve angajman durumu
-            bool hasAvailableMunitions = airDefense.Munitions.Any(m => m.Quantity > 0 && m.Munition.Range >= distance);
-
-            // Angajman kriterleri
-            return withinRadarRange && hasAvailableMunitions && airDefense.MaxEngagements > 0;
+            return canEngage;
         }
-        
+
         private Position GetSourcePosition()
         {
             Position sourcePosition = new Position(
@@ -1143,7 +1127,7 @@ namespace AirDefenseOptimizer.Views
                 }
             }
         }
-        
+
         private string GenerateRandomLocation()
         {
             // Enlem (Latitude): 36° ile 42° arasında
