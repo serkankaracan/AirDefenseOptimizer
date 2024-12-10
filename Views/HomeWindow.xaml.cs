@@ -834,6 +834,14 @@ namespace AirDefenseOptimizer.Views
             if (airDefense.Munitions.Count == 0 || !airDefense.Munitions.Any(m => m.Quantity > 0))
                 return 0.0;
 
+            // Mühimmat maliyet skoru (normalize)
+            //double normalizedMunitionCost = Normalize(
+            //    airDefense.Munitions
+            //    .Where(m => m.Quantity > 0)
+            //    .Select(m => m.Munition.Cost)
+            //    .DefaultIfEmpty(0)
+            //    .Average(), 0, 15);
+
             // Toplam maliyet ve toplam miktarı hesaplıyoruz
             double totalCost = airDefense.Munitions
                 .Where(m => m.Quantity > 0 && m.Munition != null)
@@ -952,30 +960,13 @@ namespace AirDefenseOptimizer.Views
         private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)
         {
             // Ağırlıklar
-            const double distanceWeight = 0.25;
-            const double radarCapabilityWeight = 0.1;
-            const double ecmCapabilityWeight = 0.15;
+            const double distanceWeight = 0.3;
+            const double ecmCapabilityWeight = 0.2;
             const double munitionCostWeight = 0.2;
             const double threatLevelWeight = 0.3;
 
-            // Radar yetenek skorları (normalize)
-            double radarScore = airDefense.Radars
-                .Where(r => r.Radar.MaxDetectionRange > distance && r.Radar.MaxAltitude > threat.Altitude)
-                .Select(r => Normalize(r.Radar.MaxDetectionRange / distance, 0, 1) + Normalize(r.Radar.MaxAltitude / threat.Altitude, 0, 1))
-                .Sum();
-
             // ECM kabiliyet skoru (normalize)
             double ecmScore = CalculateEcmScore(airDefense.ECMCapability, threat.Aircraft.ECMCapability);
-
-            // Mühimmat maliyet skoru (normalize)
-            //double normalizedMunitionCost = Normalize(
-            //    airDefense.Munitions
-            //    .Where(m => m.Quantity > 0)
-            //    .Select(m => m.Munition.Cost)
-            //    .DefaultIfEmpty(0)
-            //    .Average(), 0, 15);
-
-            double normalizedMunitionCost = CalculateMunitionCostScore(airDefense);
 
             // Tehdit seviyesi skoru (normalize)
             double normalizedThreatLevel = Normalize(threat.ThreatScore ?? 0, 0, 1);
@@ -984,11 +975,10 @@ namespace AirDefenseOptimizer.Views
             double normalizedDistance = Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
             normalizedDistance = 1 - normalizedDistance;
 
-            //double normalizedMunitionCost = Normalize(munitionCostScore, 1000000, 100000000); // Tahmini maliyet aralığı
+            double normalizedMunitionCost = Normalize(CalculateMunitionCostScore(airDefense), 1000000, 100000000); // Tahmini maliyet aralığı
 
             // Genel skor hesaplama
             double score = (normalizedDistance * distanceWeight) +
-                           (radarScore * radarCapabilityWeight) +
                            (ecmScore * ecmCapabilityWeight) +
                            (normalizedMunitionCost * munitionCostWeight) +
                            ((1 - normalizedThreatLevel) * threatLevelWeight);
