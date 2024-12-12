@@ -505,7 +505,6 @@ namespace AirDefenseOptimizer.Views
             ProcessAirDefenseSystems();
             List<Radar> detectedRadarList = DetectAircraftByRadars();
             UpdateThreatDetails(detectedRadarList);
-            AssignAirDefenseSystemsToThreats();
             ShowThreatDetailsWindow();
         }
 
@@ -740,8 +739,6 @@ namespace AirDefenseOptimizer.Views
 
                             if (!CanEngageThreat(candidate.AirDefense, threat.Aircraft, adsPosition, threatPosition))
                                 continue;
-
-                            MessageBox.Show(candidateAirDefense.Name.ToString());
 
                             double score = CalculateAirDefenseScore(candidateAirDefense, threat, distance);
 
@@ -1018,23 +1015,6 @@ namespace AirDefenseOptimizer.Views
         private double Normalize(double value, double min, double max)
         {
             return (value - min) / (max - min);
-        }
-
-        private void AssignAirDefenseSystemsToThreats()
-        {
-            foreach (var threat in threatDetails)
-            {
-                var optimalADS = GetOptimalAirDefenseSystem(threat, _airDefenseSystems);
-                if (optimalADS != null)
-                {
-                    threat.AssignedADS = optimalADS;
-                    optimalADS.MaxEngagements--; // Angajman kapasitesini azalt
-                }
-                else
-                {
-                    //MessageBox.Show($"No suitable Air Defense System found for threat: {threat.Aircraft?.Name}");
-                }
-            }
         }
 
         private bool CanRadarEngage(AirDefenseRadar radar, double distance, double altitude)
