@@ -221,6 +221,19 @@ namespace AirDefenseOptimizer.Services
             _databaseHelper.ExecuteNonQuery(updateQuery, connection, parameters);
         }
 
+        // Radarları listeleyen metot
+        public List<Dictionary<string, object>> GetAllRadars()
+        {
+            using var connection = _connectionManager.GetConnection();
+            string selectQuery = @"SELECT Id, Name, MaxDetectionTargets, MaxTrackingTargets, 
+                                  MinDetectionRange, MaxDetectionRange, MinAltitude, 
+                                  MaxAltitude, MaxTargetSpeed, RadarType, MaxTargetVelocity, 
+                                  RedeploymentTime
+                           FROM Radar;";
+
+            return _databaseHelper.ExecuteReader(selectQuery, connection, null);
+        }
+
         // Tüm hava savunma sistemlerini listeleyen metot
         public List<Dictionary<string, object>> GetAllAirDefenseSystems()
         {

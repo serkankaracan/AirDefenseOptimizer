@@ -10,22 +10,22 @@
         <DataGrid x:Name="ThreatDataGrid" AutoGenerateColumns="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="15"/>
-                <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft.Name}" Width="*"/>
+                <DataGridTextColumn Header="Aircraft" Binding="{Binding Aircraft.Name}" Width="150"/>
                 <DataGridTextColumn Header="IFF Mode" Binding="{Binding IFFMode}" Width="75"/>
-                <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="*"/>
+                <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="75"/>
                 <!--DataGridTextColumn Header="Location" Binding="{Binding Location}" Width="*"/-->
-                <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="*"/>
-                <DataGridTextColumn Header="Altitude" Binding="{Binding Altitude}" Width="*"/>
-                <DataGridTemplateColumn Header="Aircraft Munitions" Width="*">
+                <DataGridTextColumn Header="Distance" Binding="{Binding Distance}" Width="125"/>
+                <DataGridTextColumn Header="Altitude" Binding="{Binding Altitude}" Width="75"/>
+                <DataGridTemplateColumn Header="Aircraft Munitions" Width="200">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding AircraftMunitionNames}" TextWrapping="Wrap"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Threat Level" Binding="{Binding ThreatLevel}" Width="*"/>
-                <DataGridTextColumn Header="Threat Score" Binding="{Binding ThreatScore}" Width="*"/>
-                <DataGridTemplateColumn Header="Detected by Radar" Width="*">
+                <DataGridTextColumn Header="Threat Level" Binding="{Binding ThreatLevel}" Width="100"/>
+                <DataGridTextColumn Header="Threat Score" Binding="{Binding ThreatScore}" Width="140"/>
+                <DataGridTemplateColumn Header="Detected by Radar" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DetectedByRadarNames}"/>

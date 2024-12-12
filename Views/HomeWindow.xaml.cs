@@ -266,6 +266,7 @@ namespace AirDefenseOptimizer.Views
                 Name = "LocationTextBox",
                 Width = 160,
                 Text = GenerateRandomLocation(),
+                //Text = GetSourceLocation(),
                 MaxLength = 50
             };
 
@@ -319,7 +320,7 @@ namespace AirDefenseOptimizer.Views
             var locationTextBox = new TextBox
             {
                 Width = 160,
-                Text = GenerateRandomLocation(),
+                Text = GetSourceLocation(),
                 MaxLength = 25
             };
 
@@ -740,6 +741,8 @@ namespace AirDefenseOptimizer.Views
                             if (!CanEngageThreat(candidate.AirDefense, threat.Aircraft, adsPosition, threatPosition))
                                 continue;
 
+                            MessageBox.Show(candidateAirDefense.Name.ToString());
+
                             double score = CalculateAirDefenseScore(candidateAirDefense, threat, distance);
 
                             if (score < bestScore)
@@ -875,6 +878,28 @@ namespace AirDefenseOptimizer.Views
             return munitionCostScore;
         }
 
+        private double CalculateRadarSpeedScore(AirDefense airDefense)
+        {
+            // Tüm mühimmatların birim maliyetlerini alıyoruz
+            var allRadarSpeeds = _airDefenseService.GetAllRadars().Select(r => Convert.ToDouble(r["MaxTargetSpeed"])).ToList();
+
+            // Eğer hava savunma sistemi mühimmata sahip değilse veya miktar 0 ise skor 0
+            if (airDefense.Radars.Count == 0 || !airDefense.Radars.Any(r => r.Quantity > 0))
+                return 0.0;
+
+            double globalRadarSpeedMin = allRadarSpeeds.Min();
+            double globalRadarSpeedMax = allRadarSpeeds.Max();
+
+            // Toplam maliyet ve toplam miktarı hesaplıyoruz
+            double averageSpeed = airDefense.Radars
+                .Where(m => m.Quantity > 0 && m.Radar != null)
+                .Average(m => m.Radar.MaxTargetSpeed);
+
+            double normalizedRadarSpeed = Normalize(averageSpeed, globalRadarSpeedMin, globalRadarSpeedMax);
+
+            return normalizedRadarSpeed;
+        }
+
         private double CalculateEcmScore(ECMCapability airDefenseEcm, ECMCapability threatEcm)
         {
             // ECM uyumluluk puanlarını bir matris (sözlük) olarak tanımlıyoruz
@@ -960,10 +985,11 @@ namespace AirDefenseOptimizer.Views
         private double CalculateAirDefenseScore(AirDefense airDefense, ThreatDetail threat, double distance)
         {
             // Ağırlıklar
-            const double distanceWeight = 0.3;
-            const double ecmCapabilityWeight = 0.2;
-            const double munitionCostWeight = 0.2;
+            const double distanceWeight = 0.25;
+            const double ecmCapabilityWeight = 0.15;
+            const double munitionCostWeight = 0.15;
             const double threatLevelWeight = 0.3;
+            const double radarSpeedWeight = 0.15;
 
             // ECM kabiliyet skoru (normalize)
             double ecmScore = CalculateEcmScore(airDefense.ECMCapability, threat.Aircraft.ECMCapability);
@@ -975,13 +1001,16 @@ namespace AirDefenseOptimizer.Views
             double normalizedDistance = Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
             normalizedDistance = 1 - normalizedDistance;
 
+            double radarSpeedScore = CalculateRadarSpeedScore(airDefense);
+
             double normalizedMunitionCost = Normalize(CalculateMunitionCostScore(airDefense), 1000000, 100000000); // Tahmini maliyet aralığı
 
             // Genel skor hesaplama
             double score = (normalizedDistance * distanceWeight) +
                            (ecmScore * ecmCapabilityWeight) +
                            (normalizedMunitionCost * munitionCostWeight) +
-                           ((1 - normalizedThreatLevel) * threatLevelWeight);
+                           ((1 - normalizedThreatLevel) * threatLevelWeight +
+                           radarSpeedScore * radarSpeedWeight);
 
             return score;
         }
@@ -1120,17 +1149,19 @@ namespace AirDefenseOptimizer.Views
 
         private string GenerateRandomLocation()
         {
-            // Enlem (Latitude): 36° ile 42° arasında
-            //double latitude = 36 + rand.NextDouble() * 6; // 36 ile 42 arasında
-            double latitude = 39.9334;
+            double latitude = GetSourcePosition().Latitude + rand.NextDouble() * 1.5f;
+            double longitude = GetSourcePosition().Longitude + rand.NextDouble() * 1.5f;
+            double altitude = GetSourcePosition().Altitude + rand.NextDouble() * 1.5f;
 
-            // Boylam (Longitude): 26° ile 45° arasında
-            //double longitude = 26 + rand.NextDouble() * 19; // 26 ile 45 arasında
-            double longitude = 32.8597;
+            // Değerleri formatlayarak string olarak döndür
+            return $"{latitude.ToString("F4", CultureInfo.InvariantCulture)}, {longitude.ToString("F4", CultureInfo.InvariantCulture)}, {altitude.ToString("F0", CultureInfo.InvariantCulture)}";
+        }
 
-            // İrtifa (Altitude): 0 ile 3,000 metre arasında
-            //double altitude = rand.NextDouble() * 3000;
-            double altitude = 890;
+        private string GetSourceLocation()
+        {
+            double latitude = GetSourcePosition().Latitude;
+            double longitude = GetSourcePosition().Longitude;
+            double altitude = GetSourcePosition().Altitude;
 
             // Değerleri formatlayarak string olarak döndür
             return $"{latitude.ToString("F4", CultureInfo.InvariantCulture)}, {longitude.ToString("F4", CultureInfo.InvariantCulture)}, {altitude.ToString("F0", CultureInfo.InvariantCulture)}";
