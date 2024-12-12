@@ -1,6 +1,4 @@
-﻿using System.Windows;
-using AirDefenseOptimizer.Enums;
-using AirDefenseOptimizer.FuzzyEnums;
+﻿using AirDefenseOptimizer.Enums;
 
 namespace AirDefenseOptimizer.FuzzyCalculator
 {
@@ -37,7 +35,12 @@ namespace AirDefenseOptimizer.FuzzyCalculator
 
             double numerator = veryLow * 0.9 + low * 0.7 + medium * 0.5 + high * 0.3 + veryHigh * 0.1;
             double denominator = veryLow + low + medium + high + veryHigh;
-            return denominator != 0 ? numerator / denominator : 0;
+            double result = denominator != 0 ? numerator / denominator : 0;
+
+            if (result >= 15)
+                result = 0;
+
+            return result;
         }
 
         // ECM yeteneği için üçgen bulanık kümeler (Düşük, Orta, Yüksek ECM kategorileri)
