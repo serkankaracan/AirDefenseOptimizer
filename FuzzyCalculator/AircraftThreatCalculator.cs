@@ -33,20 +33,21 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double altitudeFuzzy = _fuzzyCalculator.FuzzyfyAltitude(altitude);
             double costFuzzy = _fuzzyCalculator.FuzzyfyCost(cost);
 
-            //string message = $"Radar Cross Section Fuzzy: {radarCrossSectionFuzzy}\n" +
-            //     $"ECM Capability Fuzzy: {ecmCapabilityFuzzy}\n" +
-            //     $"Distance Fuzzy: {distanceFuzzy}\n" +
-            //     $"Speed Fuzzy: {speedFuzzy}\n" +
-            //     $"Maneuverability Fuzzy: {maneuverabilityFuzzy}\n" +
-            //     $"Altitude Fuzzy: {altitudeFuzzy}\n" +
-            //     $"Cost Fuzzy: {costFuzzy}";
+            string message = $"Radar Cross Section Fuzzy: {radarCrossSectionFuzzy}\n" +
+                 $"ECM Capability Fuzzy: {ecmCapabilityFuzzy}\n" +
+                 $"Distance Fuzzy: {distanceFuzzy}\n" +
+                 $"Speed Fuzzy: {speedFuzzy}\n" +
+                 $"Maneuverability Fuzzy: {maneuverabilityFuzzy}\n" +
+                 $"Altitude Fuzzy: {altitudeFuzzy}\n" +
+                 $"Cost Fuzzy: {costFuzzy}";
 
-            //MessageBox.Show(message, "Fuzzy Values", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(message, "Fuzzy Values", MessageBoxButton.OK, MessageBoxImage.Information);
 
 
             double munitionThreatContribution = CalculateMunitionThreatContribution(aircraft.Munitions);
 
-            //MessageBox.Show($"munitionThreatContribution: {munitionThreatContribution}");
+            MessageBox.Show($"munitionThreatContribution: {munitionThreatContribution}");
+
 
             double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy, maneuverabilityFuzzy, altitudeFuzzy, costFuzzy);
 
@@ -93,10 +94,10 @@ namespace AirDefenseOptimizer.FuzzyCalculator
                 double maneuverability = Normalize(munition.Munition.Maneuverability.GetManeuverabilityNumber(), minManeuverability, maxManeuverability);
 
                 // Ağırlıklar
-                double weightExplosivePower = 0.4;
-                double weightRange = 0.2;
-                double weightSpeed = 0.2;
-                double weightManeuverability = 0.2;
+                double weightExplosivePower = 0.35;
+                double weightRange = 0.25;
+                double weightSpeed = 0.25;
+                double weightManeuverability = 0.15;
 
                 // Normalize edilmiş tehdit katkısı
                 double munitionThreat = (weightExplosivePower * explosivePower) +
