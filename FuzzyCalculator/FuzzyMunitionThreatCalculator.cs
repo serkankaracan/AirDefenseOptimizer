@@ -14,9 +14,9 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = low + medium + high;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (result <= 25)
+            if (explosivePower <= 25)
                 result = 0;
-            if (result >= 400)
+            if (explosivePower >= 400)
                 result = 1;
 
             return result;
@@ -32,9 +32,9 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = shortRange + mediumRange + longRange;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (result <= 5)
+            if (range <= 5)
                 result = 0;
-            if (result >= 150)
+            if (range >= 150)
                 result = 1;
 
             return result;
@@ -50,9 +50,9 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = low + medium + high;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (result <= 500)
+            if (speed <= 500)
                 result = 0;
-            if (result >= 4000)
+            if (speed >= 4000)
                 result = 1;
 
             return result;
@@ -68,9 +68,9 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = low + medium + high;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (result <= 0)
+            if (maneuverability.GetManeuverabilityNumber() <= 0)
                 result = 0;
-            if (result >= 9)
+            if (maneuverability.GetManeuverabilityNumber() >= 9)
                 result = 1;
 
             return result;
@@ -86,9 +86,9 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = low + medium + high;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (result >= 9)
+            if (quantity >= 9)
                 result = 1;
-            if (result == 0)
+            if (quantity == 0)
                 result = 0;
 
             return result;

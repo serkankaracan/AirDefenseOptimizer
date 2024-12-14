@@ -39,9 +39,9 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = veryLow + low + medium + high + veryHigh;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (result <= 1)
+            if (rcs <= 1)
                 result = 1;
-            if (result >= 16)
+            if (rcs >= 16)
                 result = 0;
 
             return result;

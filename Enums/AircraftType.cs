@@ -12,7 +12,8 @@
         UAV,
         AirborneWarning,
         Tanker,
-        MultiRole
+        MultiRole,
+        CruiseMissile
     }
 
     public static class AircraftTypeExtensions
@@ -32,6 +33,7 @@
                 AircraftType.AirborneWarning => "Airborne Warning and Control System (AWACS)",
                 AircraftType.Tanker => "Tanker",
                 AircraftType.MultiRole => "Multi-Role Aircraft",
+                AircraftType.CruiseMissile => "Cruise Missile",
                 _ => "Unknown"
             };
         }

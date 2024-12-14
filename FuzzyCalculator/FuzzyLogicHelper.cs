@@ -2,7 +2,6 @@
 {
     public class FuzzyLogicHelper
     {
-        // Üçgen üyelik fonksiyonu: x değeri ile a, b ve c noktalarına göre üyelik hesaplar
         public static double TriangularMembership(double x, double a, double b, double c)
         {
             if (x <= a || x >= c)

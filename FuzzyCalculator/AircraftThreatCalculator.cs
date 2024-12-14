@@ -44,10 +44,10 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             MessageBox.Show(message, "Fuzzy Values", MessageBoxButton.OK, MessageBoxImage.Information);
 
 
-            double munitionThreatContribution = CalculateMunitionThreatContribution(aircraft.Munitions);
+            //double munitionThreatContribution = CalculateMunitionThreatContribution(aircraft.Munitions);
+            double munitionThreatContribution = CalculateFuzzyMunitionThreatContribution(aircraft.Munitions);
 
             MessageBox.Show($"munitionThreatContribution: {munitionThreatContribution}");
-
 
             double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy, maneuverabilityFuzzy, altitudeFuzzy, costFuzzy);
 
@@ -60,6 +60,31 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             return totalThreatLevel;
         }
 
+        double CalculateFuzzyMunitionThreatContribution(List<AircraftMunition> munitions)
+        {
+            double totalMunitionsContribution = 0;
+
+            // Ağırlıklar
+            double weightExplosivePower = 0.35;
+            double weightRange = 0.25;
+            double weightSpeed = 0.25;
+            double weightManeuverability = 0.15;
+
+            foreach (var munition in munitions)
+            {
+                double explosivePower = _munitionCalculator.FuzzifyExplosivePower(munition.Munition.ExplosivePower);
+                double range = _munitionCalculator.FuzzifyRange(munition.Munition.Range);
+                double speed = _munitionCalculator.FuzzifySpeed(munition.Munition.Speed);
+                double maneuverability = _munitionCalculator.FuzzifyManeuverability(munition.Munition.Maneuverability);
+
+                totalMunitionsContribution += ((weightExplosivePower * explosivePower) +
+                                        (weightRange * range) +
+                                        (weightSpeed * speed) +
+                                        (weightManeuverability * maneuverability)) * munition.Quantity;
+            }
+
+            return Normalize(totalMunitionsContribution, 0, 6);
+        }
 
         double CalculateMunitionThreatContribution(List<AircraftMunition> munitions)
         {

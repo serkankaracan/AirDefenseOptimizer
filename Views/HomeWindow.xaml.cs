@@ -875,26 +875,45 @@ namespace AirDefenseOptimizer.Views
             return munitionCostScore;
         }
 
-        private double CalculateRadarSpeedScore(AirDefense airDefense)
+        private double CalculateRadarScore(AirDefense airDefense)
         {
             // Tüm mühimmatların birim maliyetlerini alıyoruz
-            var allRadarSpeeds = _airDefenseService.GetAllRadars().Select(r => Convert.ToDouble(r["MaxTargetSpeed"])).ToList();
+            var allRadars = _airDefenseService.GetAllRadars().ToList();
 
             // Eğer hava savunma sistemi mühimmata sahip değilse veya miktar 0 ise skor 0
             if (airDefense.Radars.Count == 0 || !airDefense.Radars.Any(r => r.Quantity > 0))
                 return 0.0;
 
-            double globalRadarSpeedMin = allRadarSpeeds.Min();
-            double globalRadarSpeedMax = allRadarSpeeds.Max();
+            double globalRadarSpeedMin = allRadars.Select(r => Convert.ToDouble(r["MaxTargetSpeed"])).Min();
+            double globalRadarSpeedMax = allRadars.Select(r => Convert.ToDouble(r["MaxTargetSpeed"])).Max();
 
-            // Toplam maliyet ve toplam miktarı hesaplıyoruz
             double averageSpeed = airDefense.Radars
                 .Where(m => m.Quantity > 0 && m.Radar != null)
                 .Average(m => m.Radar.MaxTargetSpeed);
 
             double normalizedRadarSpeed = Normalize(averageSpeed, globalRadarSpeedMin, globalRadarSpeedMax);
 
-            return normalizedRadarSpeed;
+            double globalRangeMin = allRadars.Select(r => Convert.ToDouble(r["MaxDetectionRange"])).Min();
+            double globalRangeMax = allRadars.Select(r => Convert.ToDouble(r["MaxDetectionRange"])).Max();
+
+            double radarRangeScore = airDefense.Radars
+                .Where(m => m.Radar.MaxDetectionRange > 0)
+                .Average(m => m.Radar.MaxDetectionRange);
+
+            double normalizedRadarRange = Normalize(radarRangeScore, globalRangeMin, globalRangeMax);
+
+            double globalAltitudeMin = allRadars.Select(r => Convert.ToDouble(r["MaxAltitude"])).Min();
+            double globalAltitudeMax = allRadars.Select(r => Convert.ToDouble(r["MaxAltitude"])).Max();
+
+            double radarAltitudeScore = airDefense.Radars
+                .Where(m => m.Radar.MaxAltitude > 0)
+                .Average(m => m.Radar.MaxAltitude);
+
+            double normalizedAltitude = Normalize(radarAltitudeScore, globalAltitudeMin, globalAltitudeMax);
+
+            double totalRadarScore = (normalizedRadarSpeed + normalizedRadarRange + normalizedAltitude) / 3;
+
+            return totalRadarScore;
         }
 
         private double CalculateEcmScore(ECMCapability airDefenseEcm, ECMCapability threatEcm)
@@ -986,7 +1005,7 @@ namespace AirDefenseOptimizer.Views
             const double ecmCapabilityWeight = 0.15;
             const double munitionCostWeight = 0.15;
             const double threatLevelWeight = 0.3;
-            const double radarSpeedWeight = 0.15;
+            const double radarWeight = 0.15;
 
             // ECM kabiliyet skoru (normalize)
             double ecmScore = CalculateEcmScore(airDefense.ECMCapability, threat.Aircraft.ECMCapability);
@@ -998,7 +1017,7 @@ namespace AirDefenseOptimizer.Views
             double normalizedDistance = Normalize(distance, 0, airDefense.AerodynamicTargetRangeMax);
             normalizedDistance = 1 - normalizedDistance;
 
-            double radarSpeedScore = CalculateRadarSpeedScore(airDefense);
+            double radarScore = CalculateRadarScore(airDefense);
 
             double normalizedMunitionCost = Normalize(CalculateMunitionCostScore(airDefense), 1000000, 100000000); // Tahmini maliyet aralığı
 
@@ -1007,7 +1026,7 @@ namespace AirDefenseOptimizer.Views
                            (ecmScore * ecmCapabilityWeight) +
                            (normalizedMunitionCost * munitionCostWeight) +
                            ((1 - normalizedThreatLevel) * threatLevelWeight +
-                           radarSpeedScore * radarSpeedWeight);
+                           radarScore * radarWeight);
 
             return score;
         }
