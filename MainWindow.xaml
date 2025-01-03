@@ -64,7 +64,7 @@
                     <Button x:Name="btnHomePage" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/Icons/home.png" Width="24" Height="24" Margin="0,0,10,0"/>
-                            <TextBlock Text="Ana Sayfa" VerticalAlignment="Center"/>
+                            <TextBlock Text="Homepage" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -80,7 +80,7 @@
                     <Button x:Name="btnAdsPage" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/Icons/ads.png" Width="24" Height="24" Margin="0,0,10,0"/>
-                            <TextBlock Text="Hava Savunma Sistemi" VerticalAlignment="Center"/>
+                            <TextBlock Text="Air Defense Systems" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -88,7 +88,7 @@
                     <Button x:Name="btnAircratfPage" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/Icons/aircraft.png" Width="24" Height="24" Margin="0,0,10,0"/>
-                            <TextBlock Text="Hava Aracı" VerticalAlignment="Center"/>
+                            <TextBlock Text="Aircrafts" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -96,7 +96,7 @@
                     <Button x:Name="btnMunitionPage" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/Icons/munition.png" Width="24" Height="24" Margin="0,0,10,0"/>
-                            <TextBlock Text="Mühimmat" VerticalAlignment="Center"/>
+                            <TextBlock Text="Munitions" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -104,7 +104,7 @@
                     <Button x:Name="btnRadarPage" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/Icons/radar.png" Width="24" Height="24" Margin="0,0,10,0"/>
-                            <TextBlock Text="Radar" VerticalAlignment="Center"/>
+                            <TextBlock Text="Radars" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
@@ -120,7 +120,7 @@
                     <Button x:Name="btnExit" Style="{StaticResource SelectableButtonStyle}" Click="MenuButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/Icons/exit.png" Width="24" Height="24" Margin="0,0,10,0"/>
-                            <TextBlock Text="Çıkış" VerticalAlignment="Center"/>
+                            <TextBlock Text="Exit" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

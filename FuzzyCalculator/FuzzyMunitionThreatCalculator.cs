@@ -79,7 +79,7 @@ namespace AirDefenseOptimizer.FuzzyCalculator
         public double FuzzifyQuantity(double quantity)
         {
             double low = FuzzyLogicHelper.TriangularMembership(quantity, 1, 3, 5);
-            double medium = FuzzyLogicHelper.TriangularMembership(quantity, 4, 6, 8);
+            double medium = FuzzyLogicHelper.TriangularMembership(quantity, 3, 5, 7);
             double high = FuzzyLogicHelper.TriangularMembership(quantity, 5, 7, 9);
 
             double numerator = low * 0.1 + medium * 0.5 + high * 0.9;

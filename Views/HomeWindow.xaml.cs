@@ -1069,10 +1069,10 @@ namespace AirDefenseOptimizer.Views
 
         private string GetThreatLevel(double threatLevel)
         {
-            if (threatLevel >= 0.85) return "Very High";
-            if (threatLevel >= 0.70) return "High";
-            if (threatLevel >= 0.45) return "Normal";
-            if (threatLevel >= 0.25) return "Low";
+            if (threatLevel >= 0.8) return "Very High";
+            if (threatLevel >= 0.6) return "High";
+            if (threatLevel >= 0.4) return "Normal";
+            if (threatLevel >= 0.2) return "Low";
             return "Very Low";
         }
 

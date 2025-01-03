@@ -1,4 +1,5 @@
 ﻿using AirDefenseOptimizer.Enums;
+using System.Windows;
 
 namespace AirDefenseOptimizer.FuzzyCalculator
 {
@@ -39,7 +40,7 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double denominator = veryLow + low + medium + high + veryHigh;
             double result = denominator != 0 ? numerator / denominator : 0;
 
-            if (rcs <= 1)
+            if (rcs <= 0.1)
                 result = 1;
             if (rcs >= 16)
                 result = 0;
@@ -170,6 +171,8 @@ namespace AirDefenseOptimizer.FuzzyCalculator
                                  (weightAltitude * altitude) +
                                  (weightCost * cost);
 
+            //MessageBox.Show($"aircraftThreatLevel: {totalThreat}");
+
             return totalThreat;
         }
 
@@ -195,11 +198,11 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             // 5 seviyeli tehdit kategorileri
             if (threatLevel > 0.8)
                 return 1.0; // Çok yüksek tehdit
-            else if (threatLevel > 0.6)
+            else if (threatLevel > 0.65)
                 return 0.8; // Yüksek tehdit
-            else if (threatLevel > 0.4)
+            else if (threatLevel > 0.50)
                 return 0.6; // Orta tehdit
-            else if (threatLevel > 0.2)
+            else if (threatLevel > 0.25)
                 return 0.4; // Düşük tehdit
             else
                 return 0.2; // Çok düşük tehdit

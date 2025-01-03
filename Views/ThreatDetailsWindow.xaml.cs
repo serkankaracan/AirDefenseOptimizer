@@ -14,6 +14,11 @@ namespace AirDefenseOptimizer.Views
             InitializeComponent();
             ThreatDataGrid.ItemsSource = threatDetails;
         }
+
+        private void ThreatDataGrid_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+
+        }
     }
 
     public class ThreatDetail

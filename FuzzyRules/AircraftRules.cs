@@ -85,10 +85,12 @@ namespace AirDefenseOptimizer.FuzzyRules
         /// </summary>
         private string DetermineThreatLevel(
             EnumAircraft.Speed speed,
+            EnumAircraft.Range range,
             EnumAircraft.MaxAltitude altitude,
             EnumAircraft.Maneuverability maneuverability,
             EnumAircraft.EcmCapability ecmCapability,
             EnumAircraft.RadarCrossSection rcs,
+            EnumAircraft.PayloadCapacity payloadCapacity,
             EnumAircraft.Cost cost)
         {
             int score = 0;

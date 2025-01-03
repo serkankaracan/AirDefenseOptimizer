@@ -22,7 +22,7 @@
                        HorizontalAlignment="Center" />
 
             <!-- İsim ve Unvan -->
-            <TextBlock Text="Serkan KARACAN" 
+            <TextBlock Text="İsmail CIRRIK" 
                        FontSize="24" 
                        FontWeight="Bold" 
                        Foreground="#2E8B57"
@@ -34,7 +34,7 @@
                        HorizontalAlignment="Center" />
 
             <!-- Alt Metin -->
-            <TextBlock Text="Bu yazılım, hava savunma sistemleri optimizasyonu alanında İsmail CIRRIK'in yüksek lisans tezi kapsamında tasarlanmış olup, Serkan KARACAN tarafından kodlanmıştır."
+            <TextBlock Text="Bu yazılım, hava savunma sistemleri optimizasyonu alanında İsmail CIRRIK'in yüksek lisans tezi kapsamında tasarlanmış olup, İsmail CIRRIK tarafından kodlanmıştır."
                        FontSize="14" 
                        TextAlignment="Center" 
                        TextWrapping="Wrap" 

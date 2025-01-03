@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <!-- Başlık -->
-        <TextBlock Grid.Row="0" Text="Radar Yönetimi" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Text="Radar Management" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
         <!-- Bilgilendirici Mesaj -->
         <TextBlock Grid.Row="1" Text="Here you can manage radar records. You can add, search, preview, edit, or delete radars." 
@@ -45,15 +45,15 @@
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150"/>
                 <DataGridTextColumn Header="Type" Binding="{Binding RadarType}" Width="100"/>
-                <DataGridTextColumn Header="Max Detection Targets" Binding="{Binding MaxDetectionTargets}" Width="100"/>
-                <DataGridTextColumn Header="Max Tracking Targets" Binding="{Binding MaxTrackingTargets}" Width="100"/>
-                <DataGridTextColumn Header="Min Range" Binding="{Binding MinDetectionRange}" Width="100"/>
-                <DataGridTextColumn Header="Max Range" Binding="{Binding MaxDetectionRange}" Width="100"/>
-                <DataGridTextColumn Header="Min Altitude" Binding="{Binding MinAltitude}" Width="100"/>
-                <DataGridTextColumn Header="Max Altitude" Binding="{Binding MaxAltitude}" Width="100"/>
-                <DataGridTextColumn Header="Max Target Speed" Binding="{Binding MaxTargetSpeed}" Width="120"/>
-                <DataGridTextColumn Header="Max Target Velocity" Binding="{Binding MaxTargetVelocity}" Width="120"/>
-                <DataGridTextColumn Header="Redeployment Time" Binding="{Binding RedeploymentTime}" Width="130"/>
+                <DataGridTextColumn Header="Max Detection Targets" Binding="{Binding MaxDetectionTargets}" Width="120"/>
+                <DataGridTextColumn Header="Max Tracking Targets" Binding="{Binding MaxTrackingTargets}" Width="120"/>
+                <DataGridTextColumn Header="Min Range (km)" Binding="{Binding MinDetectionRange}" Width="120"/>
+                <DataGridTextColumn Header="Max Range (km)" Binding="{Binding MaxDetectionRange}" Width="120"/>
+                <DataGridTextColumn Header="Min Altitude (m)" Binding="{Binding MinAltitude}" Width="100"/>
+                <DataGridTextColumn Header="Max Altitude (m)" Binding="{Binding MaxAltitude}" Width="100"/>
+                <DataGridTextColumn Header="Max Target Speed (km/s)" Binding="{Binding MaxTargetSpeed}" Width="140"/>
+                <DataGridTextColumn Header="Max Target Velocity (m/s)" Binding="{Binding MaxTargetVelocity}" Width="140"/>
+                <DataGridTextColumn Header="Redeployment Time (s)" Binding="{Binding RedeploymentTime}" Width="140"/>
 
                 <!-- İşlem Sütunu -->
                 <DataGridTemplateColumn Header="Actions" Width="200">

@@ -33,21 +33,21 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double altitudeFuzzy = _fuzzyCalculator.FuzzyfyAltitude(altitude);
             double costFuzzy = _fuzzyCalculator.FuzzyfyCost(cost);
 
-            string message = $"Radar Cross Section Fuzzy: {radarCrossSectionFuzzy}\n" +
-                 $"ECM Capability Fuzzy: {ecmCapabilityFuzzy}\n" +
-                 $"Distance Fuzzy: {distanceFuzzy}\n" +
-                 $"Speed Fuzzy: {speedFuzzy}\n" +
-                 $"Maneuverability Fuzzy: {maneuverabilityFuzzy}\n" +
-                 $"Altitude Fuzzy: {altitudeFuzzy}\n" +
-                 $"Cost Fuzzy: {costFuzzy}";
+            //string message = $"Radar Cross Section Fuzzy: {radarCrossSectionFuzzy}\n" +
+            //     $"ECM Capability Fuzzy: {ecmCapabilityFuzzy}\n" +
+            //     $"Distance Fuzzy: {distanceFuzzy}\n" +
+            //     $"Speed Fuzzy: {speedFuzzy}\n" +
+            //     $"Maneuverability Fuzzy: {maneuverabilityFuzzy}\n" +
+            //     $"Altitude Fuzzy: {altitudeFuzzy}\n" +
+            //     $"Cost Fuzzy: {costFuzzy}";
 
-            MessageBox.Show(message, "Fuzzy Values", MessageBoxButton.OK, MessageBoxImage.Information);
+            //MessageBox.Show(message, "Fuzzy Values", MessageBoxButton.OK, MessageBoxImage.Information);
 
 
             //double munitionThreatContribution = CalculateMunitionThreatContribution(aircraft.Munitions);
             double munitionThreatContribution = CalculateFuzzyMunitionThreatContribution(aircraft.Munitions);
 
-            MessageBox.Show($"munitionThreatContribution: {munitionThreatContribution}");
+            //MessageBox.Show($"munitionThreatContribution: {munitionThreatContribution}");
 
             double aircraftThreatLevel = _fuzzyCalculator.ApplyFuzzyRules(speedFuzzy, radarCrossSectionFuzzy, ecmCapabilityFuzzy, distanceFuzzy, maneuverabilityFuzzy, altitudeFuzzy, costFuzzy);
 
@@ -65,25 +65,39 @@ namespace AirDefenseOptimizer.FuzzyCalculator
             double totalMunitionsContribution = 0;
 
             // Ağırlıklar
-            double weightExplosivePower = 0.35;
-            double weightRange = 0.25;
-            double weightSpeed = 0.25;
+            double weightExplosivePower = 0.30;
+            double weightRange = 0.20;
+            double weightSpeed = 0.20;
             double weightManeuverability = 0.15;
+            double weightQuantity = 0.15; // Mühimmat sayısını hesaba katacak ağırlık
 
             foreach (var munition in munitions)
             {
+                // Her parametreyi bulanıklaştır
                 double explosivePower = _munitionCalculator.FuzzifyExplosivePower(munition.Munition.ExplosivePower);
                 double range = _munitionCalculator.FuzzifyRange(munition.Munition.Range);
                 double speed = _munitionCalculator.FuzzifySpeed(munition.Munition.Speed);
                 double maneuverability = _munitionCalculator.FuzzifyManeuverability(munition.Munition.Maneuverability);
 
-                totalMunitionsContribution += ((weightExplosivePower * explosivePower) +
-                                        (weightRange * range) +
-                                        (weightSpeed * speed) +
-                                        (weightManeuverability * maneuverability)) * munition.Quantity;
+                // Mühimmat miktarını normalize et
+                double quantity = Normalize(munition.Quantity, 1, 6); // 1 ile 10 arasında normalize varsayımı
+
+                // Her mühimmatın katkısını hesapla
+                double munitionContribution = (weightExplosivePower * explosivePower) +
+                                              (weightRange * range) +
+                                              (weightSpeed * speed) +
+                                              (weightManeuverability * maneuverability) +
+                                              (weightQuantity * quantity);
+
+                // Toplam katkıya ekle
+                totalMunitionsContribution += munitionContribution;
             }
 
-            return Normalize(totalMunitionsContribution, 0, 6);
+            // Maksimum katkıyı belirleyin (mühimmat sayısını da dikkate alarak)
+            double maxPossibleContribution = munitions.Count * (weightExplosivePower + weightRange + weightSpeed + weightManeuverability + weightQuantity);
+
+            // Tüm mühimmatların toplam katkısını normalize et ve döndür
+            return Normalize(totalMunitionsContribution, 0, maxPossibleContribution);
         }
 
         double CalculateMunitionThreatContribution(List<AircraftMunition> munitions)

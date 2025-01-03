@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <!-- Başlık -->
-        <TextBlock Grid.Row="0" Text="Mühimmat Yönetimi" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="0" Text="Munition Management" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,10"/>
 
         <!-- Bilgilendirici Mesaj -->
         <TextBlock Grid.Row="1" Text="Here you can manage munitions. You can add, search, preview, edit, or delete munitions." 
@@ -41,12 +41,12 @@
                 <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="50"/>
                 <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="150"/>
                 <DataGridTextColumn Header="Type" Binding="{Binding MunitionType}" Width="100"/>
-                <DataGridTextColumn Header="Weight" Binding="{Binding Weight}" Width="100"/>
-                <DataGridTextColumn Header="Speed" Binding="{Binding Speed}" Width="100"/>
-                <DataGridTextColumn Header="Range" Binding="{Binding Range}" Width="100"/>
+                <DataGridTextColumn Header="Weight (kg)" Binding="{Binding Weight}" Width="100"/>
+                <DataGridTextColumn Header="Speed (km/s)" Binding="{Binding Speed}" Width="100"/>
+                <DataGridTextColumn Header="Range (km)" Binding="{Binding Range}" Width="100"/>
                 <DataGridTextColumn Header="Maneuverability" Binding="{Binding Maneuverability}" Width="120"/>
                 <DataGridTextColumn Header="Explosive Power" Binding="{Binding ExplosivePower}" Width="120"/>
-                <DataGridTextColumn Header="Cost" Binding="{Binding Cost}" Width="100"/>
+                <DataGridTextColumn Header="Cost ($)" Binding="{Binding Cost}" Width="100"/>
 
                 <!-- İşlem Sütunu -->
                 <DataGridTemplateColumn Header="Actions" Width="200">
